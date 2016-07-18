@@ -1,0 +1,145 @@
+This is the sixth release of the Iedera software : this command line
+tool allows to design and select subset seeds according to Bernoulli,
+Markov or any HMM model
+
+Version 1.00
+============
+- Fork of the Hedera program, but without any nucleotide seed
+- Vectorized subset seed model proposed
+- Hopcroft algorithm has been modified : the old version was in fact
+not really carefully programmed and thus worked in more than n.log(n)
+
+Version 1.01
+============
+- new subset seed automaton implementation used (CIAA07 algorithm).
+- possibility to index sequence on "one in cycle'" positions : phase
+for multiple seeds is optimized. This is the "-c" parameter
+- hill climbing heuristic (-k command)
+- keep (minimized) automata of seeds that remain unchanged (faster)
+- homogeneous model added [Not Command Lined yet]
+- input/output of automata added [Not Command Lined yet]
+- bug solved in the PARSEMATRIX column count
+- pareto set file input/output (to merge previously computed results)
+- bug solved on complete enumeration (memory leak)
+
+Version 1.02
+============
+- "homogeneous model" modified and command-lined
+- add "-transitive" and "-spaced" command-line parameters to provide 
+  "nucleic seeds"
+- add "-BSymbols"
+
+Version 1.03
+============
+- "-mx" exclude pattern parameter added
+- "-MF" and "-MS" files parameters ... (command line limits)
+- Lossless seeds added (work in progress)
+- Cycle algorithm modified (now phase is always fixed ... it is a more
+  usefull case) with (for each seed) independent cycles and number of
+  seeds inside the cycle
+- Cycle algorithm command lined for the "-m" option
+- Homogeneous algorithm and parameters modified (no max score, now the
+  score of full length alignment must be >= than any subpart of it)
+
+Version 1.04
+============
+- "-fF" option added to input the probabilistic automaton used to
+estimate the sensitivity. This parameter can also be used in lossless
+mode :
+  -> In lossless mode, if some final states are present in this
+     automaton, they  are considered as "matching" ones independently
+     of the seed chosen, thus  "increasing" in some way the language
+     recognized by the seed ... they can thus be considered as reject
+     states since they are alway matching (note that the lossless
+     algorithm only focus on non final states)
+  -> In lossy mode, final states are excluded from the language being 
+     recognized
+- Bug on the hillclimbing process solved
+- Seed positions are now also optimized in the hillclimbing heuristic
+- Symetric spaced seeds option added (not in very efficient way,
+  usefull anyway)
+
+
+Version 1.05
+============
+- Seed positions optimized without "self-coverage" between positions 
+- multihit "-y" parameter added : it computes the multihit criterion,
+  with overlap between seeds. (Hopcroft minimization now accepts
+  differently labelled final set of states)
+
+
+Version 1.05b
+-------------
+- Bug on positioned seeds has been solved (not all the positions were
+  considered)
+- Improvement on positioned seeds (during hillclimbing)
+
+
+Version 1.06
+============
+- Automata "Lists" have been replaced by "Vectors" (backlist if need)
+- Matrices are now used to compute sensitivity (Sparce "row" implem.)
+- Sliced matrix sensitivity computation has been implemented, together
+  with the naive algorithm, the "-ll" param. uses this implementation
+  to compute "minimal" sensitivity / lossless property of sub-models
+- Doxygen documentation improved [work in progress]
+- Matrix rows have now a sparse/dense automatic choice : better for
+  sliced matrix sensitivity computation
+- LDFLAGS replaced by LIBS in autotools : (gcc 4.5/4.6)
+- Bug on "Automaton_SeedScore" and "Automaton_SeedScoreCost" has been
+  solved
+- "-mx" has been extended to cycles, and a new "-mxy" multihit
+  criterion has been added to it
+- Non Sliced version modified to keep a vector
+- Bug on "Transpose" final row flag (index out of bound) solved
+- Bug on "Main" number of -ll windows computer (both Slicer/NonSlicer)
+- Added (toghether with the -ll option) an option -llf to choose the 
+  function that is used to merge sensitivity of all the sub-windows
+- Adding hill-climbimg seed edit function on local search optimisation
+- Verbose mode "-v" added with different levels
+- Coverage sensitivity computation has been implemented, as in
+  "Donald Martin 13" : the "-g" parameter uses this implementation to
+  compute the "coverage sensitivity" : two normalised macros have been
+  added to reduce the number of states of this automaton
+- Adding the possibility to combine -m with -r 10000 -k : seeds that
+  are given as -m input are mod first to start hillclimbing process
+- Modifying the hill-climbing process for the swap : starting pos is
+  now selected randomly, and not from the beginning (but the full
+  enumeration is still kept)
+- Adding a transitive function to generate all the multi-hit/coverage 
+  classes for a seed or a set of seeds. [Not Command Lined yet, but
+  the output can be seen if "dominance" is activated, see below]
+
+- Adding a sampling procedure for single-hit and multihit sensitivity
+  in order to design "larger seed families" (Martin Frith)
+  [Not Command lined : #define SAMPLING_STRATEGY_MF]
+- Adding the possibility to keep previously computed seed products to
+  reuse them during hillclimbing/full enumeration (Martin Frith)
+  [Not Command lined : #define KEEP_PRODUCT_MF]
+
+- Adding in addition to the "Cost" and "Prob" semi-rings, a "Count"
+  semi-ring: counts are done by default on "long long" integers
+  (64 bits) so overflow are easy ; there is a possibility to compute
+  "infinite"  Integer sequences for  correlation or count with the
+  InfInt header from :
+      http://cppip.blogspot.fr/2013/05/infint-downloads.html 
+  but it is much slower ... so it's disabled by default
+  [Not Command lined : #define USEINFINT]
+
+- Adding the Pearson/Spearman correlation computation for coverage or
+  multi-hit available for -y and -g (e.g. -g PEARSON or -g SPEARMAN)
+  
+  Adding a "lcm.cc" program to generate normalization coefficients
+  + a "binomial_weight.h" generated by this lcm.cc program and used
+  to generate large tables when correlation computation is activated
+
+- Adding a "Dominance" seed selection, as in [Mak & Benson 2009], 
+  with an option "-p" to activate it : will input/ouput polynomials
+  coefficients on an additional column (format described in the help)
+
+- <ONGOING>
+  Possibility to compute the linear subset automaton : this is
+  useful for the "Homology" part of the [Morgenstern & all. 2015]
+  variance
+  [Not Command Lined yet : set "gv_covariance_flag = true;"]
+

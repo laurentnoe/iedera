@@ -282,7 +282,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 iedera_SOURCES = main.cc automaton.cc seed.cc macro.cc \
 		         automaton.h  seed.h  macro.h  \
-                 matrix.hh cost.hh automaton.hh polynomial.hh
+                 matrix.hh cost.hh automaton.hh polynomial.hh infint.hh
 
 EXTRA_DIST = binomial_weight.h lcm.cc 
 all: all-am

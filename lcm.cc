@@ -6,7 +6,7 @@ using namespace std;
 
 #ifdef USEINFINT
 #include "infint.hh"
-#define BIGINT InfInt<long long int>
+#define BIGINT infint<long long int>
 #else
 #define BIGINT __uint128_t
 #endif
@@ -89,7 +89,7 @@ int main() {
 
 #ifdef USEINFINT
   cout << "#ifdef USEINFINT" << endl;
-  cout << "InfInt<long long int> binomial_weight[N_binomial_weight+1][N_binomial_weight+1] = {" << endl;
+  cout << "infint<long long int> binomial_weight[N_binomial_weight+1][N_binomial_weight+1] = {" << endl;
   lcm = 1;
   for (k_plus_1 = 1; k_plus_1 <= N+1 ; k_plus_1++) {
     lcm = LCM(lcm,k_plus_1);
@@ -105,7 +105,7 @@ int main() {
     long long int k = k_plus_1 - 1;
     for (i = 0; i <= k ; i++) {
       BIGINT lcm_div_k_plus_1_div_binomial_k_i = lcm_div_k_plus_1/(BINOMIAL[k][i]);
-      cout << "\t\t /* llcm / Binomial{(k=" << k << "),(i=" << i << ")} = */ InfInt<long long int>(\"" << ((lcm_div_k_plus_1_div_binomial_k_i)) <<"\") ," << endl;
+      cout << "\t\t /* llcm / Binomial{(k=" << k << "),(i=" << i << ")} = */ infint<long long int>(\"" << ((lcm_div_k_plus_1_div_binomial_k_i)) <<"\") ," << endl;
     }
     cout << "\t}," << endl;
   }

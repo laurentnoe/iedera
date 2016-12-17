@@ -14,7 +14,6 @@ int                    gv_nbruns = 0;
 bool                   gv_matching_symbol_flag = true;
 int                    gv_alignment_length = 64;
 int                    gv_verbose = 1;
-#ifndef NOMATRIX
 bool                   gv_subalignment_flag = false;
 int                    gv_subalignment_length = 0;
 int                    gv_subalignment_function_index = 0;
@@ -38,7 +37,6 @@ subalignment_function_double gv_subalignment_functions_double[SUBALIGNMENT_FUNCT
   (subalignment_function_double)  &avg_vector<double>,
   (subalignment_function_double)  &med_vector<double>
 };
-#endif
 
 int                    gv_align_alphabet_size = 2;
 int                    gv_seed_alphabet_size = 2;

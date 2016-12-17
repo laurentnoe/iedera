@@ -1,6 +1,6 @@
 /**
  * @mainpage iedera
- * @version 1.06
+ * @version 1.07
  * @section Introduction
  *   Iedera is a program to select and design subset seeds and vectorized
  *   subset seeds. This program heavily relies on automaton theory to compute the
@@ -14,7 +14,7 @@
  * <A HREF="http://bioinfo.lifl.fr/yass/iedera.php">http://bioinfo.lifl.fr/yass/iedera.php</A>\n
  * A small tutorial to use iedera is also provided on this web page.\n
  *
- * @author <A HREF="http://www.lifl.fr/~noe" TARGET="_top">Laurent Noe</A>
+ * @author <A HREF="http://www.cristal.univ-lille.fr/~noe" TARGET="_top">Laurent Noe</A>
  * @author <A HREF="http://www.mccme.ru/lifr/pers/roytberg.htm">Mikhail Roytberg</A>
  * @author <A HREF="http://www-igm.univ-mlv.fr/~koutcher/" TARGET="_top">Gregory Kucherov</A>
  *
@@ -26,6 +26,7 @@
  *         used to parametrise the computation
  */
 // @{
+
 
 //C stuff
 #include <stdio.h>
@@ -52,21 +53,20 @@
 using namespace std;
 //STR
 #include "macro.h"
-#include "automaton.h"
 #include "seed.h"
+#include "automaton.hh"
+#include "matrix.hh"
+
 
 #ifdef USEINFINT
 #include "infint.hh"
 /// BIGINT polynomial coefs computation defined as Infinite Integer (much slower ... but overflow secure)
-#define BIGINT infint<long long int>
+#define BIGINT infint<long long>
 #else
-/// BIGINT polynomial coefs computation defined as long long int (quite fast ... but overflows quickly ...)
-#define BIGINT long long
+/// BIGINT polynomial coefs computation defined as long long (quite fast ... but overflows quickly ...)
+#define BIGINT unsigned long long
 #endif
 
-#ifndef NOMATRIX
-#include "matrix.hh"
-#endif
 
 /** @name program name and version number
  *  @brief defined if not provided by the compiler
@@ -80,7 +80,7 @@ using namespace std;
 
 #ifndef VERSION
 /// iedera program version
-#define VERSION "1.06"
+#define VERSION "1.07"
 #endif
 // @}
 
@@ -101,13 +101,13 @@ void build_default_subsetseed_matching_matrix();
 /// foreground sensitivities
 std::vector< double >       gv_bsens;
 /// k-order model when Markov is activated (0 for Bernoulli) @see gv_bsens_k
-int                    gv_bsens_k = 0;
+int                         gv_bsens_k = 0;
 /// probabilistic automaton associated with the sensitivity computation @see gv_bsens
-automaton   *          gv_bsens_automaton = NULL;
+automaton <double> *        gv_bsens_automaton = NULL;
 /// background seletivities  @see gv_bsel_k
-std::vector< double >       gv_bsel;
+std::vector<double>         gv_bsel;
 /// k-order model when Markov is activated (0 for Bernoulli) @see gv_bsel
-int                    gv_bsel_k = 0;
+int                         gv_bsel_k = 0;
 /// build probabilities @see gv_bsens,gv_bsens_k,gv_bsel,gv_bsel_k
 void build_default_probabilities();
 // @}
@@ -119,9 +119,9 @@ void build_default_probabilities();
 /// vector scoring matrix when vectorized subset seeds are activated @see gv_vectorized_flag,gv_vectorizedsubsetseed_scoring_threshold
 std::vector< std::vector<int> >  gv_vectorizedsubsetseed_scoring_matrix;
 /// scoring threshold for a vectorized subset seed @see gv_vectorizedsubsetseed_scoring_matrix
-int                    gv_vectorizedsubsetseed_scoring_threshold = 0;
+int                              gv_vectorizedsubsetseed_scoring_threshold = 0;
 /// flag that activates vectorized subset seeds (default subset seed)
-bool                   gv_vectorized_flag = false;
+bool                             gv_vectorized_flag = false;
 /// build an initial matrix gv_vectorizedsubsetseed_scoring_matrix @see gv_vectorizedsubsetseed_scoring_matrix
 void build_default_vectorizedsubsetseed_scoring_matrix();
 // @}
@@ -326,7 +326,6 @@ void USAGE() {
   cerr << "      -fF <filename>          : set the foreground model (as a probabilistic NFA)" << endl;
   cerr << "                                for more details, see http://bioinfo.lifl.fr/yass/iedera.php#fFFormat" << endl;
   cerr << "      -l <int>                : set the alignment length (default = " <<  gv_alignment_length << ") " << endl;
-#ifndef NOMATRIX
   cerr << "      -ll <int>               : select the sub-align window computation and set its length (default = disabled)" << endl;
   cerr << "      -llf <function>         : set the sub-align function used to merge the results (default = \"min\")" << endl;
   cerr << "         * note    : available functions are ";
@@ -334,7 +333,6 @@ void USAGE() {
     cerr << " \"" << gv_subalignment_functions_names[i] << "\"";
   }
   cerr << endl;
-#endif
   cerr << "      -u <int>,<int>,...      : select the homogeneous alignment model and set the scores (default = disabled)" << endl;
   cerr << "                                                                               " << endl;
   cerr << "   3) Seed Selection / Enumeration :" << endl;
@@ -477,7 +475,7 @@ void PARSEINTORENUM(int & i,  char ** argv, int argc, int & var, int min, int ma
     cerr << "[*] = (";
     for (int j = 0; j < enum_string_values_size; j++) {
       if (j)
-      cerr << ",";
+        cerr << ",";
       cerr << (enum_string_values[j]);
     }
     cerr << ")" << endl;
@@ -705,7 +703,7 @@ void PARSEPROBS(int & i, char ** argv, int argc,
 }
 
 /// parse and check a set of probabilities as an automaton file
-void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton ** p_a) {
+void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> ** p_a) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPROBAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
@@ -718,7 +716,7 @@ void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton ** p_a) 
   }
 
   // read the content and set the automaton
-  *p_a = new automaton();
+  *p_a = new automaton<double>();
 
   ifs_file >> (**p_a);
   ifs_file.close();
@@ -964,6 +962,7 @@ void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector< std::vector<i
     return;
   else
     _ERROR("PARSEMATRIXFILE","\" unfinished string parameter \"" << argv[i] << "\" ");
+  ifs_file.close();
 }
 
 
@@ -1365,9 +1364,7 @@ void SCANARG(int argc , char ** argv) {
     USAGE();
   }
 
-
   for (int i = 1; i < argc; i++){
-
     // 1) Seed model
     if (!strcmp(argv[i],"-A")||!strcmp(argv[i],"--A")) {
       PARSEINT(i, argv, argc, gv_align_alphabet_size, 2, 1024);
@@ -1453,7 +1450,6 @@ void SCANARG(int argc , char ** argv) {
       PARSEPROBSAUTOMATONFILE(i, argv, argc,&gv_bsens_automaton);
     } else if (!strcmp(argv[i],"-l")||!strcmp(argv[i],"--length")) {
       PARSEINT(i, argv, argc, gv_alignment_length, 1, 1000000);
-#ifndef NOMATRIX
       if (gv_subalignment_flag && gv_subalignment_length >= gv_alignment_length) {
         _ERROR(" \"-l\" alignment length value is set UNDER the sub-alignment length \"-ll\"" ,"you must provide alignment length GREATER THAN sub-alignment length");
       }
@@ -1466,7 +1462,6 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-llf")||!strcmp(argv[i],"--sublengthfunction")) {
       PARSESTRING(i, argv, argc, gv_subalignment_function_index, gv_subalignment_functions_names,
                   sizeof(gv_subalignment_functions_names) / sizeof(*gv_subalignment_functions_names));
-#endif
     } else if (!strcmp(argv[i],"-u")||!strcmp(argv[i],"--homogeneous")) {
       if (gv_correlation_flag) {
         _ERROR("\"-g /or/ -y <CORRELATION>\" and \"-u\" homogeneous are not compatible together","<not implemented yet, but do you need it ?>");
@@ -1549,9 +1544,9 @@ void SCANARG(int argc , char ** argv) {
 #ifndef USEINFINT
       if (gv_correlation_flag) {
 #ifdef __SIZEOF_INT128__
-      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
 #else
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
 #endif
       }
 #endif
@@ -1589,9 +1584,9 @@ void SCANARG(int argc , char ** argv) {
 #ifndef USEINFINT
       if (gv_correlation_flag) {
 #ifdef __SIZEOF_INT128__
-      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
 #else
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
 #endif
       }
 #endif
@@ -1606,7 +1601,7 @@ void SCANARG(int argc , char ** argv) {
       gv_polynomial_dominant_selection_flag = true;
 #ifndef USEINFINT
       if (gv_polynomial_dominant_selection_flag) {
-      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
       }
 #endif
       //<<
@@ -1839,23 +1834,23 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         BIGINT p_count_number = number * p_count;
 #else
 #ifdef __SIZEOF_INT128__
-        #warning "undefined USEINFINT (no infinite precision integer) : Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <uint128> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
+#warning "undefined USEINFINT (no infinite precision integer) : very specific functions as Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <uint128> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
         __uint128_t number         = (*polynom)[i].second;
         __uint128_t y_count_number = number * y_count;
         __uint128_t p_count_number = number * p_count;
 #else
-        #warning "undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>) : Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <double> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
+#warning "undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>) : very specific functions as Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <double> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
         double number         = (*polynom)[i].second;
         double y_count_number = number * y_count;
         double p_count_number = number * p_count;
 #endif
 #endif
-         y[p_count] =  y[p_count] + y_count_number;
+        y[p_count] =  y[p_count] + y_count_number;
         y2[p_count] = y2[p_count] + y_count_number * y_count;
-         p[p_count] =  p[p_count] + p_count_number;
+        p[p_count] =  p[p_count] + p_count_number;
         p2[p_count] = p2[p_count] + p_count_number * p_count;
         yp[p_count] = yp[p_count] + y_count_number * p_count;
-         n[p_count] =  n[p_count] + number;
+        n[p_count] =  n[p_count] + number;
       }
 
       // "p"/gv_alignment_length partial sums to full sums >>
@@ -1864,30 +1859,30 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         // normalize sets by their binomial weight
         for (u = 0 ; u <= gv_alignment_length; u++) {
 #ifdef USEINFINT
-           y_sum[u] = binomial_weight[gv_alignment_length][u] *  y[u];
+          y_sum[u] = binomial_weight[gv_alignment_length][u] *  y[u];
           y2_sum[u] = binomial_weight[gv_alignment_length][u] * y2[u];
-           p_sum[u] = binomial_weight[gv_alignment_length][u] *  p[u];
+          p_sum[u] = binomial_weight[gv_alignment_length][u] *  p[u];
           p2_sum[u] = binomial_weight[gv_alignment_length][u] * p2[u];
           yp_sum[u] = binomial_weight[gv_alignment_length][u] * yp[u];
-           n_sum[u] = binomial_weight[gv_alignment_length][u] *  n[u];
+          n_sum[u] = binomial_weight[gv_alignment_length][u] *  n[u];
 #else
-           y_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  y[u];
+          y_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  y[u];
           y2_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) y2[u];
-           p_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  p[u];
+          p_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  p[u];
           p2_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) p2[u];
           yp_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) yp[u];
-           n_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  n[u];
+          n_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  n[u];
 #endif
         }
 
         // overlap counts
         for (u = gv_alignment_length; u > 0 ; u--) {
-           y_sum[u-1] =  y_sum[u-1] +  y_sum[u];
+          y_sum[u-1] =  y_sum[u-1] +  y_sum[u];
           y2_sum[u-1] = y2_sum[u-1] + y2_sum[u];
-           p_sum[u-1] =  p_sum[u-1] +  p_sum[u];
+          p_sum[u-1] =  p_sum[u-1] +  p_sum[u];
           p2_sum[u-1] = p2_sum[u-1] + p2_sum[u];
           yp_sum[u-1] = yp_sum[u-1] + yp_sum[u];
-           n_sum[u-1] =  n_sum[u-1] +  n_sum[u];
+          n_sum[u-1] =  n_sum[u-1] +  n_sum[u];
         }
       }
       // << "p"/gv_alignment_length
@@ -1898,18 +1893,18 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         BIGINT covyp  =       yp_sum[min_p] * n_sum[min_p] - y_sum[min_p] * p_sum[min_p];
         BIGINT sigy2  =       y2_sum[min_p] * n_sum[min_p] - y_sum[min_p] * y_sum[min_p];
         BIGINT sigp2  =       p2_sum[min_p] * n_sum[min_p] - p_sum[min_p] * p_sum[min_p];
-      BIGINT sqrt_sigy2_sigp2 = (sigy2 * sigp2).intSqrt();
-      while (covyp > BIGINT(~((long long int)1<<(sizeof(long long int)*8-1))) || sqrt_sigy2_sigp2 > BIGINT(~((long long int)1<<(sizeof(long long int)*8-1)))) {
-        covyp /= 2;
-        sqrt_sigy2_sigp2 /= 2;
-      }
-      double result = (double)(covyp.toLongLong())/(double)(sqrt_sigy2_sigp2.toLongLong());
-      return result;
+        BIGINT sqrt_sigy2_sigp2 = (sigy2 * sigp2).intSqrt();
+        while (covyp > BIGINT(~((long long)1<<(sizeof(long long)*8-1))) || sqrt_sigy2_sigp2 > BIGINT(~((long long)1<<(sizeof(long long)*8-1)))) {
+          covyp /= 2;
+          sqrt_sigy2_sigp2 /= 2;
+        }
+        double result = (double)(covyp.toLongLong())/(double)(sqrt_sigy2_sigp2.toLongLong());
+        return result;
 #else
         double covyp  =       yp_sum[min_p] * n_sum[min_p] - y_sum[min_p] * p_sum[min_p];
         double sigy2  = sqrt( y2_sum[min_p] * n_sum[min_p] - y_sum[min_p] * y_sum[min_p]);
         double sigp2  = sqrt( p2_sum[min_p] * n_sum[min_p] - p_sum[min_p] * p_sum[min_p]);
-      return covyp / (sigy2*sigp2);
+        return covyp / (sigy2*sigp2);
 #endif
       }
     }
@@ -1931,7 +1926,7 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
       for (unsigned i = 0; i < polynom->size(); i++) {
         int p_count = (*polynom)[i].first.first;
         int y_count = (*polynom)[i].first.second;
-      BIGINT number = (*polynom)[i].second;
+        BIGINT number = (*polynom)[i].second;
         if (p_count >= min_p) {
 #ifdef USEINFINT
           p[p_count] += binomial_weight[gv_alignment_length][p_count] * number;
@@ -1956,14 +1951,14 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
 
 #ifdef USEINFINT
       for (int u = min_p; u <= gv_alignment_length; u++)
-      twelve_mc_p += ((p[u]*p[u] - 1) * p[u]);
+        twelve_mc_p += ((p[u]*p[u] - 1) * p[u]);
       for (int u = 0; u <= gv_alignment_length; u++)
-      twelve_mc_y += ((y[u]*y[u] - 1) * y[u]);
+        twelve_mc_y += ((y[u]*y[u] - 1) * y[u]);
 #else
       for (int u = min_p; u <= gv_alignment_length; u++)
-           mc_p += ((p[u]*p[u] - 1) * p[u]) / 12.0;
+        mc_p += ((p[u]*p[u] - 1) * p[u]) / 12.0;
       for (int u = 0; u <= gv_alignment_length; u++)
-           mc_y += ((y[u]*y[u] - 1) * y[u]) / 12.0;
+        mc_y += ((y[u]*y[u] - 1) * y[u]) / 12.0;
 #endif
 
       // measure rank difference
@@ -1976,7 +1971,7 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
       for (unsigned i = 0; i < polynom->size(); i++) {
         int p_count = (*polynom)[i].first.first;
         int y_count = (*polynom)[i].first.second;
-      BIGINT number = (*polynom)[i].second;
+        BIGINT number = (*polynom)[i].second;
         if (p_count >= min_p) {
 #ifdef USEINFINT
           BIGINT rank_p = 0;
@@ -2008,9 +2003,9 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
       BIGINT n3_minus_n =  ((full_sum*full_sum - 1) * full_sum);
       BIGINT num = (n3_minus_n - (d_square*6 + twelve_mc_p/2 + twelve_mc_y/2));
       BIGINT den = ((n3_minus_n - twelve_mc_p)*(n3_minus_n - twelve_mc_y)).intSqrt();
-      while (num > BIGINT(~((long long int)1<<(sizeof(long long int)*8-1))) || den > BIGINT(~((long long int)1<<(sizeof(long long int)*8-1)))) {
-      num /= 2;
-      den /= 2;
+      while (num > BIGINT(~((long long)1<<(sizeof(long long)*8-1))) || den > BIGINT(~((long long)1<<(sizeof(long long)*8-1)))) {
+        num /= 2;
+        den /= 2;
       }
       double result = (double)(num.toLongLong()) / (double)(den.toLongLong());
       return result;
@@ -2093,9 +2088,9 @@ public:
       int    this_p_count = this->polynom[i_this].first.first;
       int    this_y_count = this->polynom[i_this].first.second;
       BIGINT  this_number = this->polynom[i_this].second;
-      int   other_p_count =  other.polynom[i_other].first.first;
-      int   other_y_count =  other.polynom[i_other].first.second;
-      BIGINT other_number =  other.polynom[i_other].second;
+      int   other_p_count = other.polynom[i_other].first.first;
+      int   other_y_count = other.polynom[i_other].first.second;
+      BIGINT other_number = other.polynom[i_other].second;
 
       if (this_y_count > 0)
         i_this++;
@@ -2372,7 +2367,6 @@ double selectPareto(list<seedproperties> & l) {
  */
 
 double list_and_areaPareto(list<seedproperties> & l) {
-
   // (1) select pareto set and compute area
   double area = selectPareto(l);
   VERB_FILTER(VERBOSITY_MODERATE, INFO__("pareto area : " << area););
@@ -2422,8 +2416,8 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
           while (i != l.end() && i->sel + 1e-12 >= e.sel && i->sel - 1e-12 <= e.sel) {
-          if ((*i) == e)
-            return 0;
+            if ((*i) == e)
+              return 0;
             dist = MIN(dist, e.sens - i->sens);
             if (i->dominant(e)) {
               return dist;
@@ -2725,43 +2719,43 @@ void termin_handler( int signal ) {
 
 
 /// choose between a subset seed and a vectorized subset seed (when @ref gv_vectorized_flag is activated) , with lossless simplification (when @ref gv_lossless_flag is activated)
-#define SEEDAUTOMATON(automaton, seed, nomerge)                                    \
-  ( gv_vectorized_flag ?                                                           \
-    ( gv_lossless_flag ?                                                           \
-      ((automaton)->Automaton_SeedScoreCost(                                       \
-                                        *(seed),                                   \
-                                        gv_subsetseed_matching_matrix,             \
-                                        gv_vectorizedsubsetseed_scoring_matrix,    \
-                                        gv_vectorizedsubsetseed_scoring_threshold, \
-                                        nomerge,                                   \
-                                        gv_lossless_costs_vector,                  \
-                                        gv_lossless_cost_threshold                 \
-                                                           ))                      \
-      :                                                                            \
-      ((automaton)->Automaton_SeedScore(                                           \
-                                    *(seed),                                       \
-                                    gv_subsetseed_matching_matrix,                 \
-                                    gv_vectorizedsubsetseed_scoring_matrix,        \
-                                    gv_vectorizedsubsetseed_scoring_threshold,     \
-                                    nomerge                                        \
-                                                           ))                      \
-      )                                                                            \
-    :                                                                              \
-    ( gv_lossless_flag ?                                                           \
-      ((automaton)->Automaton_SeedPrefixesMatchingCost(                            \
-                                                   *(seed),                        \
-                                                   gv_subsetseed_matching_matrix,  \
-                                                   nomerge,                        \
-                                                   gv_lossless_costs_vector,       \
-                                                   gv_lossless_cost_threshold      \
-                                                          ))                       \
-      :                                                                            \
-      ((automaton)->Automaton_SeedPrefixesMatching(                                \
-                                               *(seed),                            \
-                                               gv_subsetseed_matching_matrix,      \
-                                               nomerge                             \
-                                                          ))                       \
-      )                                                                            \
+#define SEEDAUTOMATON(automaton, seed, nomerge)                         \
+  ( gv_vectorized_flag ?                                                \
+    ( gv_lossless_flag ?                                                \
+      ((automaton)->Automaton_SeedScoreCost(                            \
+                                            *(seed),                    \
+                                            gv_subsetseed_matching_matrix, \
+                                            gv_vectorizedsubsetseed_scoring_matrix, \
+                                            gv_vectorizedsubsetseed_scoring_threshold, \
+                                            nomerge,                    \
+                                            gv_lossless_costs_vector,   \
+                                            gv_lossless_cost_threshold  \
+                                                                        )) \
+      :									\
+      ((automaton)->Automaton_SeedScore(				\
+					*(seed),			\
+					gv_subsetseed_matching_matrix,	\
+					gv_vectorizedsubsetseed_scoring_matrix,	\
+					gv_vectorizedsubsetseed_scoring_threshold, \
+					nomerge				\
+									)) \
+      )									\
+    :									\
+    ( gv_lossless_flag ?						\
+      ((automaton)->Automaton_SeedPrefixesMatchingCost(			\
+						       *(seed),		\
+						       gv_subsetseed_matching_matrix, \
+						       nomerge,		\
+						       gv_lossless_costs_vector, \
+						       gv_lossless_cost_threshold \
+									)) \
+      :									\
+      ((automaton)->Automaton_SeedPrefixesMatching(			\
+						   *(seed),		\
+						   gv_subsetseed_matching_matrix, \
+						   nomerge		\
+									)) \
+      )									\
     )
 
 
@@ -2817,7 +2811,7 @@ int main(int argc, char * argv[]) {
   VERB_FILTER(VERBOSITY_MODERATE, INFO__("* seed alphabet weights "; DISPLAYTABLE(cerr, gv_bsel_weight)););
 
   // build the foreground/background models
-  automaton a_sel;
+  automaton<double> a_sel;
   if (gv_bsel_k == 0) {
     a_sel.Automaton_Bernoulli(gv_bsel);
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* background Bernoulli model "; DISPLAYTABLE(cerr, gv_bsel)););
@@ -2825,9 +2819,9 @@ int main(int argc, char * argv[]) {
     a_sel.Automaton_Markov(gv_bsel, gv_bsel_k);
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* background Markov model "; DISPLAYTABLE(cerr, gv_bsel)););
     VERB_FILTER(VERBOSITY_MODERATE, INFO__(" (order : " << (gv_bsel_k) << ")" ););
-}
+  }
 
-  automaton a_sens;
+  automaton<double> a_sens;
   if (!gv_bsens_automaton) {
     if (gv_bsens_k == 0) {
       a_sens.Automaton_Bernoulli(gv_bsens);
@@ -2842,9 +2836,8 @@ int main(int argc, char * argv[]) {
     a_sens = *gv_bsens_automaton;
   }
 
-  // build the lossless automaton if NOMATRIX is unselected (MATRIX thus is selected...)
-#ifndef NOMATRIX
-  automaton a_lossless;
+  // build the lossless automaton
+  automaton<int> a_lossless;
   double    lossless_set_sens = 1.0;
   if (gv_lossless_flag) {
     a_lossless.Automaton_Lossless(gv_lossless_costs_vector, gv_lossless_cost_threshold);
@@ -2853,7 +2846,17 @@ int main(int argc, char * argv[]) {
     delete              m_lossless_pr_sens;
     VERB_FILTER(VERBOSITY_MODERATE, INFO__(" - pr_div_lossless_set : " << lossless_set_sens ););
   }
-#endif
+
+
+  // build the cost automaton
+  automaton<cost<int> > a_cost;
+  if (gv_lossless_flag) {
+    vector<cost<int> > lossless_costs_vector(gv_seed_alphabet_size,cost<int>(0));
+    for (int i = 0; i < gv_seed_alphabet_size; i++)
+      lossless_costs_vector[i] = cost<int>(gv_lossless_costs_vector[i]);
+    a_cost.Automaton_Bernoulli(lossless_costs_vector);
+    //[FIXME]
+  }
 
   //
   // build the homogeneous automaton if requested and
@@ -2861,30 +2864,30 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_homogeneous = 1.00;
-  automaton * a_homogeneous = new automaton();
+  automaton<int> * a_homogeneous = new automaton<int>();
   if (gv_homogeneous_flag) {
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Homogeneous automaton : {";
-      for (int a = 0; a < gv_align_alphabet_size; a++) {
-        if  (a>0)  cerr << ",";
-        cerr << (gv_homogeneous_scores[a]);
-      }
-      cerr << "}";
-      ););
+					   for (int a = 0; a < gv_align_alphabet_size; a++) {
+					     if  (a>0)  cerr << ",";
+					     cerr << (gv_homogeneous_scores[a]);
+					   }
+					   cerr << "}";
+					   ););
 
     a_homogeneous->Automaton_Homogeneous(gv_homogeneous_scores, gv_alignment_length);
     VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - size : " << (a_homogeneous->size())););
     if (gv_minimize_flag) {
-      automaton * na = a_homogeneous->Hopcroft();
+      automaton<int> * na = a_homogeneous->Hopcroft();
       delete a_homogeneous;
       a_homogeneous = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - reduced size : " << (a_homogeneous->size())););
     }
-    automaton * a_product_homogeneous_sens = a_homogeneous->product(a_sens, PRODUCT_BUTNOT_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+    automaton<double> * a_product_homogeneous_sens = a_homogeneous->product(a_sens, PRODUCT_BUTNOT_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
 
     if (gv_lossless_flag) {
       pr_div_homogeneous = a_product_homogeneous_sens->PrLossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
     } else {
-      pr_div_homogeneous = a_product_homogeneous_sens->PrFinal(gv_alignment_length);
+      pr_div_homogeneous = a_product_homogeneous_sens->Pr(gv_alignment_length);
     }
 
     delete a_product_homogeneous_sens;
@@ -2898,25 +2901,25 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_excluded = 0.00;
-  automaton * a_excluded = NULL;
+  automaton<int> * a_excluded = NULL;
   if (gv_xseeds.size()) {
 
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Excluded automaton : ";
-      for (unsigned i = 0; i < gv_xseeds.size(); i++) {
-        if  (i>0)  cerr << ",";
-        cerr << (gv_xseeds[i])->str();
-      }
-    ););
+					   for (unsigned i = 0; i < gv_xseeds.size(); i++) {
+					     if  (i>0)  cerr << ",";
+					     cerr << (gv_xseeds[i])->str();
+					   }
+					   ););
 
     // a) build the excluded seed automaton
     for (unsigned i = 0; i < gv_xseeds.size(); i++){
 
-      automaton * a_se = new automaton();
+      automaton<int> * a_se = new automaton<int>();
       VERB_FILTER(VERBOSITY_MODERATE, INFO__(" = seed : " << (*gv_xseeds[i])););
       SEEDAUTOMATON(a_se, gv_xseeds[i],  gv_xseeds[i]->cycled() || gv_xseeds_multihit_flag );
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - size : " << (a_se->size())););
       if (gv_minimize_flag) {
-        automaton * na = a_se->Hopcroft();
+        automaton<int> * na = a_se->Hopcroft();
         delete a_se;
         a_se = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced size : " << (a_se->size())););
@@ -2926,15 +2929,15 @@ int main(int argc, char * argv[]) {
 
       // excluded seed cycle
       if (gv_xseeds[i]->cycled()) {
-        automaton * na = a_se;
-        automaton * a_cycle = new automaton();
+        automaton<int> * na = a_se;
+        automaton<int> * a_cycle = new automaton<int>();
         a_cycle->Automaton_Cycle(gv_xseeds[i]->maxpos(), gv_xseeds[i]->pos(), gv_xseeds[i]->nbpos());
         a_se = (a_se)->product(*a_cycle, gv_xseeds_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
         delete a_cycle;
         delete na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - cycled size : " << (a_se->size())););
         if (gv_minimize_flag) {
-          automaton * na = a_se->Hopcroft();
+          automaton<int> * na = a_se->Hopcroft();
           delete a_se;
           a_se = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced cycled size : " << (a_se->size())););
@@ -2943,11 +2946,11 @@ int main(int argc, char * argv[]) {
 
       // excluded automaton
       if (i > 0) {
-        automaton * a_excluded_temp = a_excluded;
+        automaton<int> * a_excluded_temp = a_excluded;
         a_excluded = a_excluded->product(*a_se,  gv_xseeds_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = excluded product size : " << (a_excluded->size())););
         if (gv_minimize_flag) {
-          automaton * na = a_excluded->Hopcroft();
+          automaton<int> * na = a_excluded->Hopcroft();
           delete a_excluded;
           a_excluded = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced excluded product size : " << (a_excluded->size())););
@@ -2963,12 +2966,12 @@ int main(int argc, char * argv[]) {
 
     // excluded automaton multihit
     if (gv_xseeds_multihit_flag) {
-      automaton * a_excluded_temp = a_excluded;
+      automaton<int> * a_excluded_temp = a_excluded;
       a_excluded = a_excluded->mhit(gv_xseeds_multihit_nb, gv_alignment_length);
       delete a_excluded_temp;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton * na = a_excluded->Hopcroft();
+        automaton<int> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded size : " << (a_excluded->size())););
@@ -2980,12 +2983,12 @@ int main(int argc, char * argv[]) {
 
     // b) compute the foreground probability
     if (gv_homogeneous_flag) {
-      automaton * na = a_excluded->product(*a_homogeneous, PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+      automaton<int> * na = a_excluded->product(*a_homogeneous, PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
       delete a_excluded;
       a_excluded = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded x homogeneous size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton * na = a_excluded->Hopcroft();
+        automaton<int> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded x homogeneous size : " << (a_excluded->size())););
@@ -2993,11 +2996,11 @@ int main(int argc, char * argv[]) {
     }
 
 
-    automaton * a_xpr_sens = a_excluded->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+    automaton<double> * a_xpr_sens = a_excluded->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
     if (gv_lossless_flag) {
       pr_div_excluded = a_xpr_sens->PrLossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
     } else {
-      pr_div_excluded = a_xpr_sens->PrFinal(gv_alignment_length);
+      pr_div_excluded = a_xpr_sens->Pr(gv_alignment_length);
     }
     delete      a_xpr_sens;
     if (pr_div_excluded == 1.0) {
@@ -3024,7 +3027,7 @@ int main(int argc, char * argv[]) {
 
   bool   hillclimbing_flag      = false;
   std::vector<double>      sel  = std::vector<double>    (gv_seeds.size(),0.0);
-  std::vector<automaton *> a_s  = std::vector<automaton*>(gv_seeds.size(),NULL);
+  std::vector<automaton<int> *> a_s  = std::vector<automaton<int>*>(gv_seeds.size(),NULL);
   double hillclimbing_threshold = 1e-6;
 
   int    seed_to_hillclimbing      =                                   rand()%gv_seeds.size();
@@ -3039,7 +3042,7 @@ int main(int argc, char * argv[]) {
   double selp = 0.0;
 
 #ifdef KEEP_PRODUCT_MF
-  std::vector<automaton*> a_s_product(gv_seeds.size(), NULL);
+  std::vector<automaton<int>*> a_s_product(gv_seeds.size(), NULL);
   std::vector<int>        a_s_product_seed(gv_seeds.size(), -1);
 #endif
 
@@ -3054,16 +3057,16 @@ int main(int argc, char * argv[]) {
     }
     // if not acceptable : generate a new set of seeds
     for (unsigned i = 0; i < gv_seeds.size(); i++)
-       if (!(gv_seeds[i]->acceptable()))
-         goto new_seeds;
+      if (!(gv_seeds[i]->acceptable()))
+	goto new_seeds;
 
     // discard twice same seed in the same set
     for (unsigned i = 0; i < gv_seeds.size(); i++)
       if (!gv_seeds[i]->cycled())
-      for (unsigned j = 0; j < i; j++)
-        if (!gv_seeds[j]->cycled())
-          if (gv_seeds[i]->equal(gv_seeds[j]))
-            goto new_seeds;
+	for (unsigned j = 0; j < i; j++)
+	  if (!gv_seeds[j]->cycled())
+	    if (gv_seeds[i]->equal(gv_seeds[j]))
+	      goto new_seeds;
   }
 
   while (1) {
@@ -3101,7 +3104,7 @@ int main(int argc, char * argv[]) {
             }
           } else {
             for (unsigned u = 0; u < gv_seeds.size(); u++) {
-            if (gv_seeds[u]->Hit(alignment,gv_subsetseed_matching_matrix) >= 0) {
+	      if (gv_seeds[u]->Hit(alignment,gv_subsetseed_matching_matrix) >= 0) {
                 c++;
                 break;
               }
@@ -3112,15 +3115,15 @@ int main(int argc, char * argv[]) {
         if (hillclimbing_flag) {
           if (c < sens_hillclimbing * (i+1) * RUNSET - COEF_9999_9((double)i/RUNSET) * sqrt(sens_hillclimbing * (1 - sens_hillclimbing) * (i+1) * RUNSET)) {
             /* hillclimbing seed estimated bad ... so generate the next one */
-          VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{hx " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
+	    VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{hx " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
             /* fake "sens" and "sensitivity_threshold" to update then go to 8 */
-          sens = ((double)c/ ((i+1) * RUNSET));
-          sensitivity_threshold = sens - max_sens;
-          goto next_progress_seed;
+	    sens = ((double)c/ ((i+1) * RUNSET));
+	    sensitivity_threshold = sens - max_sens;
+	    goto next_progress_seed;
           } else {
             /* hillclimbing seed estimated promissing ... so estimate its true probablity */
             if (c  > sens_hillclimbing * (i+1) * RUNSET + COEF_9999_9((double)i/RUNSET) * sqrt(sens_hillclimbing * (1 - sens_hillclimbing) * (i+1) * RUNSET)) {
-            VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{h? " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
+	      VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{h? " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
               break;
             }
           }
@@ -3130,15 +3133,15 @@ int main(int argc, char * argv[]) {
             /* (0.2) : [2/3] we are in random generation mode in hillclimbing (but not activated) */
             if (c < (max_sens - hillclimbing_threshold) * (i+1) * RUNSET - COEF_9999_9((double)i/RUNSET) * sqrt((max_sens - hillclimbing_threshold) * (1 - (max_sens - hillclimbing_threshold)) * (i+1) * RUNSET)) {
               /* random seed estimated bad ... so generate a random one */
-            VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{rx " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
-            /* fake "sens" and "sensitivity_threshold" to update then go to 8 */
-            sens = ((double)c/ ((i+1) * RUNSET));
-            sensitivity_threshold =  sens - max_sens;
-            goto next_progress_seed;
+	      VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{rx " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
+	      /* fake "sens" and "sensitivity_threshold" to update then go to 8 */
+	      sens = ((double)c/ ((i+1) * RUNSET));
+	      sensitivity_threshold =  sens - max_sens;
+	      goto next_progress_seed;
             } else {
               /* hillclimbing seed estimated promissing ... so estimate its true probablity */
               if (c  > (max_sens - hillclimbing_threshold) * (i+1) * RUNSET + COEF_9999_9((double)i/RUNSET) * sqrt((max_sens - hillclimbing_threshold) * (1 - (max_sens - hillclimbing_threshold)) * (i+1) * RUNSET)) {
-            VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{r? " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
+		VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{r? " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
                 break;
               }
             }
@@ -3149,7 +3152,7 @@ int main(int argc, char * argv[]) {
               VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("{rx " << ((double)c/ ((i+1) * RUNSET)) << " after " << ((i+1) * RUNSET) << " runs)"););
               /* fake "sens" to update then go to 9 */
               sens = ((double)c/ ((i+1) * RUNSET));
-            goto next_progress_seed;
+	      goto next_progress_seed;
             } else {
               /* hillclimbing seed estimated promissing ... so estimate its true probablity */
               if (c  > max_sens * (i+1) * RUNSET + COEF_9999_9((double)i/RUNSET) * sqrt(max_sens * (1 - max_sens) * (i+1) * RUNSET)) {
@@ -3194,46 +3197,46 @@ int main(int argc, char * argv[]) {
                   a_s_product[v] = NULL;
                   a_s_product_seed[v] = -1;
                 }
-            break;
+		break;
               }
             }
 #endif
-            (a_s[i]) = new automaton();
+            (a_s[i]) = new automaton<int>();
             SEEDAUTOMATON(a_s[i], gv_seeds[i], gv_seeds[i]->cycled() || gv_multihit_flag);
-
+	
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton size : " << (a_s[i]->size())););
-
+	
             if (gv_minimize_flag) {
-              automaton * na = (a_s[i])->Hopcroft();
+              automaton<int> * na = (a_s[i])->Hopcroft();
               delete (a_s[i]);
               (a_s[i]) = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced size : " << (a_s[i]->size())););
             }
-
+	
             // compute partial selectivity
             if (gv_lossless_flag) {
               sel[i] = gv_seeds[i]->selectivityFromWeight();
             } else {
-              automaton * a_pr_s_sel = (a_s[i])->product(a_sel, PRODUCT_UNION_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-              sel[i]                 = a_pr_s_sel->PrFinal(gv_seeds[i]->span());
+              automaton<double> * a_pr_s_sel = (a_s[i])->product(a_sel, PRODUCT_UNION_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              sel[i]                 = a_pr_s_sel->Pr(gv_seeds[i]->span());
               delete a_pr_s_sel;
             }
             if (gv_seeds[i]->cycled()) {
               sel[i] *= (double)gv_seeds[i]->nbpos()/gv_seeds[i]->maxpos();
             }
-
+	
             // cycle
             if (gv_seeds[i]->cycled()) {
-              automaton * na = a_s[i];
-              automaton * a_cycle = new automaton();
+              automaton<int> * na = a_s[i];
+              automaton<int> * a_cycle = new automaton<int>();
               a_cycle->Automaton_Cycle(gv_seeds[i]->maxpos(), gv_seeds[i]->pos(), gv_seeds[i]->nbpos());
               a_s[i] = (a_s[i])->product(*a_cycle, gv_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton cycled size : " << (a_s[i]->size())););
-
+	
               delete a_cycle;
               delete na;
               if (gv_minimize_flag) {
-                automaton * na = a_s[i]->Hopcroft();
+                automaton<int> * na = a_s[i]->Hopcroft();
                 delete a_s[i];
                 a_s[i] = na;
                 VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced cycled size : " << (a_s[i]->size())););
@@ -3251,25 +3254,25 @@ int main(int argc, char * argv[]) {
 
       // (2) compute sensitivity (and lossless property when needed ...)
       int lossless = 0;
-      automaton * a_spr = NULL;
+      automaton<int> * a_spr = NULL;
 
       // FIXMECOV >>
       if (gv_covariance_flag) {
-      for (unsigned i = 0; i < gv_seeds.size(); i++) {
-        if (!a_s[i]) {
-          a_s[i] = new automaton();
-          a_s[i]->Automaton_SeedLinearMatching(*(gv_seeds[i]),gv_subsetseed_matching_matrix);
-        }
-      }
-      goto gv_covariance_flag_0;
+	for (unsigned i = 0; i < gv_seeds.size(); i++) {
+	  if (!a_s[i]) {
+	    a_s[i] = new automaton<int>();
+	    a_s[i]->Automaton_SeedLinearMatching(*(gv_seeds[i]),gv_subsetseed_matching_matrix);
+	  }
+	}
+	goto gv_covariance_flag_0;
       }
       // FIXMECOV<<
 
 
       if (gv_global_coverage_flag) {
-
+	
         // (2.1) global coverage constraint
-        a_spr = new automaton();
+        a_spr = new automaton<int>();
         a_spr->Automaton_SeedPrefixesMatching_CoverageDM(gv_seeds,
                                                          gv_global_coverage_cost,
                                                          gv_subsetseed_matching_matrix);
@@ -3281,7 +3284,7 @@ int main(int argc, char * argv[]) {
         // <<
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = automaton global coverage size : " << (a_spr->size())););
         if (gv_minimize_flag) {
-          automaton * na = a_spr->Hopcroft();
+          automaton<int> * na = a_spr->Hopcroft();
           delete a_spr;
           a_spr = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - automaton reduced global coverage size : " << (a_spr->size())););
@@ -3292,88 +3295,88 @@ int main(int argc, char * argv[]) {
          * { std::ofstream out("_moore_automaton_reduced_-_mealy_like_conversion.gapfr"); a_spr->gapFR(out); out.close();}
          */
         // <<
-
+	
       } else { // "if (gv_global_coverage_flag)"
-
+	
         // (2.2) classical hit/multihit constraint
-
+	
 #ifdef KEEP_PRODUCT_MF
-      // get the last product index
-      int last_product_index = -1;
-      for (unsigned u = 0; u < gv_seeds.size(); u++) {
-        if (a_s_product_seed[u] >= 0) {
-          last_product_index = u;
-          a_spr = a_s_product[u];
-          VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" * multiseed [";
-                                       for (int s = 0; s <= last_product_index; s++) {
-                                         if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
-                                       }
-                                       cerr << "] preloaded product size : " << (a_spr->size());
-                    );
-                  );
-        }
-      }
-
-      // do the product for non-found seeds either from nothing or from the last product index
-      int seed_index_start;
-      if (gv_hillclimbing_flag)
-        seed_index_start = (seed_to_hillclimbing + gv_seeds.size() - 1) % gv_seeds.size();
-      else
-        seed_index_start = gv_seeds.size()-1;
-      for (unsigned i = seed_index_start , j = 0 ; j < gv_seeds.size(); i += gv_seeds.size() - 1 , i %= gv_seeds.size(), j++) {
-        // search the seed
-        for (int v = 0; v <= last_product_index ; v++) {
-          if (a_s_product_seed[v] == (int) i)
-            goto seed_found;
-        }
-        // seed not found : do the product and store it
-        if (last_product_index >= 0) {
-          a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
-          VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + multiseed [";
-                                       for (int s = 0; s <= last_product_index; s++) {
-                                         if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
-                                       }
-                                       cerr << "] x [" << (i+1) << "] product size : " << (a_spr->size());
-                    );
-                  );
-
+	// get the last product index
+	int last_product_index = -1;
+	for (unsigned u = 0; u < gv_seeds.size(); u++) {
+	  if (a_s_product_seed[u] >= 0) {
+	    last_product_index = u;
+	    a_spr = a_s_product[u];
+	    VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" * multiseed [";
+						   for (int s = 0; s <= last_product_index; s++) {
+						     if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
+						   }
+						   cerr << "] preloaded product size : " << (a_spr->size());
+						   );
+			);
+	  }
+	}
+	
+	// do the product for non-found seeds either from nothing or from the last product index
+	int seed_index_start;
+	if (gv_hillclimbing_flag)
+	  seed_index_start = (seed_to_hillclimbing + gv_seeds.size() - 1) % gv_seeds.size();
+	else
+	  seed_index_start = gv_seeds.size()-1;
+	for (unsigned i = seed_index_start , j = 0 ; j < gv_seeds.size(); i += gv_seeds.size() - 1 , i %= gv_seeds.size(), j++) {
+	  // search the seed
+	  for (int v = 0; v <= last_product_index ; v++) {
+	    if (a_s_product_seed[v] == (int) i)
+	      goto seed_found;
+	  }
+	  // seed not found : do the product and store it
+	  if (last_product_index >= 0) {
+	    a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+	    VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + multiseed [";
+						   for (int s = 0; s <= last_product_index; s++) {
+						     if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
+						   }
+						   cerr << "] x [" << (i+1) << "] product size : " << (a_spr->size());
+						   );
+			);
+	
             if (gv_minimize_flag) {
-              automaton * na = a_spr->Hopcroft();
+              automaton<int> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
-            VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + reduced multiseed [";
-                                         for (int s = 0; s <= last_product_index; s++) {
-                                           if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
-                                         }
-                                         cerr << "] x [" << (i+1) << "] product size : " << (a_spr->size());
-                      );
-                    );
-
+	      VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + reduced multiseed [";
+						     for (int s = 0; s <= last_product_index; s++) {
+						       if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
+						     }
+						     cerr << "] x [" << (i+1) << "] product size : " << (a_spr->size());
+						     );
+			  );
+	
             }
-        } else {
-          a_spr = a_s[i];
-        }
-        last_product_index++;
-        a_s_product[last_product_index] = a_spr;
-        a_s_product_seed[last_product_index] = i;
-      seed_found:;
-
-      }
+	  } else {
+	    a_spr = a_s[i];
+	  }
+	  last_product_index++;
+	  a_s_product[last_product_index] = a_spr;
+	  a_s_product_seed[last_product_index] = i;
+	seed_found:;
+	
+	}
 #else
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           if (i != 0) {
-            automaton * a_spr_temp = a_spr;
+            automaton<int> * a_spr_temp = a_spr;
             a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
-
+	
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
-
+	
             if (gv_minimize_flag) {
-              automaton * na = a_spr->Hopcroft();
+              automaton<int> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
             }
-
+	
             if (i > 1)
               delete a_spr_temp;
           } else {
@@ -3384,19 +3387,19 @@ int main(int argc, char * argv[]) {
       } // "else" part of "if (gv_global_coverage_flag)"
 
       //FIXMECOV>>
-      gv_covariance_flag_0:
+    gv_covariance_flag_0:
       //<<
 
       // multihit (xor) global_coverage
-      automaton * a_spr_mhits_or_gcov_res = a_spr;
+      automaton<int> * a_spr_mhits_or_gcov_res = a_spr;
       if (gv_multihit_flag || gv_global_coverage_flag) {
-
+	
         a_spr_mhits_or_gcov_res = a_spr->mhit(gv_multihit_flag?gv_multihit_nb:gv_global_coverage_nb, gv_alignment_length);
-
+	
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
-
+	
         if (gv_minimize_flag) {
-          automaton * na = a_spr_mhits_or_gcov_res->Hopcroft();
+          automaton<int> * na = a_spr_mhits_or_gcov_res->Hopcroft();
           delete a_spr_mhits_or_gcov_res;
           a_spr_mhits_or_gcov_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
@@ -3404,14 +3407,14 @@ int main(int argc, char * argv[]) {
       }
 
       // homogeneous
-      automaton * a_spr_h_res = a_spr_mhits_or_gcov_res;
+      automaton<int> * a_spr_h_res = a_spr_mhits_or_gcov_res;
       if (gv_homogeneous_flag) {
         a_spr_h_res = a_spr_mhits_or_gcov_res->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
-
+	
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = homogeneous product size : " << (a_spr_h_res->size())););
-
+	
         if (gv_minimize_flag) {
-          automaton * na = a_spr_h_res->Hopcroft();
+          automaton<int> * na = a_spr_h_res->Hopcroft();
           delete a_spr_h_res;
           a_spr_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced homogeneous product size : " << (a_spr_h_res->size())););
@@ -3419,21 +3422,21 @@ int main(int argc, char * argv[]) {
       }
 
       // excluded seeds
-      automaton * a_spr_mx_h_res = a_spr_h_res;
+      automaton<int> * a_spr_mx_h_res = a_spr_h_res;
       if (gv_xseeds.size()) {
         a_spr_mx_h_res = a_spr_h_res->product(*a_excluded, PRODUCT_BUTNOT_NO_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
-
+	
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mx product size : " << (a_spr_mx_h_res->size())););
-
+	
         if (gv_minimize_flag) {
-          automaton * na = a_spr_mx_h_res->Hopcroft();
+          automaton<int> * na = a_spr_mx_h_res->Hopcroft();
           delete a_spr_mx_h_res;
           a_spr_mx_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mx product size : " << (a_spr_mx_h_res->size())););
         }
       }
 
-      vector< pair<pair<int,int>,BIGINT> > * polynom = NULL;
+      std::vector< pair<pair<int,int>,BIGINT> > * polynom = NULL;
 
       //FIXMECOV>>
       if (gv_covariance_flag) goto gv_covariance_flag_1;
@@ -3441,31 +3444,22 @@ int main(int argc, char * argv[]) {
 
       // precompute the polynom when needed (for correlation computation, or for mere polynomial output)
       if (gv_correlation_flag || gv_polynomial_output_flag || gv_polynomial_dominant_selection_flag) {
-
+	
         if (gv_alignment_length > N_binomial_weight) {
           cerr << "gv_alignment_length=" << gv_alignment_length << " > N_binomial_weight=" << N_binomial_weight << endl;
           _ERROR("main","this binary has been compiled with a fixed value N_binomial_weight [*] that is smaller than the alignment length requested on command line : please use the \"lcm.cc\" program to increase and regenerate the \"binomial_weight.h\" file.");
         }
-
+	
         // use percentage of identity Automaton to count "CLASSES"
-        automaton a_sens_count_ones = automaton();
+        automaton<BIGINT> a_sens_count_ones = automaton<BIGINT>();
         a_sens_count_ones.Automaton_CountAlphabetSymbols();
-
+	
         // use a "COUNT" Semi-Ring mixed with the "CLASS" of Percentage
         struct MyAFF { static int funaff (int a, int b) { return (gv_multihit_flag||gv_global_coverage_flag) ? (a*CLASSES + b) : ((a>0)?(CLASSES+b):(b)); } };
-#ifdef NOMATRIX
-        // FIXME : find equivalent way if no Matrix available for counts
-        #error "no way to compile the CORRELATION or OUTPUT POLYNOM part with NOMATRIX activated, this will compile but stop the program when CORRELATION IS CHOOSEN with -y/-g PEARSON/SPEARMAN or POLYNOM IS OUTPUT"
-        _ERROR("main","this binary has been compiled with NOMATRIX activated : CORRELATION part is unactivated, please run without -y/-g PEARSON/SPEARMAN or compile this program without defining NOMATRIX (-UNOMATRIX)");
-#else
-#ifdef USEINFINT
-        matrix<BIGINT>      * m_ct_sens_dist = a_spr->matrix_count_infint_product(a_sens_count_ones, PRODUCT_ADDHOC_NO_FINAL_LOOP, gv_alignment_length, (AddHoc_Final_Func) MyAFF::funaff);
-#else
-        matrix<long long>   * m_ct_sens_dist = a_spr->matrix_count_product(a_sens_count_ones, PRODUCT_ADDHOC_NO_FINAL_LOOP, gv_alignment_length, (AddHoc_Final_Func) MyAFF::funaff);
-#endif
-        VERB_FILTER(VERBOSITY_MODERATE, INFO__("- count matrix product size : " << (m_ct_sens_dist->size())););
-        std::vector<BIGINT> * v_ct_sens_dist = m_ct_sens_dist->Pr_transitive_final(gv_alignment_length, (gv_multihit_flag||gv_global_coverage_flag)?(INT_INFINITY):(2*CLASSES-1),(gv_multihit_flag||gv_global_coverage_flag)?(1):(CLASSES));
-#endif
+	
+	matrix<BIGINT>   * m_ct_sens_dist = a_spr->matrix_product(a_sens_count_ones, PRODUCT_ADDHOC_NO_FINAL_LOOP, gv_alignment_length, (AddHoc_Final_Func) MyAFF::funaff);
+	VERB_FILTER(VERBOSITY_MODERATE, INFO__("- count matrix product size : " << (m_ct_sens_dist->size())););	
+	std::vector<BIGINT> * v_ct_sens_dist = m_ct_sens_dist->Pr_transitive_final(gv_alignment_length, (gv_multihit_flag||gv_global_coverage_flag)?(INT_INFINITY):(2*CLASSES-1),(gv_multihit_flag||gv_global_coverage_flag)?(1):(CLASSES));
         // transfor as a polynom (64 bits numbers !! warning on overflow)
         polynom = new vector< pair<pair<int,int>,BIGINT> >(0);
         for (unsigned i = 0; i < v_ct_sens_dist->size(); i++) {
@@ -3473,6 +3467,7 @@ int main(int argc, char * argv[]) {
           if ((number = (*v_ct_sens_dist)[i]) > 0) {
             int p_count = (i % CLASSES), y_count = (i / CLASSES);
             polynom->push_back(pair<pair<int,int>,BIGINT>(pair<int,int>(p_count,y_count),(BIGINT)number));
+	    //cerr << "[" << i << "] -> (" << p_count << "," << y_count << ") : " << number << endl;
           }
         }
         delete m_ct_sens_dist;
@@ -3487,52 +3482,24 @@ int main(int argc, char * argv[]) {
       if (gv_correlation_flag) {
         // (3.x.3) compute correlation value between percent of identity and "y" single/multi-hit/coverage value for each "CLASS"
         sens = compute_correlation(polynom,gv_correlation_function_index);
-
+	
       } else {
-
-#ifdef NOMATRIX
-        // (3.a) without matrix
+	
+        // (3.a) with matrix
         if (gv_lossless_flag) {
-          // (3.a.1) lossless without matrix
-          automaton *   a_pr_sens = a_spr_mx_h_res->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-
-          VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= lossless prob full product size : " << (a_pr_sens->size())););
-
-          lossless =    a_pr_sens->Lossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
-          // probability is needed when hill climbing is activated
-#ifndef LOSSLESS_PROB
-          if (gv_hillclimbing_flag) {
-#endif
-            sens   =    a_pr_sens->PrLossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
-#ifndef LOSSLESS_PROB
-          }
-#endif
-          delete a_pr_sens;
-        } else {
-          // (3.a.2) lossy without matrix
-          automaton * a_pr_sens = a_spr_mx_h_res->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-
-          VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= sensitivity full product size : " << (a_pr_sens->size())););
-
-          sens                  = a_pr_sens->PrFinal(gv_alignment_length);
-          delete a_pr_sens;
-        }
-#else
-        // (3.b) with matrix
-        if (gv_lossless_flag) {
-          // (3.b.1) lossless with subalignment matrix
+          // (3.a.1) lossless with subalignment matrix
           if (gv_subalignment_flag) {
-
-            std::vector< matrix< cost<int> > * > * vm = a_spr_mx_h_res->matrices_step_cost_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+	
+            std::vector< matrix<cost<int> > * > * vm = a_spr_mx_h_res->matrices_step_cost_product(a_cost, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             std::vector<int> results(gv_alignment_length-gv_subalignment_length+1);
 #ifndef NOSLICER
             // Sliced version
             // >>
             matrices_slicer< cost<int> > vm_slicer(vm);
-
+	
             // set the sub-alignment length
             for (int i = 1; i < gv_subalignment_length; i++) vm_slicer.add_right();
-
+	
             // move along the sub-alignment windows and compute Pr
             for (int i = gv_subalignment_length; i <= gv_alignment_length; i++) {
               cost<int> c = vm_slicer.current_Pr(false);
@@ -3553,9 +3520,9 @@ int main(int argc, char * argv[]) {
                 if (m_old) delete m_old;
                 m_old = m;
               }
-
-            VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - non-sliced cost matrix (" << i << ") size : " << (m->size())););
-
+	
+	      VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - non-sliced cost matrix (" << i << ") size : " << (m->size())););
+	
               cost<int> c = m->Pr_one_step_from_one(*((*vm)[i+gv_subalignment_length]),false);
               results[i] = (c > cost<int>(gv_lossless_cost_threshold)) ? 1 : 0;
               if (m_old) delete m_old;
@@ -3569,13 +3536,13 @@ int main(int argc, char * argv[]) {
             /// @todo{FIXME: complete this with probability computation}
             lossless = (int)(gv_subalignment_functions_int[gv_subalignment_function_index](results));
             sens     =       gv_subalignment_functions_int[gv_subalignment_function_index](results);
-
+	
           } else {
-            // (3.b.2) lossless without subalignment with matrix
-            matrix<cost<int> > * m_cost_sens = a_spr_mx_h_res->matrix_cost_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-
+            // (3.a.2) lossless without subalignment with matrix
+            matrix<cost<int> > * m_cost_sens = a_spr_mx_h_res->matrix_cost_product(a_cost, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+	
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= lossless cost matrix product size : " << (m_cost_sens->size())););
-
+	
             // @note{NOTE : check if "non final states" (i.e. the ones that are "not rejected" or "non final") have all more than "k" costs}
             lossless = m_cost_sens->Pr(gv_alignment_length, false) > cost<int>(gv_lossless_cost_threshold);
             delete   m_cost_sens;
@@ -3583,17 +3550,17 @@ int main(int argc, char * argv[]) {
 #ifndef LOSSLESS_PROB
             if (gv_hillclimbing_flag) {
 #endif
-              automaton  * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              automaton<int> * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
               // @note{NOTE : both "reject" and "final" states are final so "final" should not be use to mesure probs}
               if (gv_minimize_flag) {
-                automaton * na = a_spr_mx_h_res_loss->Hopcroft();
+                automaton<int> * na = a_spr_mx_h_res_loss->Hopcroft();
                 delete a_spr_mx_h_res_loss;
                 a_spr_mx_h_res_loss = na;
               }
               matrix<double>     * m_pr_sens = a_spr_mx_h_res_loss->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-
+	
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= lossless prob matrix product size : " << (m_pr_sens->size())););
-
+	
               sens = (lossless_set_sens - (m_pr_sens->Pr(gv_alignment_length, false/* measure on non final (see upper) */)))/lossless_set_sens;
               delete               m_pr_sens;
               delete       a_spr_mx_h_res_loss;
@@ -3602,20 +3569,20 @@ int main(int argc, char * argv[]) {
 #endif
           }
         } else {
-
-          // (3.b.3) lossy with subalignment matrix
+	
+          // (3.a.3) lossy with subalignment matrix
           if (gv_subalignment_flag) {
-
+	
             std::vector< matrix<double> * > * vm = a_spr_mx_h_res->matrices_step_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             std::vector<double> results(gv_alignment_length-gv_subalignment_length+1);
 #ifndef NOSLICER
             // Sliced version
             // >>
             matrices_slicer<double> vm_slicer(vm);
-
+	
             // set the sub-alignment length
             for (int i = 1; i < gv_subalignment_length; i++) vm_slicer.add_right();
-
+	
             // move along the sub-alignment windows and compute Pr
             for (int i = gv_subalignment_length; i <= gv_alignment_length; i++) {
               results[i - gv_subalignment_length] = vm_slicer.current_Pr(true);
@@ -3635,9 +3602,9 @@ int main(int argc, char * argv[]) {
                 if (m_old) delete m_old;
                 m_old = m;
               }
-
-            VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - non-sliced prob matrix (" << i << ") size : " << (m->size())););
-
+	
+	      VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - non-sliced prob matrix (" << i << ") size : " << (m->size())););
+	
               results[i] = m->Pr_one_step_from_one(*((*vm)[i+gv_subalignment_length]),true);
               if (m_old) delete m_old;
               delete (*vm)[i];
@@ -3648,18 +3615,77 @@ int main(int argc, char * argv[]) {
             // <<
 #endif
             sens = gv_subalignment_functions_double[gv_subalignment_function_index](results);
-
+	
           } else {
-            // (3.b.4) lossy without subalignment matrix
+            // (3.a.4) lossy without subalignment matrix
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
+
+
+	    /*>>*/
+/*
+	    vector<string> vn;
+	    vn.push_back(string("x"));
+	    vn.push_back(string("y"));
+	    vn.push_back(string("xp"));
+	    vn.push_back(string("yp"));
+
+	    polynomial<infint<long long> >::setvars(vn);
+	
+	    automaton<polynomial<infint<long long> > > at;
+	    std::stringstream ss;
+	    //
+	    ss << "4" << endl
+
+	       << "\t0\t1" << endl
+	       << "\t\t0\t1" << endl
+	       << "\t\t\t0\t 1" << endl
+	       << "\t\t1\t1" << endl
+	       << "\t\t\t1\t 1" << endl
+
+	       << "\t1\t0" << endl
+	       << "\t\t0\t1" << endl
+	       << "\t\t\t2\t xp" << endl
+	       << "\t\t1\t1" << endl
+	       << "\t\t\t3\t yp" << endl
+
+	       << "\t2\t0" << endl
+	       << "\t\t0\t1" << endl
+	       << "\t\t\t2\t xp" << endl
+	       << "\t\t1\t1" << endl
+	       << "\t\t\t3\t x" << endl
+	
+	       << "\t3\t0" << endl
+	       << "\t\t0\t1" << endl
+	       << "\t\t\t2\t y" << endl
+	       << "\t\t1\t1" << endl
+	       << "\t\t\t3\t yp" << endl;
+	
+	
+	    ss >> at;
+	    // test 1
+	    automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(at, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+	    polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
+	    cout << endl << "[" << pol1 << "]" << endl;
+	    //polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
+	    //cout << endl << "{" << inv_pol1 << "}" << endl;
+	    //cout << endl << "<" << (pol1 + inv_pol1) << ">" << endl;
+
+	    // test 2
+	    matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(at, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);	
+	    polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
+	    cout << endl << "[" << pol2 << "]" << endl;
+	    polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
+	    cout << endl << "{" << inv_pol2 << "}" << endl;
+	    cout << endl << "<" << (pol2 + inv_pol2) << ">" << endl;
+
+*/
+	    /*<<*/
             sens                       = m_pr_sens->Pr(gv_alignment_length, true);
             delete m_pr_sens;
           }
         } // "else" part of "if (gv_subalignment_flag)"
-#endif
       } // "else" part of "if (gv_correlation_flag)"
 
 
@@ -3673,9 +3699,9 @@ int main(int argc, char * argv[]) {
 
       if (
 #ifndef KEEP_PRODUCT_MF
-      gv_seeds.size() > 1 ||
+	  gv_seeds.size() > 1 ||
 #endif
-      gv_global_coverage_flag) {
+	  gv_global_coverage_flag) {
         delete a_spr;
       }
 
@@ -3695,24 +3721,24 @@ int main(int argc, char * argv[]) {
         double covariance = 0.0;
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           int span_i = gv_seeds[i]->span();
-          automaton * a_x_v_i = a_s[i]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_i);
-          double x_v_i        = a_x_v_i->PrFinal(span_i);
+          automaton<double> * a_x_v_i = a_s[i]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_i);
+          double x_v_i        = a_x_v_i->Pr(span_i);
           delete a_x_v_i;
           for (unsigned j = i; j < gv_seeds.size(); j++) {
             int span_j = gv_seeds[j]->span();
-            automaton * a_x_v_j = a_s[j]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_j);
-            double x_v_j        = a_x_v_j->PrFinal(span_j);
+            automaton<double> * a_x_v_j = a_s[j]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_j);
+            double x_v_j        = a_x_v_j->Pr(span_j);
             delete a_x_v_j;
             for (int shift = -span_j+1; shift <= span_i-1; shift++) {
               int len = MAX(span_i - MIN(shift,0) , span_j + MAX(shift,0));
-              automaton * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, len, NULL, shift);
+              automaton<int> * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, len, NULL, shift);
               if (gv_minimize_flag) {
-                automaton * na = p->Hopcroft();
+                automaton<int> * na = p->Hopcroft();
                 delete p;
                 p = na;
               }
-              automaton * a_x_cov = p->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, len);
-              double x_cov        = a_x_cov->PrFinal(len);
+              automaton<double> * a_x_cov = p->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, len);
+              double x_cov        = a_x_cov->Pr(len);
               covariance += x_cov - x_v_i*x_v_j;
               //cout << "i:" << i << ",j:"<< j << ",shift:" << shift << ":" << (x_cov) << endl;
               delete a_x_cov;
@@ -3720,7 +3746,7 @@ int main(int argc, char * argv[]) {
             }
           }
         }
-      //cout << "covariance : " << covariance << endl;
+	//cout << "covariance : " << covariance << endl;
         sens = 1.0 / (1.0 + covariance);
       }
       //FIXMECOV<<
@@ -3747,11 +3773,13 @@ int main(int argc, char * argv[]) {
         polynom->clear();
         delete polynom;
       }
+
       //
       // (5) insertion inside pareto set
       //
+      //cerr << e.polynom << endl;
       sensitivity_threshold = insertPareto(l, e);
-
+	
 #ifdef SAMPLING_STRATEGY_MF
       max_sens = MAX(max_sens,sens);
 #endif
@@ -3786,15 +3814,15 @@ int main(int argc, char * argv[]) {
           outs << (gv_seeds[i])->str();
         }
         VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__(
-                    "#runs:" << nbruns << "," << "\t" << "set size:" << l.size() << "," << "\t" << "area:" << area
-                    << "\t"  << (tm->tm_year + 1900) << "-" << setw(2) << setfill('0') << (tm->tm_mon+1) << "-"  << setw(2) << setfill('0') << (tm->tm_mday) << ","
-                    << "\t"  << setw(2) << setfill('0') << (tm->tm_hour)  << ":"  << setw(2) << setfill('0') << (tm->tm_min) << ":" <<  setw(2) << setfill('0') << (tm->tm_sec)
-                    << "\t"  << "last motif checked:" << outs.str()
-                    << "\t"  << (gv_correlation_flag?"last corr:":"last sens:") << sens;
-                    if (gv_hillclimbing_flag) {
-                      cerr << "," << "\t" << "hillclimbing_threshold:" << hillclimbing_threshold;
-                    }
-        ););
+					       "#runs:" << nbruns << "," << "\t" << "set size:" << l.size() << "," << "\t" << "area:" << area
+					       << "\t"  << (tm->tm_year + 1900) << "-" << setw(2) << setfill('0') << (tm->tm_mon+1) << "-"  << setw(2) << setfill('0') << (tm->tm_mday) << ","
+					       << "\t"  << setw(2) << setfill('0') << (tm->tm_hour)  << ":"  << setw(2) << setfill('0') << (tm->tm_min) << ":" <<  setw(2) << setfill('0') << (tm->tm_sec)
+					       << "\t"  << "last motif checked:" << outs.str()
+					       << "\t"  << (gv_correlation_flag?"last corr:":"last sens:") << sens;
+					       if (gv_hillclimbing_flag) {
+						 cerr << "," << "\t" << "hillclimbing_threshold:" << hillclimbing_threshold;
+					       }
+					       ););
       }
     } //<<(7)
 
@@ -3806,65 +3834,65 @@ int main(int argc, char * argv[]) {
 
       // (8) hill climbing method
       if (gv_hillclimbing_flag) {
-
+	
         // (8.1) set hill_climbing_flag
         if (!hillclimbing_flag) {
           double threshold = sensitivity_threshold + hillclimbing_threshold;
           if (threshold  > 0) {
             VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__(
-               "\t [+] : " << sens << " (" << threshold << " = " <<  sensitivity_threshold << " + " << hillclimbing_threshold << ")" << endl;
-            ););
+						      "\t [+] : " << sens << " (" << threshold << " = " <<  sensitivity_threshold << " + " << hillclimbing_threshold << ")" << endl;
+						      ););
             hillclimbing_flag = true;
-          hillclimbing_threshold = MAX(1e-6, hillclimbing_threshold - threshold); // more stringent
+	    hillclimbing_threshold = MAX(1e-6, hillclimbing_threshold - threshold); // more stringent
           } else {
             VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__(
-               "\t [-] : " << sens << " (" << threshold << " = " <<  sensitivity_threshold << " + " << hillclimbing_threshold << ")" << endl;
-            ););
+						      "\t [-] : " << sens << " (" << threshold << " = " <<  sensitivity_threshold << " + " << hillclimbing_threshold << ")" << endl;
+						      ););
             hillclimbing_threshold = MIN(0.999999, hillclimbing_threshold - (threshold*power(gv_hillclimbing_alpha,log(log(gv_seeds.size()+1)+1)))); // little less stringent
           }
         }
-
+	
         // (8.2) launch hill_climbing procedure
         if (hillclimbing_flag) {
-
+	
           // hillclimb phenomenom detected
           if (sens > sens_hillclimbing) {
-
+	
             // (8.0) printing global improvements if any
             if (sensitivity_threshold > 0) {
               VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__(
-                 "- global hill-climbing improvement : ";
-                 for (unsigned i = 0; i < gv_seeds.size(); i++) {
-                   cerr << *(gv_seeds[i]) << ",";
-                 }
-                 cerr << "\tsel:" << selp << "\t" << (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
-              ););
+							"- global hill-climbing improvement : ";
+							for (unsigned i = 0; i < gv_seeds.size(); i++) {
+							  cerr << *(gv_seeds[i]) << ",";
+							}
+							cerr << "\tsel:" << selp << "\t" << (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
+							););
             } else {
               VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__(
-                 "- local hill-climbing improvement : ";
-                 for (unsigned i = 0; i < gv_seeds.size(); i++) {
-                   cerr << *(gv_seeds[i]) << ",";
-                 }
-                 cerr << "\tsel:" << selp << "\t" << (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
-              ););
-            sens_hillclimbing = sens;
-            for (unsigned i = 0; i < gv_seeds.size(); i++) {
-            (gv_seeds[i])->set_hmove();
-            }
-            gv_hmove_choice = rand();
-
-            last_seed_to_hillclimbing = seed_to_hillclimbing;
-            seed_to_hillclimbing ++;
-            seed_to_hillclimbing %= gv_seeds.size();
+							"- local hill-climbing improvement : ";
+							for (unsigned i = 0; i < gv_seeds.size(); i++) {
+							  cerr << *(gv_seeds[i]) << ",";
+							}
+							cerr << "\tsel:" << selp << "\t" << (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
+							););
+	      sens_hillclimbing = sens;
+	      for (unsigned i = 0; i < gv_seeds.size(); i++) {
+		(gv_seeds[i])->set_hmove();
+	      }
+	      gv_hmove_choice = rand();
+	
+	      last_seed_to_hillclimbing = seed_to_hillclimbing;
+	      seed_to_hillclimbing ++;
+	      seed_to_hillclimbing %= gv_seeds.size();
             }
           }
-
+	
           {
           next_hmove:
-
+	
             // next seed in hillclimbing order
             while ((gv_seeds[seed_to_hillclimbing])->next_hmove() == 0 ) {
-
+	
               // delete automaton associated with the modified seed
               if (a_s[seed_to_hillclimbing]) {
                 delete (a_s[seed_to_hillclimbing]);
@@ -3876,14 +3904,14 @@ int main(int argc, char * argv[]) {
               seed_to_hillclimbing ++;
               seed_to_hillclimbing %= gv_seeds.size();
             }
-
-
+	
+	
             // delete automaton associated with the modified seed
             if (a_s[seed_to_hillclimbing]) {
               delete (a_s[seed_to_hillclimbing]);
               a_s[seed_to_hillclimbing] = NULL;
             }
-
+	
             // (8.3) : discard twice seeds in the same set
             for (unsigned i = 0; i < gv_seeds.size(); i++)
               if (!gv_seeds[i]->cycled())
@@ -3892,29 +3920,29 @@ int main(int argc, char * argv[]) {
                     if (gv_seeds[i]->equal(gv_seeds[j]))
                       goto next_hmove;
             continue;
-
+	
           eof_hmove:
             // end of hill climbing
             hillclimbing_flag = false;
             sens = sens_hillclimbing;
             sens_hillclimbing = 0.0;
-
+	
             for (unsigned i = 0; i < gv_seeds.size(); i++) {
               (gv_seeds[seed_to_hillclimbing])->reset_hmove();
             }
             gv_hmove_choice = rand();
-
+	
             last_seed_to_hillclimbing = seed_to_hillclimbing;
             seed_to_hillclimbing ++;
             seed_to_hillclimbing %= gv_seeds.size();
-
+	
             VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__(
-               "- final local hill-climbing search for : ";
-               for (unsigned i = 0; i < gv_seeds.size(); i++) {
-                 cerr << *(gv_seeds[i]) << ",";
-               }
-               cerr << "\tsel:" << selp << "\t" <<  (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
-            ););
+						      "- final local hill-climbing search for : ";
+						      for (unsigned i = 0; i < gv_seeds.size(); i++) {
+							cerr << *(gv_seeds[i]) << ",";
+						      }
+						      cerr << "\tsel:" << selp << "\t" <<  (gv_correlation_flag?"corr:":"sens:") << sens << "\t [" << sensitivity_threshold << "]" << endl;
+						      ););
           }
         } // if (hill_climbing_flag)
       } // if (gv_hill_climbing_flag)
@@ -3927,20 +3955,20 @@ int main(int argc, char * argv[]) {
     new_seeds:
       if (gv_nbruns > 0) {
         double first_seed_weight = 0;
-
+	
         // (9.1) : random enumeration
         for (unsigned i = 0; i < gv_seeds.size(); i++ ) {
-
+	
         next_rand:
           (gv_seeds[i])->random();
-
+	
           // delete automaton associated with the modified seed
           if (a_s[i]) {
             delete (a_s[i]);
             a_s[i] = NULL;
           }
-
-
+	
+	
           // jive selection activated of not  ?
           if (gv_jive > 0){
             if (i > 0) {
@@ -3954,33 +3982,33 @@ int main(int argc, char * argv[]) {
             }
           }
         }
-
+	
       } else { // gv_nbruns > 0
-
+	
         // (9.2) : complete enumeration
         unsigned j = 0;
-
+	
         while ( (gv_seeds[j])->next() == 0 ) {
-
+	
           // delete automaton associated with the modified seed
           if (a_s[j]) {
             delete (a_s[j]);
             a_s[j] = NULL;
           }
-
+	
           j++;
-
+	
           if (j == gv_seeds.size())
             goto end_loop;
         } // while (seeds->next())
-
-
+	
+	
         // delete automaton associated with the modified seed (a_s[j]->next == 1)
         if (j < gv_seeds.size() && a_s[j]) {
           delete (a_s[j]);
           a_s[j] = NULL;
         }
-
+	
         for (unsigned i = 0; i < j; i++) { // reset the span of previous j-th seeds to min
           delete (gv_seeds[i]);
           gv_seeds[i] = new seed();

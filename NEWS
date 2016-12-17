@@ -143,3 +143,13 @@ Version 1.06
   variance
   [Not Command Lined yet : set "gv_covariance_flag = true;"]
 
+- Missing infint file added to the package
+- Missing lcm.cc and binomial_weight.h with the correct name added to the package
+- True Polynomial computations have been added but not command lined yet
+
+Version 1.07
+============
+
+- A Full Templating of the automaton class has been applied to the program
+  (it can handle <double>,<cost<int>>, <polynomial<long int>>,...)
+- Polynomial ongoing

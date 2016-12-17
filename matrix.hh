@@ -2,7 +2,7 @@
 #define __MATRIX_HH__
 
 /** @defgroup matrix matrix and row class templates
- *  @brief sparse / dense template matrix with "automaton like" attributes ("final" integer attribute per row)
+ *  @brief sparse / dense matrix template, with "automaton like" attributes ("final" integer attribute per row), and with semi-ring templates for each cell
  */
 
 // @{
@@ -64,17 +64,17 @@
 //@{
 /** @brief struct template is enabled for bool = true
  */
-template <bool B, typename T = void> struct enable_if_cx { /** type enabled */ typedef T type; };
+template <bool B, typename T = void> struct enable_if_ca { /** type enabled */ typedef T type; };
 /** @brief struct template is disabled for bool = false
  */
-template <typename T> struct enable_if_cx <false, T> {};
+template <typename T> struct enable_if_ca <false, T> {};
 
 /** @brief struct template is enabled for bool = false
  */
-template <bool B, typename T = void>  struct disable_if_cx { /** type enabled */  typedef T type; };
+template <bool B, typename T = void>  struct disable_if_ca { /** type enabled */  typedef T type; };
 /** @brief struct template is disabled for bool = true
  */
-template <typename T> struct disable_if_cx <true, T> {};
+template <typename T> struct disable_if_ca <true, T> {};
 //@}
 
 
@@ -92,24 +92,11 @@ template <typename T> struct disable_if_cx <true, T> {};
 /** @addtogroup polynomial
  *  @addtogroup infint
  */
-template<typename T> typename enable_if_cx < std::is_arithmetic<T>::value || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T >::type                                    Zero()                   {return T(0);}
+template<typename T> typename enable_if_ca < std::is_arithmetic<T>::value || std::is_same<T, infint<long long> >::value || std::is_same<T, polynomial<long long> >::value || std::is_same<T, polynomial<infint<long long> > >::value, T >::type                                    Zero()                   {return T(0);}
 /** @brief One constant in the (+,x) semi-ring
  *  @return 1
  */
-template<typename T> typename enable_if_cx < std::is_arithmetic<T>::value || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T >::type                                    One()                    {return T(1);}
-/** @brief Probability of a given transition
- *  @param * is the letter of the transition
- *  @param v is the probability of the transition
- *  @return the probability of the transition
- */
-template<typename T> typename enable_if_cx < std::is_arithmetic<T>::value && std::is_floating_point<T>::value, T >::type Transition(int,double v) {return T(v);}
-/** @brief Count of a given transition
- *  @param * is the letter of the transition
- *  @param v is the probability of the transition
- *  @return always 1
- */
-template<typename T> typename enable_if_cx < (std::is_arithmetic<T>::value && std::is_integral<T>::value) || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T >::type       Transition(int,double)   {return T(1);}
-
+template<typename T> typename enable_if_ca < std::is_arithmetic<T>::value || std::is_same<T, infint<long long> >::value || std::is_same<T, polynomial<long long> >::value || std::is_same<T, polynomial<infint<long long> > >::value, T >::type                                    One()                    {return T(1);}
 /// cost template (cost is not defined "arithmetic")
 /** @addtogroup cost
  */
@@ -117,17 +104,11 @@ template<typename T> typename enable_if_cx < (std::is_arithmetic<T>::value && st
 /** @brief Zero constant in the (min,+) semi-ring
  *  @return +infinity
  */
-template<typename T> typename disable_if_cx < std::is_arithmetic<T>::value || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                     Zero()                   {return T(0x7fffffff);}
+template<typename T> typename disable_if_ca < std::is_arithmetic<T>::value || std::is_same<T, infint<long long> >::value || std::is_same<T, polynomial<long long> >::value || std::is_same<T, polynomial<infint<long long> > >::value, T>::type                                     Zero()                   {return T(0x7fffffff);}
 /** @brief One constant in the (min,+) semi-ring
  *  @return 0
  */
-template<typename T> typename disable_if_cx < std::is_arithmetic<T>::value || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                     One()                    {return T(0x00000000);}
-/** @brief Cost of the letter for a given transition
- *  @param a is the letter of the transition
- *  @param * is the probability of the transition
- *  @return the cost of the transition letter
- */
-template<typename T> typename disable_if_cx < std::is_arithmetic<T>::value || std::is_same<T, infint<long long int> >::value || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                     Transition(int a,double) {return T(gv_lossless_costs_vector[a]);}
+template<typename T> typename disable_if_ca < std::is_arithmetic<T>::value || std::is_same<T, infint<long long> >::value || std::is_same<T, polynomial<long long> >::value || std::is_same<T, polynomial<infint<long long> > >::value, T>::type                                     One()                    {return T(0x00000000);}
 // @}
 
 #else
@@ -139,23 +120,17 @@ template<typename T> typename disable_if_cx < std::is_arithmetic<T>::value || st
 /** @addtogroup polynomial
  *  @addtogroup infint
  */
-template<typename T> typename enable_if_cx < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T >::type                                         Zero()                    {return T(0);}
+template<typename T> typename enable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T >::type                                         Zero()                    {return T(0);}
 /** @brief One constant in the (+,x) semi-ring
  *  @return 1
  */
-template<typename T> typename enable_if_cx < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T >::type                                         One()                     {return T(1);}
+template<typename T> typename enable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T >::type                                         One()                     {return T(1);}
 /** @brief Probability of a given transition
  *  @param * is the letter of the transition
  *  @param v is the probability of the transition
  *  @return the probability of the transition
  */
-template<typename T> typename enable_if_cx < std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value, T >::type Transition(int,double v)  {return T(v);}
-/** @brief Count of a given transition
- *  @param * is the letter of the transition
- *  @param v is the probability of the transition
- *  @return always 1
- */
-template<typename T> typename enable_if_cx < (std::tr1::is_arithmetic<T>::value && std::tr1::is_integral<T>::value) || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T >::type       Transition(int,double)    {return T(1);}
+
 
 /// cost template (cost is not defined "arithmetic")
 /** @addtogroup cost
@@ -164,21 +139,14 @@ template<typename T> typename enable_if_cx < (std::tr1::is_arithmetic<T>::value 
 /** @brief Zero constant in the (min,+) semi-ring
  *  @return +infinity
  */
-template<typename T> typename disable_if_cx < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                           Zero()                   {return T(0x7fffffff);}
+template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                           Zero()                   {return T(0x7fffffff);}
 /** @brief One constant in the (min,+) semi-ring
  *  @return 0
  */
-template<typename T> typename disable_if_cx < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                           One()                    {return T(0x00000000);}
-/** @brief Cost of the letter for a given transition
- *  @param a is the letter of the transition
- *  @param * is the probability of the transition
- *  @return the cost of the transition letter
- */
-template<typename T> typename disable_if_cx < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long int> >::value || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, T>::type                                           Transition(int a,double) {return T(gv_lossless_costs_vector[a]);}
+template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                           One()                    {return T(0x00000000);}
 // @}
 
 #endif
-
 // @}
 
 

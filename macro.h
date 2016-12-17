@@ -37,9 +37,8 @@ using namespace std;
 /// use a sampling on some alignments before computing the sensitivity (better when many seeds are designed together)
 #define SAMPLING_STRATEGY_MF
 #undef SAMPLING_STRATEGY_MF
-/// keep product of seeds that are less sujbect to change in future (usefull when many seeds are designed together: faster for hillclimbing and full enumeration, but requires more memory)
+/// keep product of seeds that are less subject to change in future (usefull when many seeds are designed together: faster for hillclimbing and full enumeration, but requires more memory)
 #define KEEP_PRODUCT_MF
-#undef KEEP_PRODUCT_MF
 /// compute correlation coefficients for coverage or multi-hit automaton
 #define COMPUTE_CORRELATION_LN
 #undef COMPUTE_CORRELATION_LN
@@ -47,8 +46,6 @@ using namespace std;
 #define USEINFINT
 #undef USEINFINT
 
-/// dont use a matrix (slower and disable the -ll option)
-#undef NOMATRIX
 /// dont use the matrix slicer (slower than the slicer version)
 #define NOSLICER
 #undef NOSLICER
@@ -69,8 +66,6 @@ using namespace std;
 
 // @}
 
-
-#ifndef NOMATRIX
 
 /** @name subalignments computation
  *  @brief parameters used for the sub-alignment computation and selection of the sensitivity/lossless value
@@ -96,8 +91,6 @@ extern subalignment_function_double gv_subalignment_functions_double[SUBALIGNMEN
 /// names of the functions proposed in the "subalignment" computation, see @ref gv_subalignment_functions_int and @ref gv_subalignment_functions_double for their respective implementation
 extern char *                 gv_subalignment_functions_names[SUBALIGNMENT_FUNCTIONS_NUMBER];
 // @}
-
-#endif
 
 /** @name verbosity
  *  @brief verbosity level and macros

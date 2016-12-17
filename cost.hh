@@ -6,7 +6,7 @@
  *  and in the @f$ (\oplus = min, \otimes = plus) @f$ tropical semi-ring
  *
  *
- *  @see matrix
+ *  @see matrix, automaton 
  */
 
 // @{
@@ -35,7 +35,7 @@ using namespace std;
  *  (C++ operators  @f$+@f$ and @f$\times@f$) can be used in both cases : either on costs, otherwise on more
  *  traditional floating point values...
  *
- *  @see matrix
+ *  @see matrix, automaton 
  */
 
 template<typename C> class cost {
@@ -49,17 +49,17 @@ template<typename C> class cost {
 
   // @{
   /// Operator + (min) for two costs
-  template<typename U> friend cost<U> operator+ (cost<U> l, cost<U> r);
+  template<typename U> friend cost<U> operator+ (const cost<U> l,const cost<U> r);
   /// Operator @f$ \times @f$ (add) for two costs
-  template<typename U> friend cost<U> operator* (cost<U> l, cost<U> r);
+  template<typename U> friend cost<U> operator* (const cost<U> l,const cost<U> r);
   /// Operator @f$ != @f$ for two costs
-  template<typename U> friend bool    operator!= (cost<U> l, cost<U> r);
+  template<typename U> friend bool    operator!= (const cost<U> l,const cost<U> r);
   /// Operator @f$ == @f$ for two costs
-  template<typename U> friend bool    operator== (cost<U> l, cost<U> r);
+  template<typename U> friend bool    operator== (const cost<U> l,const cost<U> r);
   /// Operator @f$ < @f$ for two costs
-  template<typename U> friend bool    operator< (cost<U> l, cost<U> r);
+  template<typename U> friend bool    operator< (const cost<U> l,const cost<U> r);
   /// Operator @f$ > @f$ for two costs
-  template<typename U> friend bool    operator> (cost<U> l, cost<U> r);
+  template<typename U> friend bool    operator> (const cost<U> l,const cost<U> r);
   // @}
 
   // @{
@@ -77,34 +77,34 @@ protected:
 };
 
 /// Operator + (min) for two costs
-template<typename C> inline cost<C> operator+ (cost<C> l, cost<C> r) {
+template<typename C> inline cost<C> operator+ (const cost<C> l, const cost<C> r) {
   cost<C> x(MIN(l._c,r._c));
   return x;
 }
 
 /// Operator @f$ \times @f$ (add) for two costs
-template<typename C> inline cost<C> operator* (cost<C> l, cost<C> r) {
+template<typename C> inline cost<C> operator* (const cost<C> l, const cost<C> r) {
   cost<C> x(l._c + r._c);
   return x;
 }
 
 /// Operator @f$ == @f$ for two costs
-template<typename C> inline bool    operator== (cost<C> l, cost<C> r) {
+template<typename C> inline bool    operator== (const cost<C> l, const cost<C> r) {
   return l._c == r._c;
 }
 
 /// Operator @f$ != @f$ for two costs
-template<typename C> inline bool    operator!= (cost<C> l, cost<C> r) {
+template<typename C> inline bool    operator!= (const cost<C> l, const cost<C> r) {
   return l._c != r._c;
 }
 
 /// Operator @f$ < @f$ for two costs
-template<typename C> inline bool    operator< (cost<C> l, cost<C> r) {
+template<typename C> inline bool    operator< (const cost<C> l, const cost<C> r) {
   return l._c < r._c;
 }
 
 /// Operator @f$ > @f$ for two costs
-template<typename C> inline bool    operator> (cost<C> l, cost<C> r) {
+template<typename C> inline bool    operator> (const cost<C> l, const cost<C> r) {
   return l._c > r._c;
 }
 

@@ -101,8 +101,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_iedera_OBJECTS = main.$(OBJEXT) automaton.$(OBJEXT) seed.$(OBJEXT) \
-	macro.$(OBJEXT)
+am_iedera_OBJECTS = main.$(OBJEXT) seed.$(OBJEXT) macro.$(OBJEXT)
 iedera_OBJECTS = $(am_iedera_OBJECTS)
 iedera_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -280,8 +279,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-iedera_SOURCES = main.cc automaton.cc seed.cc macro.cc \
-		         automaton.h  seed.h  macro.h  \
+iedera_SOURCES = main.cc seed.cc macro.cc \
+		         seed.h  macro.h  \
                  matrix.hh cost.hh automaton.hh polynomial.hh infint.hh
 
 EXTRA_DIST = binomial_weight.h lcm.cc 
@@ -375,7 +374,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/automaton.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/macro.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/seed.Po@am__quote@

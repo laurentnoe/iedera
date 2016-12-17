@@ -24,11 +24,13 @@
  *
  *  @section seed-enumeration Enumeration
  *  Enumerating seeds of given span, weight, signature is the main tool proposed in the @ref seed.
+ *  Signature is a fixed set of number, for each non-null seed elements that are needed for the seed.
+ *  Note that null seed elements can be added to increase the span without changing the signature validity.
  *
  *  @subsection full-enum Full enumeration
  *
  *  This is the more time consuming enumeration option, as it fully enumerate the seeds of given span
- *  (@ref gv_minspan and @ref gv_maxspan), weight (@ref gv_minweight and @ref gv_maxweight) and signature
+ *  (between @ref gv_minspan and @ref gv_maxspan), weight (between @ref gv_minweight and @ref gv_maxweight) and possible signature
  *  (@ref gv_signature in activated with @ref gv_signature_flag) constraints.
  *  It also enumerate the set of positions where the seed is applied (when cyclic positions seed:_seedCyclePos_int
  *  is set)
@@ -127,7 +129,7 @@ class seed {
 
 
   /** @name Get functions
-   *  @brief these methods are provided to get information from current seed
+   *  @brief these methods are provided to get direct information from the current seed
    */
 
   //@{
@@ -175,12 +177,18 @@ class seed {
 
   bool  cycled()    {return _seedCyclePos_int != NULL;};
 
+  //@}
+
+  /** @name Check functions
+   *  @brief these methods are provided to compute properties from the current seed
+   */
+
+  //@{
 
   /** @brief check if the seed is symetric
    *  @return true or false
    */
   bool symetric();
-
 
   /** @brief check if the seed is equal to another one
    *  @param other is the seed to be compared with this
@@ -189,30 +197,21 @@ class seed {
    */
   bool equal(seed * other);
 
-
   /** @brief gives the current seed shape (a string
    *         in [0-9A-Za-z]* or (#[0-9]*)* with a possible position restricted part ":1,3,5/7"
    *  @return a string object that represents this seed.
    */
   string str();
 
-
-  //@}
-
-
-  //@{
-
   /** @brief compute the weight of a given seed
    *  @return the weight as a double value
    */
   double weight();
 
-
   /** @brief compute seed selectivity according to the weight (bernoulli model estimation)
    *  @return the selectivity as a double value
    */
   double selectivityFromWeight();
-
 
   /** @brief check if the current seed is acceptable.
    *  This implies a correct weight  (according to gloval variables gv_minweight and gv_maxweight),
@@ -220,7 +219,6 @@ class seed {
    *  @return true when the current seed is acceptable
    */
   bool acceptable();
-
 
   //@}
 
@@ -231,7 +229,6 @@ class seed {
   /** @brief check if the signature is realisable according to the span : stop the program otherwise
    */
   void checksignature();
-
 
   /** @brief set the very first seed signature
    */
@@ -273,6 +270,7 @@ class seed {
    */
   int random();
 
+  //@}
 
 
   //@{
@@ -298,17 +296,15 @@ class seed {
 
   //@}
 
-
-  //@{
-
   /** @brief set cycle properties of the seed
    *  @param cycle_pos is a vector of positions where the seed is allowed to match
    *  @param cycle_size is the maximal position where a position can be set
    */
   void setCyclePos(vector<int> cycle_pos, int cycle_size);
 
-  /**
-   *  @brief return the first position of a hit for the current (possibly positioned) subset seed, -1 otherwise
+  //@{
+
+  /** @brief return the first position of a hit for the current (possibly positioned) subset seed, -1 otherwise
    *  @param alignment is the alignment to be checked
    *  @param matchingmatrix is a boolean matrix that gives for alignment letter "a", and seed letter "b", the matching with "matrix[a][b]"
    *  @return the first position of a hit for the current (possibly positioned) subset seed, -1 otherwise
@@ -316,13 +312,14 @@ class seed {
   int Hit(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix);
 
 
-  /**
-   *  @brief return the number of hits for the current (possibly positioned) subset seed
+  /** @brief return the number of hits for the current (possibly positioned) subset seed
    *  @param alignment is the alignment to be checked
    *  @param matchingmatrix is a boolean matrix that gives for alignment letter "a", and seed letter "b", the matching with "matrix[a][b]"
    *  @return the number of hits for the current (possibly positioned) subset seed
    */
   int mHits(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix);
+
+  //@}
 
 
   /** @brief output a seed object
@@ -408,7 +405,6 @@ class seed {
    * @return the converted value (integer that represents a seed letter) and increments i to the next symbol
    */
   int convert(string & s, int * pos);
-
 
   /**
    *  @brief convert an integer into a string

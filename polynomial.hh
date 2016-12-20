@@ -206,7 +206,7 @@ template<typename C> ostream& operator<< (ostream& os, const polynomial<C> & p) 
   if (p._coefs.size() == 0)
     os << C(0);
 
-  for (int i = 0 ; i < p._coefs.size() ; i++) {
+  for (unsigned i = 0 ; i < p._coefs.size() ; i++) {
     C sign = C(1);
     if (p._coefs[i].second < C(0))
       sign = C(-1);
@@ -224,7 +224,7 @@ template<typename C> ostream& operator<< (ostream& os, const polynomial<C> & p) 
       os << abs_coef;
       first_prod = false;
     }
-    for (int j = 0 ; j < p._var_names.size() ; j++) {
+    for (unsigned j = 0 ; j < p._var_names.size() ; j++) {
       if (p._coefs[i].first[j] != 0) {
 	if (first_prod)
 	  first_prod = false;
@@ -299,7 +299,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       row >> var_symbol;
       //cerr << "variable:" << var_symbol << endl;
       int i_var = -1;
-      for (int i=0; i < p._var_names.size(); i++) {
+      for (unsigned i=0; i < p._var_names.size(); i++) {
         if (!p._var_names[i].compare(var_symbol)) {
           i_var = i;
           var_degree[i_var] = 1;

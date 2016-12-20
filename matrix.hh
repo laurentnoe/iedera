@@ -342,7 +342,7 @@ public:
 
   matrix(const matrix<T> & m) {
     _rows = vector<row<T> >(m._rows.size());
-    for (int i = 0; i < (int)m._rows.size(); i++)
+    for (unsigned i = 0; i < m._rows.size(); i++)
       _rows[i] = row<T>(m._rows[i]);
   };
 
@@ -350,7 +350,7 @@ public:
   /** @brief Erase a matrix (clear _cells_sparse and _cells_dense for each row first)
    */
   ~matrix() {
-    for (int i = 0; i < (int)_rows.size(); i++)
+    for (unsigned i = 0; i < _rows.size(); i++)
       _rows[i].clear();
     _rows.clear();
   };
@@ -358,7 +358,7 @@ public:
   /** @brief Clear a matrix (clear _cells_sparse and _cells_dense for each row first)
    */
   void clear() {
-    for (int i = 0; i < (int)_rows.size(); i++)
+    for (unsigned i = 0; i < _rows.size(); i++)
       _rows[i].clear();
     _rows.clear();
   };
@@ -401,7 +401,7 @@ public:
    */
   inline int fullsize() const {
     int fsize = 0;
-    for (int i = 0; i < (int)_rows.size(); i++)
+    for (unsigned i = 0; i < _rows.size(); i++)
       fsize += _rows[i].size();
     return fsize;
   }
@@ -807,7 +807,7 @@ template<typename T> inline matrix<T> * matrix<T>::Transpose() const {
   // find the max column on the original matrix
   int max_column = 0;
 
-  for (int i = 0; i < (int)_rows.size(); i++) {
+  for (unsigned i = 0; i < _rows.size(); i++) {
     max_column = MAX(max_column,_rows[i].max_index());
   }
 
@@ -830,7 +830,7 @@ template<typename T> inline matrix<T> * matrix<T>::Transpose() const {
     }
   }
 
-  for (int i = 0; i < (int)result->_rows.size(); i++) {
+  for (unsigned i = 0; i < result->_rows.size(); i++) {
     if (result->_rows[i].density() < MATRIX_SPARSE_ROW_DENSITY) {
       result->_rows[i].setsparse(true);
     }
@@ -844,10 +844,10 @@ template<typename T> inline matrix<T> * matrix<T>::Compose(const matrix<T> &othe
   matrix * result = new matrix();
   matrix * other_transpose = other.Transpose();
 
-  for (int i = 0; i < (int)_rows.size(); i++) {
+  for (unsigned i = 0; i < _rows.size(); i++) {
     result->addNewRow(_rows[i].final(),false);
     result->_rows[i]._cells_dense.resize(other_transpose->_rows.size(), Zero<T>()); // FIXME dense mode first
-    for (int j = 0; j < (int)other_transpose->_rows.size(); j++) {
+    for (unsigned j = 0; j < other_transpose->_rows.size(); j++) {
       if (_rows[i]._sparse) {
         if (other_transpose->_rows[j]._sparse) {
           /* 1/4 */
@@ -1190,7 +1190,7 @@ public :
     // empty stacks
     empty_stacks();
     // delete input data
-    for (int i=_i;i<(int)_matrices_data->size();i++) {
+    for (unsigned i=(unsigned)_i; i < _matrices_data->size();i++) {
       (*_matrices_data)[i]->clear();
       delete (*_matrices_data)[i];
     }

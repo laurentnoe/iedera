@@ -75,11 +75,11 @@ as well as the length of the alignment:
 ``NOTE :``
 since enumeration of ``all the combination of multiple seeds`` may
 take time, if "-n" is chosen with a value greater than one, please
-consider the following:
+consider the two following:
 
 
 -r <N>
-  to run the tool on *N*  *Randomly* generated seed patterns
+  to run the tool on *N*  randomly generated seed patterns
 
 -k
   to activate the hill-climbing algorithm on previous parameter -r
@@ -88,8 +88,8 @@ consider the following:
 (more at  http://bioinfo.lifl.fr/yass/iedera.php#details)
    
   
-Example
--------
+Examples
+--------
 
 Spaced seeds
 ~~~~~~~~~~~~
@@ -98,7 +98,7 @@ A very small example where the weight is set to 11 and span at most 22 (full enu
 
   iedera -spaced -w 11,11 -s 11,22
 
-A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 trial will be done with the hill-climbing algorithm:
+A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 trial will be done with the hill-climbing algorithm::
 
   iedera -spaced -n 2 -w 11,11 -s 11,22 -l 50 -r 10000 -k
 

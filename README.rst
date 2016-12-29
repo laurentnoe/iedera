@@ -25,7 +25,16 @@ Using the command line, type::
   cd iedera
   ./configure
   make
+
+or::
   
+  git clone https://github.com/laurentnoe/iedera.git
+  cd iedera
+  autoreconf
+  ./configure
+  automake
+  make
+
 you can install  ``iedera`` to a standard ``/local/bin`` directory::
 
   sudo make install

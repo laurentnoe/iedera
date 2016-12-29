@@ -1,0 +1,9 @@
+language : cpp
+os:
+  - linux
+  - osx
+compiler:
+  - clang
+  - gcc
+script:
+  - autoreconf && ./configure && automake && make

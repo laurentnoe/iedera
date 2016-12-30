@@ -1,23 +1,16 @@
 
-.. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/badges.svg?style=flat-square&label=AppVeyor%20CI
-    :target: https://ci.appveyor.com/project/laurentnoe/iedera/badges
+.. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/master.svg?style=flat-square&label=AppVeyor%20CI
+    :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
-.. image:: https://img.shields.io/travis/laurentnoe/iedera/badges.svg?style=flat-square&label=Travis%20CI
-    :target: https://travis-ci.org/laurentnoe/iedera/badges
+.. image:: https://img.shields.io/travis/laurentnoe/iedera/master.svg?style=flat-square&label=Travis%20CI
+    :target: https://travis-ci.org/laurentnoe/iedera/
     :alt: Build Status Unix
 
 ..  imagehttps://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coveralls
     targethttps://coveralls.io/github/laurentnoe/iedera
     altCoverage Status
 
-.. imagehttps://img.shields.io/pypi/v/appveyor-artifacts.svg?style=flat-square&label=Latest
-   targethttps://pypi.python.org/pypi/appveyor-artifacts
-   altLatest Version
-
-.. imagehttps://img.shields.io/pypi/dm/appveyor-artifacts.svg?style=flat-square&label=PyPI%20Downloads
-   targethttps://pypi.python.org/pypi/appveyor-artifacts
-   altDownloads
 
 iedera
 ======

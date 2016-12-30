@@ -7,6 +7,10 @@
     :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
+.. image:: https://img.shields.io/website-up-down-green-red/http/bioinfo.lifl.fr.svg?style=flat-square&label=Website
+    :target: https://bioinfo.lifl.fr/yass/iedera.php
+    :alt: Website
+
 ..  imagehttps://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coveralls
     targethttps://coveralls.io/github/laurentnoe/iedera
     altCoverage Status

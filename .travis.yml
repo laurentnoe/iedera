@@ -6,4 +6,4 @@ compiler:
   - clang
   - gcc
 script:
-  - autoreconf && ./configure && automake && make
+  - autoreconf && ./configure && automake && make && make check

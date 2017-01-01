@@ -1,0 +1,2 @@
+#!/bin/sh
+./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 15,15

@@ -6,8 +6,10 @@ matrix:
   include:
     - os: linux
       dist: trusty
+      sudo: false
     - os: osx
       osx_image: xcode8.2
+      sudo: false
 script:
   - autoreconf && ./configure && automake && make && make check
 

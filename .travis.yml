@@ -1,12 +1,13 @@
-language : cpp
-os:
-  - linux
-    dist: trusty
-  - osx
-    osx_image: xcode8.2
+language: cpp
 compiler:
   - gcc
   - clang
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: osx
+      osx_image: xcode8.2
 script:
   - autoreconf && ./configure && automake && make && make check
 

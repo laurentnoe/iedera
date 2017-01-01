@@ -1,2 +1,2 @@
 #!/bin/sh
-./iedera_gcov -spaced -y 2
+./iedera_gcov -spaced -y 2 -r 10 -k -z 1

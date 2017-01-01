@@ -1,2 +1,2 @@
 #!/bin/sh
-./iedera_gcov -spaced -l 25 -w 12,12 -s 19,19 -L 1,0 -X 2
+./iedera_gcov -spaced -l 25 -w 12,12 -s 19,19 -L 1,0 -X 2 -r 1000 -k

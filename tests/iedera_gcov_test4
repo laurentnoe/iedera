@@ -1,2 +1,2 @@
 #!/bin/sh
-./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 11,11 -s 18,18 -b 0.75,0.25 -f 0.3,0.7
+./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 11,11 -s 18,18 -b 0.75,0.25 -f 0.3,0.7 -r 1000 -k

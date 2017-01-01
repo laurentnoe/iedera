@@ -6,6 +6,7 @@ os:
     osx_image: xcode8.2
 compiler:
   - gcc
+  - clang
 script:
   - autoreconf && ./configure && automake && make && make check
 
@@ -20,4 +21,4 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  pyenv rehash              ; fi
 
 after_success:
-  - coveralls --gcov-options '\-lp'
+  - if [[ "$CC" == "gcc" ]]; then coveralls --dryrun --gcov-options '\-lp'; fi

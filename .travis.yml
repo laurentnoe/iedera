@@ -2,9 +2,8 @@ language : cpp
 os:
   - linux
     dist: trusty
-    sudo: required
   - osx
-    osx_image: xcode7.2
+    osx_image: xcode8.2
 compiler:
   - gcc
 script:
@@ -21,4 +20,4 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  pyenv rehash              ; fi
 
 after_success:
-  - coveralls --dryrun --gcov-options '\-lp'
+  - coveralls --gcov-options '\-lp'

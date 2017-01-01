@@ -1,0 +1,9 @@
+.gitignore
+
+Makefile
+.deps
+*.cache
+*.log
+*.o
+*.status
+iedera

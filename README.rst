@@ -59,7 +59,7 @@ you can install  ``iedera`` to a standard ``/local/bin`` directory::
 
 or copy the binary directly to your homedir::
    
-  cp iedera ~/.
+  cp src/iedera ~/.
 
 Command-line
 ------------

@@ -183,16 +183,21 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
 
 
 AC_INIT([iedera],[1.07],[laurent DT noe AT univ-lille1 DT fr],[iedera],[http://bioinfo.lifl.fr/yass/iedera])
-AC_CONFIG_SRCDIR([main.cc])
+AC_CONFIG_SRCDIR([src/main.cc])
 AC_LANG([C++])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects
+                  foreign
+                  parallel-tests
+                  color-tests])
+CXXFLAGS=""
 AC_PROG_CXX
 AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h])
 AC_CHECK_FUNCS([gettimeofday sqrt strdup strtol])
 ACX_CHECK_TYPE_TRAITS_CXX0X
-CXXFLAGS="$CXXFLAGS -O3 -pipe -funroll-loops -Wall"
 LIBS="$LIBS -lm"
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LIBS)
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 tests/Makefile])
 AC_OUTPUT

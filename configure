@@ -585,7 +585,7 @@ PACKAGE_STRING='iedera 1.07'
 PACKAGE_BUGREPORT='laurent DT noe AT univ-lille1 DT fr'
 PACKAGE_URL='http://bioinfo.lifl.fr/yass/iedera'
 
-ac_unique_file="main.cc"
+ac_unique_file="src/main.cc"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2757,6 +2757,7 @@ END
   fi
 fi
 
+CXXFLAGS=""
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4170,11 +4171,10 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-CXXFLAGS="$CXXFLAGS -O3 -pipe -funroll-loops -Wall"
 LIBS="$LIBS -lm"
 
 
-ac_config_files="$ac_config_files Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile tests/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4920,6 +4920,8 @@ do
   case $ac_config_target in
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

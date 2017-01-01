@@ -7,3 +7,5 @@ compiler:
   - gcc
 script:
   - autoreconf && ./configure && automake && make && make check
+after_success:
+  - coveralls

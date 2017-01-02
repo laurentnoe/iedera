@@ -1472,6 +1472,9 @@ void SCANARG(int argc , char ** argv) {
       if (gv_correlation_flag) {
         _ERROR("\"-g /or/ -y <CORRELATION>\" and \"-ll\" are not compatible together","<many ways to make sense with this combination ?>");
       }
+      if (gv_homogeneous_flag) {
+        _ERROR("\"-u <HOMOGENEOUS>\" and \"-ll\" are not compatible together","<not implemented yet, and no simple way of doing this ?>");
+      }
       gv_subalignment_flag = true;
     } else if (!strcmp(argv[i],"-llf")||!strcmp(argv[i],"--sublengthfunction")) {
       PARSESTRING(i, argv, argc, gv_subalignment_function_index, gv_subalignment_functions_names,
@@ -1479,6 +1482,9 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-u")||!strcmp(argv[i],"--homogeneous")) {
       if (gv_correlation_flag) {
         _ERROR("\"-g /or/ -y <CORRELATION>\" and \"-u\" homogeneous are not compatible together","<not implemented yet, but do you need it ?>");
+      }
+      if (gv_subalignment_flag) {
+        _ERROR("\"-u <HOMOGENEOUS>\" and \"-ll\" are not compatible together","<not implemented yet, and no simple way of doing this ?>");
       }
       PARSEHOMOGENEOUS(i, argv, argc, gv_homogeneous_scores);
       gv_homogeneous_flag = true;

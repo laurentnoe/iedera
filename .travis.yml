@@ -19,4 +19,4 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user cpp-coveralls; fi
 
 after_success:
-  -  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; if [[ "$CC" == "gcc" ]]; then coveralls --gcov-options '\-lp'; fi; fi
+  -  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [[ "$CC" == "gcc" ]]; then coveralls --gcov-options '\-lp'; fi; fi

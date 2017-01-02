@@ -59,3 +59,7 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -1,1  || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -2,1  || exit 99
 
+
+# (8) dominant with input output
+./iedera_gcov -spaced -BSymbols 01 -w 11,11 -s 11,11 -p -o _fileout_dominant_
+./iedera_gcov -spaced -BSymbols 01 -w 11,11 -s 18,18 -p -e _fileout_dominant_ -o _fileout_dominant_ -m "111011001010010111"

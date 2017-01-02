@@ -49,8 +49,8 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -n 2 -c 3 -q 2 -z 30
 
 # (6) classical spaced seeds with command-line "-x" "-f" "-b" "-a" "-M"
-./iedera_gcov -A 2 -B 2 -M "{{1,1},{0,1}}" -BSymbols 01 -w 5,5 -s 5,9 -b 0.75,0.25 -f 0.3,0.7 -r 10 -k -x -a 0.05 || exit 99
-
+./iedera_gcov -A 2 -B 2 -M "{{1,1},{0,1}}" -BSymbols 01 -w 5,5 -s 5,9 -b 0.75,0.25 -f 0.3,0.7         -r 10 -k -x -a 0.05 || exit 99
+./iedera_gcov -A 2 -B 2 -M "{{1,1},{0,1}}" -BSymbols 01 -w 5,5 -s 5,9 -b 0.75,0.25 -f 0.1,0.3,0.2,0.4 -r 10 -k -x -a 0.05 || exit 99
 
 # (7) classical spaced seeds with homogeneous
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16          || exit 99
@@ -58,3 +58,4 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -1,2  || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -1,1  || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -2,1  || exit 99
+

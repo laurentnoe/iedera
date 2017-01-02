@@ -7,7 +7,7 @@
     :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
-.. image:: https://img.shields.io/coveralls/laurentnoe/iedera/src_tests_dirs.svg?style=flat-square&label=Coverage
+.. image:: https://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
     :target: https://coveralls.io/github/laurentnoe/iedera
     :alt: Coverage
 

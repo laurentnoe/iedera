@@ -1,27 +1,27 @@
 #!/bin/sh
 # (1) transitive spaced seeds (any possible transition at any "@")
-./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,16 -r 10 -k -m "##@-#-@-#@-#@##"
+./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,16 -r 10 -k -m "##@-#-@-#@-#@##" || exit 99
 
 # (2) transitive spaced seeds with modified vector to enable "only one" transition at one of the "four @" symbols (BlastZ like)
-./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,18 -V -S "{{0,0,0},{0,0,1},{0,0,0}}" -T 3 -r 10 -k -m "#@#-@#-#--@@-###"
+./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,18 -V -S "{{0,0,0},{0,0,1},{0,0,0}}" -T 3 -r 10 -k -m "#@#-@#-#--@@-###" || exit 99
 
 # (3.1) transitive spaced seesd enumeration (signature)
-./iedera_gcov -transitive -i 0,2,3 -w 4,4 -s 5,7 -z 1 -l 16
+./iedera_gcov -transitive -i 0,2,3 -w 4,4 -s 5,7 -z 1 -l 16 || exit 99
 
 # (3.2) transitive spaced seeds random (signature)
-./iedera_gcov -transitive -n 2 -i 0,2,3 -w 4,4 -s 5,7 -l 16 -r 100
+./iedera_gcov -transitive -n 2 -i 0,2,3 -w 4,4 -s 5,7 -l 16 -r 100 || exit 99
 
 # (3.3) transitive spaced seeds hill climbing (signature)
-./iedera_gcov -transitive -n 2 -i 0,2,3 -w 4,4 -s 5,7 -l 16 -r 100 -k
+./iedera_gcov -transitive -n 2 -i 0,2,3 -w 4,4 -s 5,7 -l 16 -r 100 -k || exit 99
 
 # (4.1) transitive spaced seeds enumeration (no signature) 
-./iedera_gcov -transitive -w 4,4 -s 5,7 -l 16 -r 100 -k
+./iedera_gcov -transitive -w 4,4 -s 5,7 -l 16 -r 100 -k || exit 99
 
 # (4.2) transitive spaced seeds random (signature)
-./iedera_gcov -transitive -n 2 -w 4,4 -s 5,7 -l 16 -r 100
+./iedera_gcov -transitive -n 2 -w 4,4 -s 5,7 -l 16 -r 100 || exit 99
 
 # (4.3) transitive spaced seeds hill climbing (signature)
-./iedera_gcov -transitive -n 2 -w 4,4 -s 5,7 -l 16 -r 100 -k
+./iedera_gcov -transitive -n 2 -w 4,4 -s 5,7 -l 16 -r 100 -k || exit 99
 
 # (5) automaton input
 echo "2\n      0    0\n           0    1\n                0    0.04\n           1    2\n                0    0.06\n                1    0.10\n           2    1\n                0    0.80\n      1    0\n           0    1\n                1    0.05\n           1    1\n                1    0.25\n           2    1\n                0    0.70\n" > _filein_automaton_
@@ -30,4 +30,4 @@ echo "2\n      0    0\n           0    1\n                0    0.04\n           
 
 # (6) matrix input
 echo "{{1,1,1},{0,1,1},{0,0,1}}" > _filein_matrix_
-./iedera_gcov -transitive -MF _filein_matrix_ -i 0,4,7 -w 9,9 -s 11,16 -r 10 -k -m "##@-#-@-#@-#@##"
+./iedera_gcov -transitive -MF _filein_matrix_ -i 0,4,7 -w 9,9 -s 11,16 -r 10 -k -m "##@-#-@-#@-#@##" || exit 99

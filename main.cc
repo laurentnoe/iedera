@@ -1446,11 +1446,18 @@ void SCANARG(int argc , char ** argv) {
 
       // 1.3) lossless seeds
     } else if (!strcmp(argv[i],"-L")||!strcmp(argv[i],"--LosslessCosts")) {
+      if (gv_correlation_flag) {
+        _ERROR("lossless mode and \"-g /or/ -y <CORRELATION>\" are not compatible together","<not implemented yet, but do you need it ?>");
+      }
+      if (gv_homogeneous_flag) {
+        _ERROR("lossless mode and \"-u\" homogeneous are not compatible together","<not implemented yet, but do you need it ?>");
+      }
+      if (gv_subalignment_flag) {
+        _ERROR("lossless mode and \"-ll\" are not compatible together","<not implemented yet, and no simple way of doing this ?>");
+      }
       PARSEINTS(i, argv, argc, gv_lossless_costs_vector, gv_align_alphabet_size, true, 0, 1000);
       gv_lossless_flag = true;
-      if (gv_correlation_flag) {
-        _ERROR("\"-g /or/ -y <CORRELATION>\" and lossless mode are not compatible together","<not implemented yet, but do you need it ?>");
-      }
+
     } else if (!strcmp(argv[i],"-X")||!strcmp(argv[i],"--LosslessCostThreshold")) {
       PARSEINT(i, argv, argc, gv_lossless_cost_threshold, 0, 1000);
 
@@ -1470,10 +1477,13 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-ll")||!strcmp(argv[i],"--sublength")) {
       PARSEINT(i, argv, argc, gv_subalignment_length, 1, gv_alignment_length);
       if (gv_correlation_flag) {
-        _ERROR("\"-g /or/ -y <CORRELATION>\" and \"-ll\" are not compatible together","<many ways to make sense with this combination ?>");
+        _ERROR("\"-ll\" and \"-g /or/ -y <CORRELATION>\"  are not compatible together","<many ways to make sense with this combination ?>");
       }
       if (gv_homogeneous_flag) {
-        _ERROR("\"-u\" homogeneous and \"-ll\" are not compatible together","<not implemented yet, and no simple way of doing this ?>");
+        _ERROR("\"-ll\" and \"-u\" homogeneous are not compatible together","<not implemented yet, and no simple way of doing this ?>");
+      }
+      if (gv_lossless_flag) {
+        _ERROR("\"-ll\" and lossless mode are not compatible together","<not implemented yet, and no simple way of doing this ?>");
       }
       gv_subalignment_flag = true;
     } else if (!strcmp(argv[i],"-llf")||!strcmp(argv[i],"--sublengthfunction")) {
@@ -1485,6 +1495,9 @@ void SCANARG(int argc , char ** argv) {
       }
       if (gv_subalignment_flag) {
         _ERROR("\"-u\" homogeneous and \"-ll\" are not compatible together","<not implemented yet, and no simple way of doing this ?>");
+      }
+      if (gv_lossless_flag) {
+        _ERROR("\"-u\" homogeneous and lossless mode are not compatible together","<not implemented yet, but do you need it ?>");
       }
       PARSEHOMOGENEOUS(i, argv, argc, gv_homogeneous_scores);
       gv_homogeneous_flag = true;

@@ -25,8 +25,8 @@
 
 # (5) automaton input
 echo "2\n      0    0\n           0    1\n                0    0.04\n           1    2\n                0    0.06\n                1    0.10\n           2    1\n                0    0.80\n      1    0\n           0    1\n                1    0.05\n           1    1\n                1    0.25\n           2    1\n                0    0.70\n" > _filein_automaton_
-./iedera_gcov -transitive -fF _filein_automaton_ -m "##@-#-@-#@-#@##" || exit 99
-./iedera_gcov -transitive -fF _filein_automaton_ -m "##@-#-@-#@-#@##" -mx "################" || exit 99
+./iedera_gcov -transitive -fF _filein_automaton_ -m "##@-#-@-#@-#@##" 
+./iedera_gcov -transitive -fF _filein_automaton_ -m "##@-#-@-#@-#@##" -mx "################"
 
 # (6) matrix input
 echo "{{1,1,1},{0,1,1},{0,0,1}}" > _filein_matrix_

@@ -616,6 +616,19 @@ void PARSESTRING(int & i, char ** argv, int argc,
   _ERROR("PARSESTRING","\"" << argv[i-1] << "\" argument \"" << argv[i] << "\" is not accepted by this option");
 }
 
+/// check if a signature is compatible with a given weight range (this must be tested when the weight is changed, or the signature changed)
+void CHECKSIGNATURE() {
+  if (gv_weight_interval_flag && gv_signature_flag) {
+    double signature_weight = 0.0;
+    for (int b = 0; b < gv_seed_alphabet_size; b++)
+      signature_weight += gv_signature[b] * gv_bsel_weight[b];
+    if (signature_weight < gv_minweight)
+      _ERROR("CHECKSIGNATURE", " the \"-i\" signature computed weight " << signature_weight << " is too small when compared with the current weight range " << gv_minweight << "," << gv_maxweight);
+    if (signature_weight > gv_maxweight)
+      _ERROR("CHECKSIGNATURE", " the \"-i\" signature computed weight " << signature_weight << " is too large when compared with the current weight range " << gv_minweight << "," << gv_maxweight);
+  }
+}
+
 /// parse and check a signature (number of seed elements inside a seed)
 void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
   i++;
@@ -639,8 +652,9 @@ void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
   // check table size
   if ((int)table.size() != gv_seed_alphabet_size)
     _ERROR("PARSESIGNATURE", " there is not a correct number of <int> values given by " << argv[i-1] << " when compared with the current seed alphabet size B = " << gv_seed_alphabet_size);
+  // check signature and weight interval
+  CHECKSIGNATURE();
 }
-
 
 /// parse and check a homogeneous scoring system
 void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & table) {
@@ -1475,6 +1489,7 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-w")||!strcmp(argv[i],"--weight")) {
       gv_weight_interval_flag = true;
       PARSEDDOUBLE(i, argv, argc, gv_minweight, 0, 1e32, gv_maxweight, 0, 1e32);
+      CHECKSIGNATURE();
     } else if (!strcmp(argv[i],"-n")||!strcmp(argv[i],"--number")) {
       int gv_nbseeds;
       PARSEINT(i, argv, argc, gv_nbseeds, 1, 1000);
@@ -1517,8 +1532,8 @@ void SCANARG(int argc , char ** argv) {
       PARSEINT(i, argv, argc, gv_xseeds_multihit_nb, 1, 64);
       gv_xseeds_multihit_flag = true;
     } else if (!strcmp(argv[i],"-i")||!strcmp(argv[i],"--idsign")) {
-      PARSESIGNATURE(i, argv, argc, gv_signature);
       gv_signature_flag = true;
+      PARSESIGNATURE(i, argv, argc, gv_signature);
     } else if (!strcmp(argv[i],"-x")||!strcmp(argv[i],"--symetric")) {
       PARSEFLAG(i, argv, argc, gv_symetric, true);
     } else if (!strcmp(argv[i],"-y")||!strcmp(argv[i],"--multihit")) {
@@ -1653,6 +1668,11 @@ void SCANARG(int argc , char ** argv) {
       // transitives params
       gv_align_alphabet_size = 3;
       gv_seed_alphabet_size  = 3;
+      if (gv_signature_flag) {
+        gv_signature = std::vector<int>(0);
+        gv_signature_flag = false;
+        _WARNING("\"-i\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-i\" option");
+      }
       if (gv_xseeds.size()) {
         gv_xseeds = std::vector<seed *>(0);
         _WARNING("\"-mx\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-mx\" option");
@@ -1691,7 +1711,11 @@ void SCANARG(int argc , char ** argv) {
       // spaced params
       gv_align_alphabet_size = 2;
       gv_seed_alphabet_size  = 2;
-      gv_signature_flag = false;
+      if (gv_signature_flag) {
+        gv_signature = std::vector<int>(0);
+        gv_signature_flag = false;
+        _WARNING("\"-i\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-i\" option");
+      }
       if (gv_xseeds.size()) {
         gv_xseeds = std::vector<seed *>(0);
         _WARNING("\"-mx\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-mx\" option");

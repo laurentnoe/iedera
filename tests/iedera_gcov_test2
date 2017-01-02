@@ -1,2 +1,6 @@
 #!/bin/sh
-./iedera_gcov -spaced -l 25 -w 12,12 -s 19,19 -L 1,0 -X 2 -r 1000 -k
+# (1) transitive spaced seeds (any possible transition at any "@")
+./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,16 -r 10 -k -m "##@-#-@-#@-#@##"
+
+# (2) transitive spaced seeds with modified vector to enable "only one" transition at one of the "four @" symbols (BlastZ like)
+./iedera_gcov -transitive -i 0,4,7 -w 9,9 -s 11,18 -V -S "{{0,0,0},{0,0,1},{0,0,0}}" -T 3 -r 10 -k -m "#@#-@#-#--@@-###"

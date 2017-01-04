@@ -2011,7 +2011,6 @@ template<typename T> ostream& operator<<(ostream & os, const automaton<T> & au) 
 
 /// input method for an automaton<T> au
 template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
-  // [FIXME] : check the probability sum on double, and on polynomial (any non cost or costpoly system)
 
   // clear previous automaton
   for (int i = 0; i < (int) au._states.size(); i++){
@@ -2038,9 +2037,34 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
     is >> state;
     if (state != i) {
       cerr << "> when reading automaton state " << state << endl;
-      _ERROR(" operator>>","incorrect state number " << state  << " (expected " << i << ")");
+      _ERROR(" operator>>","incorrect state number " << state  << " (expected " << i << " as a logical order)");
     }
     is >> au._states[i];
+
+    // post-reading checking on state transitions
+    for (unsigned a = 0;  a < au._states[i]._next.size(); a++) {
+      for (unsigned j = 0;  j < au._states[i]._next[a].size(); j++) {
+        int st = au._states[i]._next[a][j]._state;
+        if (st < 0 || st >= size) {
+          cerr << "> when reading automaton state " << i << endl;
+          _ERROR("operator>>","incorrect transition on letter " << a << " (" << (j+1) << "st/nd transition on this letter) to state " << st << " (not in [0.."<<(size-1)<<"])");
+        }
+      }
+    }
+    // post-reading check on probabilities (note : for polynomials and double, so double approx may trigger some warnings)
+    if (IsProb<T>()) {
+      T probability_sum = Zero<T>();
+      for (unsigned a = 0;  a < au._states[i]._next.size(); a++) {
+        for (unsigned j = 0;  j < au._states[i]._next[a].size(); j++) {
+          T pr = au._states[i]._next[a][j]._prob;
+          probability_sum = probability_sum + pr;
+        }
+      }
+      if (probability_sum != One<T>()) {
+        cerr << "> when reading automaton state " << i << endl;
+        _WARNING("operator>>","possibly incorrect probability sum on all transitions : " <<  probability_sum << " (compared to " <<  One<T>() << ", diff " << (One<T>() - probability_sum) << ")");
+      }
+    }
   }
   return is;
 }

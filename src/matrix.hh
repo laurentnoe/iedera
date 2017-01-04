@@ -111,6 +111,14 @@ template<typename T> typename disable_if_ca < std::is_arithmetic<T>::value || st
 template<typename T> typename disable_if_ca < std::is_arithmetic<T>::value || std::is_same<T, infint<long long> >::value || std::is_same<T, polynomial<long long> >::value || std::is_same<T, polynomial<infint<long long> > >::value, T>::type                                     One()                    {return T(0x00000000);}
 // @}
 
+/** @brief IsProb() check if \<T\> can be interpreted as a probability
+ *  @return true if \<T\> is a probability, false otherwise
+ */
+/// floating point and polynomials
+template<typename T> typename enable_if_ca< (std::is_arithmetic<T>::value && std::is_floating_point<T>::value) || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                    IsProb()                 {return true;}
+/// integer count and costs
+template<typename T> typename disable_if_ca< (std::is_arithmetic<T>::value && std::is_floating_point<T>::value) || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                   IsProb()                 {return false;}
+
 #else
 
 /// arithmetic templates (for double)
@@ -125,13 +133,6 @@ template<typename T> typename enable_if_ca < std::tr1::is_arithmetic<T>::value |
  *  @return 1
  */
 template<typename T> typename enable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T >::type                                         One()                     {return T(1);}
-/** @brief Probability of a given transition
- *  @param * is the letter of the transition
- *  @param v is the probability of the transition
- *  @return the probability of the transition
- */
-
-
 /// cost template (cost is not defined "arithmetic")
 /** @addtogroup cost
  */
@@ -139,12 +140,20 @@ template<typename T> typename enable_if_ca < std::tr1::is_arithmetic<T>::value |
 /** @brief Zero constant in the (min,+) semi-ring
  *  @return +infinity
  */
-template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                           Zero()                   {return T(0x7fffffff);}
+template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                          Zero()                   {return T(0x7fffffff);}
 /** @brief One constant in the (min,+) semi-ring
  *  @return 0
  */
-template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                           One()                    {return T(0x00000000);}
+template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value || std::tr1::is_same<T, infint<long long> >::value || std::tr1::is_same<T, polynomial<long long> >::value || std::tr1::is_same<T, polynomial<infint<long long> > >::value, T>::type                                          One()                    {return T(0x00000000);}
 // @}
+
+/** @brief IsProb() check if \<T\> can be interpreted as a probability
+ *  @return true if \<T\> is a probability, false otherwise
+ */
+/// floating point and polynomials
+template<typename T> typename enable_if_ca< (std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value) || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                         IsProb()                 {return true;}
+/// integer count and costs
+template<typename T> typename disable_if_ca< (std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value) || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                        IsProb()                 {return false;}
 
 #endif
 // @}

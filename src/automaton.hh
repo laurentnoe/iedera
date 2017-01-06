@@ -4350,7 +4350,7 @@ template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> &
   }
   statesOfScore.clear();
   if (!AcceptingStateReachable) {
-    _ERROR("Automaton_Homogeneous","cannot reach the given score according to -u and -x parameters");
+    _ERROR("Automaton_Homogeneous","cannot reach a positive score according to -u parameters");
   }
   return 0;
 }

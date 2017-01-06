@@ -3049,7 +3049,7 @@ int main(int argc, char * argv[]) {
     if (pr_div_excluded == 1.0) {
       _ERROR("EXCLUDED SEEDS"," the seed(s) provided by the \"-mx\" option reaches a full sensitivity of 1.0");
     }
-    VERB_FILTER(VERBOSITY_MODERATE, INFO__("> pr_div_excluded : " << pr_div_excluded););
+    VERB_FILTER(VERBOSITY_MODERATE, INFO__(" - pr_div_excluded : " << pr_div_excluded););
   }
 
   // check if some options are not compatible with the current sampling (cannot reimplement everything)

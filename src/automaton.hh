@@ -1068,7 +1068,7 @@ public:
               stateNx = StateFinal;
             } else {
 #ifdef USEMAPPRODUCT
-              if  (statesNbIndex.find(PRODINDEX(indexNx)) != statesNbIndex.end()) {
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
 #else
               if  (!statesNbIndex[PRODINDEX(indexNx)]) {
 #endif
@@ -1157,10 +1157,10 @@ public:
 #ifdef USEMAPPRODUCT
     typedef map< pair<int,int>, int> maptype;
     maptype statesNbIndex;
-#define MHITINDEX(i) (i)
+#define PRODINDEX(i) (i)
 #else
     vector<int> statesNbIndex( this->size() * m, 0);
-#define MHITINDEX(i) ((i).first * m + (i).second)
+#define PRODINDEX(i) ((i).first * m + (i).second)
 #endif
 
 #ifdef USEQUEUEPRODUCT
@@ -1172,7 +1172,7 @@ public:
     // (1) start the mhits init state
     pair<int,unsigned int> indexN    = pair<int,unsigned int>(1,0);
     int stateNumber                  = result->addNewState();
-    statesNbIndex[MHITINDEX(indexN)] = stateNumber;
+    statesNbIndex[PRODINDEX(indexN)] = stateNumber;
     statesNbRemaining.push(indexN);
 
     if (gv_subalignment_flag && (this->_init_states.size() > 0)) {
@@ -1198,7 +1198,7 @@ public:
 
       int thisStateN = indexN.first;
       int     mhitN  = indexN.second;
-      int     stateN = statesNbIndex[MHITINDEX(indexN)];
+      int     stateN = statesNbIndex[PRODINDEX(indexN)];
 
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$pop state:" << stateN););
 
@@ -1220,11 +1220,10 @@ public:
             pair<int, unsigned int> indexNx = pair<int, unsigned int>(thisStateNextN, mhitNx);
 
 #ifdef USEMAPPRODUCT
-              if  (statesNbIndex.find(MHITINDEX(indexNx)) != statesNbIndex.end()) {
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
 #else
-              if  (!statesNbIndex[MHITINDEX(indexNx)]) {
+              if  (!statesNbIndex[PRODINDEX(indexNx)]) {
 #endif
-
 
 #ifdef USEQUEUEPRODUCT
               // compute level
@@ -1237,7 +1236,7 @@ public:
 #endif
                 // create a new state
                 stateNx = result->addNewState();
-                statesNbIndex[MHITINDEX(indexNx)] = stateNx;
+                statesNbIndex[PRODINDEX(indexNx)] = stateNx;
                 statesNbRemaining.push(indexNx);
 
                 if ( ///@todo{FIXME : not sure that this is correct ... need to be checked twice}
@@ -1261,7 +1260,7 @@ public:
               }
 #endif
             } else {
-              stateNx = statesNbIndex[MHITINDEX(indexNx)];
+              stateNx = statesNbIndex[PRODINDEX(indexNx)];
             }
           }
 
@@ -1424,7 +1423,7 @@ public:
             } else {
 
 #ifdef USEMAPPRODUCT
-              if  (statesNbIndex.find(PRODINDEX(indexNx)) != statesNbIndex.end()) {
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
 #else
               if  (!statesNbIndex[PRODINDEX(indexNx)]) {
 #endif
@@ -1590,7 +1589,7 @@ public:
               if (final_state && final_loop) {
                 stateNx = 0;
               } else {
-                if  (!statesNbIndex[(level_i+1)%2][indexNx]) {
+                if  (statesNbIndex[(level_i+1)%2].find(indexNx) == statesNbIndex[(level_i+1)%2].end()) {
                   stateNx                               = (*result)[level_i+1]->addNewRow(final_state);
                   statesNbIndex[(level_i+1)%2][indexNx] = stateNx;
                   statesNbRemaining[(level_i+1)%2].push(indexNx);

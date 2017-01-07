@@ -28,15 +28,15 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -mx "1111111111" -mxy 2 -ll 32 -llf med || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -g 2 -m "11111011111" -mx "1111111111" -mxy 2 -ll 32 -llf avg -p || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -p -y SPEARMAN || exit 99
-./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -p -y PEARSON || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -p -y PEARSON  || exit 99
 
-# (4) classical spaced seeds with some lossless tests [FIXME ? see with -mx ?]
+# (4) classical spaced seeds with some lossless tests
 ./iedera_gcov -spaced -BSymbols 01 -l 25 -w 12,12 -s 15,15 -L 1,0 -X 2 -m "111111000111111" -r 10 -k || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -l 25 -w 12,12 -s 19,19 -L 1,0 -X 2 -m "1110100111010011101" || exit 99
-#./iedera_gcov -spaced -BSymbols 01 -l 32 -w 12,12 -s 15,15 -L 1,0 -X 2 -m "1110100111010011101" -ll 25 #OUPS ?
 ./iedera_gcov -spaced -BSymbols 01 -l 50 -w 12,12 -L 1,0 -X 5 -m "1010100010000010101000100000101010001" || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -l 50 -w 12,12 -L 1,0 -X 2 -m "1010100010000010101000100000101010001:1/2"  -p || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -l 25 -L 1,0 -X 2 -m "11110101100111101011,101100111101011001111" || exit 99
+./iedera_gcov -spaced -BSymbols 01 -l 25 -L 1,0 -X 3 -m "1000111101011001000111,11101011001000111101,1011001000111101011001,110010001111010110010001" || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -l 32 -L 1,0 -X 5 -m "1111000100000000010001001111,111001001100000000101111,11110000100100110111,111010100011001111,11101101100101011,11110110101111" || exit 99
 
 # (5) classical spaced seeds with cycle
@@ -44,9 +44,13 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111" -mx "1111111111" || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 2 || exit 99
-./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 10 || exit 99
-./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 10 || exit 99
-./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 2 -r 10 -k  || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 5 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 5 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 2 -u -1,1 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 5 -u -1,1 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 2 -u -5,1 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 5 -u -1,5 || exit 99
+./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" -mxy 2 -r 10 -k || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -c 3 -q 2 -z 1
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -n 2 -c 3 -q 2 -z 30
 
@@ -60,7 +64,6 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -1,2  || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -1,1  || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 5,5 -s 5,8 -m "111011" -l 16 -u -2,1  || exit 99
-
 
 # (8) dominant with input output
 ./iedera_gcov -spaced -BSymbols 01 -w 11,11 -s 11,11 -p -o _fileout_dominant_ || exit 99

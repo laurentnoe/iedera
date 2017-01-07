@@ -23,15 +23,10 @@ using namespace std;
 /// some build debug
 #define BUILD
 #undef BUILD
-/// only used in the old implemetation of @ref automaton::Automaton_SeedPrefixesMatching_old
-#define USEQUEUEAUTOMATON
-#undef USEQUEUEAUTOMATON
 
 /* map (or direct index) table */
 /// use a map for the product and not an array (better for sparse results)
 #define USEMAPPRODUCT
-/// use a map for the m-hits product and not an array (better for sparse results)
-#define USEMAPMHIT
 
 
 /// use a sampling on some alignments before computing the sensitivity (better when many seeds are designed together)
@@ -60,9 +55,6 @@ using namespace std;
 #define NO_FULL_MATRIX_BLOCK
 /// use a queue for the product (otherwise it is a stack that disables some optimizations)
 #define USEQUEUEPRODUCT
-/// use a queue for the mhit automaton (otherwise is is a stack)
-#define USEQUEUEMHIT
-
 
 // @}
 

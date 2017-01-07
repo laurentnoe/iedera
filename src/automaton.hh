@@ -1067,7 +1067,11 @@ public:
             if (final_state && final_loop) {
               stateNx = StateFinal;
             } else {
+#ifdef USEMAPPRODUCT
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) != statesNbIndex.end()) {
+#else
               if  (!statesNbIndex[PRODINDEX(indexNx)]) {
+#endif
 
 #ifdef USEQUEUEPRODUCT
                 if (level_i <= depth) {
@@ -1150,7 +1154,7 @@ public:
     //   - second is the number of finals "added to go to this state"
 
 
-#ifdef USEMAPMHIT
+#ifdef USEMAPPRODUCT
     typedef map< pair<int,int>, int> maptype;
     maptype statesNbIndex;
 #define MHITINDEX(i) (i)
@@ -1159,7 +1163,7 @@ public:
 #define MHITINDEX(i) ((i).first * m + (i).second)
 #endif
 
-#ifdef USEQUEUEMHIT
+#ifdef USEQUEUEPRODUCT
     queue< pair<int,unsigned int> >  statesNbRemaining;
 #else
     stack< pair<int,unsigned int> >  statesNbRemaining;
@@ -1175,7 +1179,7 @@ public:
       result->_init_states.push_back(1);
     }
 
-#ifdef USEQUEUEMHIT
+#ifdef USEQUEUEPRODUCT
     // depth of the states beeing built
     int level_i                    = 0;
     int stateN_of_level_i          = stateNumber;
@@ -1185,7 +1189,7 @@ public:
     while (!statesNbRemaining.empty()) {
 
       // current state remaining
-#ifdef USEQUEUEMHIT
+#ifdef USEQUEUEPRODUCT
       pair<int,unsigned int> indexN  =  statesNbRemaining.front();
 #else
       pair<int,unsigned int> indexN  =  statesNbRemaining.top();
@@ -1215,9 +1219,14 @@ public:
           } else {
             pair<int, unsigned int> indexNx = pair<int, unsigned int>(thisStateNextN, mhitNx);
 
-            if  (!statesNbIndex[MHITINDEX(indexNx)]) {
+#ifdef USEMAPPRODUCT
+              if  (statesNbIndex.find(MHITINDEX(indexNx)) != statesNbIndex.end()) {
+#else
+              if  (!statesNbIndex[MHITINDEX(indexNx)]) {
+#endif
 
-#ifdef USEQUEUEMHIT
+
+#ifdef USEQUEUEPRODUCT
               // compute level
               if (stateN > stateN_of_level_i) {
                 stateN_of_level_i = (result->size() - 1);
@@ -1244,7 +1253,7 @@ public:
 
                 VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$push state:" << dec << stateNx););
 
-#ifdef USEQUEUEMHIT
+#ifdef USEQUEUEPRODUCT
               } else {
                 // max level reached : goes to a "non final" loop state
                 stateNx = result->addNewState();
@@ -1413,7 +1422,12 @@ public:
             if (final_state && final_loop) {
               stateNx = 0;
             } else {
+
+#ifdef USEMAPPRODUCT
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) != statesNbIndex.end()) {
+#else
               if  (!statesNbIndex[PRODINDEX(indexNx)]) {
+#endif
 
 #ifdef USEQUEUEPRODUCT
                 // compute level
@@ -2615,7 +2629,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   // fast state index (designed to retrieve a state given <X,t> code
   vector<int> statesNbIndex(TCODE[motif_span+(nomerge?1:0)]+1, 0);
   // queue/stack used to store non preprocessed states <X,t> code
-#ifdef USEQUEUEAUTOMATON
+#ifdef USEQUEUEPRODUCT
   queue<int>  statesNbRemaining;
 #else
   stack<int>  statesNbRemaining;
@@ -2638,7 +2652,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   while (!statesNbRemaining.empty()) {
 
     // current state remaining
-#ifdef USEQUEUEAUTOMATON
+#ifdef USEQUEUEPRODUCT
     int Xstate_I = statesNbRemaining.front();
 #else
     int Xstate_I = statesNbRemaining.top();

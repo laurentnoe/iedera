@@ -3026,7 +3026,7 @@ int main(int argc, char * argv[]) {
 
     // b) compute the foreground probability
     if (gv_homogeneous_flag) {
-      automaton<int> * na = a_excluded->product(*a_homogeneous, PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+      automaton<int> * na = a_excluded->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
       delete a_excluded;
       a_excluded = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded x homogeneous size : " << (a_excluded->size())););

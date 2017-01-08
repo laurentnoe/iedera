@@ -367,7 +367,7 @@ void USAGE() {
   cerr << "         * example : \"-spaced -l 64 -y 32 -y PEARSON\" for a %%id of 50%% and PEARSON correlation computation" << endl;
   cerr << "      -p           : activate \"Mak Benson 2009\" dominant selection and output polynomial (useful on Bernoulli only)" << endl;
   cerr << "         * example : \"-spaced -l 8 -m \"##-#\" -p\" must output the additional values :"<< endl;
-  cerr << "                          0,0=1; 1,0=8;2,0=28;3,0=51;4,0=45;5,0=15;6,0=1;"<< endl;
+  cerr << "                          0,0=1;1,0=8;2,0=28;3,0=51;4,0=45;5,0=15;6,0=1;"<< endl;
   cerr << "                          3,1=5;4,1=25;5,1=41;6,1=27;7,1=8;8,1=1;" << endl;
   cerr << "                      for the (matching) polynomial (second line: terms contain \",1\") where q ~ 1-p:" << endl;
   cerr << "                             3 8-3    4 8-4    5 8-5    6 8-6    7 8-7   8 8-8" << endl;

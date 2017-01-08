@@ -6,4 +6,9 @@ Makefile
 *.log
 *.o
 *.status
+*.trs
+*.gcda
+*.gcno
+_*_
 iedera
+iedera_gcov

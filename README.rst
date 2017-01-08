@@ -136,7 +136,7 @@ will give the classical PatternHunter 1 spaced seed ::
 
 
 
-A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 trial will be done with the hill-climbing algorithm::
+A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 seeds will be tested with the hill-climbing algorithm activated::
 
   iedera -spaced -n 2 -w 11,11 -s 11,22 -l 50 -r 10000 -k
 

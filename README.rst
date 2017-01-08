@@ -15,15 +15,11 @@
     :target: https://bioinfo.lifl.fr/yass/iedera.php
     :alt: Website
 
-..  imagehttps://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coveralls
-    targethttps://coveralls.io/github/laurentnoe/iedera
-    altCoverage Status
-
 
 iedera
 ======
 
-(more at  http://bioinfo.lifl.fr/yass/iedera.php)
+(more at  <http://bioinfo.lifl.fr/yass/iedera.php>)
 
 ``iedera`` is a tool to select and design *spaced seeds*, *transition
 constrained spaced seeds*, or more generally *subset seeds*, and
@@ -33,7 +29,7 @@ constrained spaced seeds*, or more generally *subset seeds*, and
 Installation
 ------------
 
-(more at  http://bioinfo.lifl.fr/yass/iedera.php#downloadiedera)
+(more at  <http://bioinfo.lifl.fr/yass/iedera.php#downloadiedera>)
 
 You need a C++ compiler and the autotools. On Linux, you can install
 ``g++``, ``autoconf``, ``automake``. On Mac, you can install
@@ -68,7 +64,7 @@ or copy the binary directly to your homedir::
 Command-line
 ------------
 
-(more at  http://bioinfo.lifl.fr/yass/iedera.php#quick)
+(more at  <http://bioinfo.lifl.fr/yass/iedera.php#quick>)
 
 
 **First, use** one of these two parameters :
@@ -116,7 +112,7 @@ consider the two following:
   to activate the hill-climbing algorithm on previous parameter -r
  
 
-(more at  http://bioinfo.lifl.fr/yass/iedera.php#details)
+(more at  <http://bioinfo.lifl.fr/yass/iedera.php#details>)
    
   
 Examples

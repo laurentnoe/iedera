@@ -125,9 +125,16 @@ Examples
 Spaced seeds
 ~~~~~~~~~~~~
   
-A very small example where the weight is set to 11 and span at most 22 (full enumeration)::
+A very small example where the weight is set to 11 and span at most 18 (full enumeration)::
 
-  iedera -spaced -w 11,11 -s 11,22
+  iedera -spaced -w 11,11 -s 11,18
+
+will give the classical PatternHunter 1 spaced seed ::
+ 
+  ###-#--#-#--##-###	0.999999761581      0.467122       0.532878
+  (SEED PATTERN)        (selectivity)       (SENSITIVITY)  (distance to 1,1)
+
+
 
 A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 trial will be done with the hill-climbing algorithm::
 

@@ -1118,7 +1118,7 @@ public:
               if (std::is_void<T>::value) {
                   switch (thisOrOtherIsProbabilist) {
                   case PRODUCT_OTHER_IS_PROBABILIST:
-                      result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
+		    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
                     break;
                   default:
                     result->addNewTransition(a,stateN,stateNx);
@@ -1950,7 +1950,7 @@ protected:
    *  @param endingState is the ending state
    *  @param prob is the new probability
    */
-  template<class Q = T> typename disable_if_ca <std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
+  template<class Q = T> typename enable_if_ca <!std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {
@@ -1982,7 +1982,7 @@ protected:
    *  @param startingState is the starting state
    *  @param endingState is the ending state
    */
-  template<class Q = T> typename enable_if_ca <std::is_void<Q>::value, void>::type  addNewTransition(const int a , const int startingState , const int endingState) {
+  inline void addNewTransition(const int a , const int startingState , const int endingState) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {
@@ -2148,15 +2148,9 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
 
     for (int a = 0; a < gv_align_alphabet_size; a++){
       if (MATCHES_AB(a,b)){
-        if (std::is_void<T>::value)
-          addNewTransition(a,Prevstate_I,Nextstate_I);
-        else
-          addNewTransitionProb(a,Prevstate_I,Nextstate_I,T(+1e+0/gv_align_alphabet_size));
+	addNewTransition(a,Prevstate_I,Nextstate_I);
       } else {
-        if (std::is_void<T>::value)
-          addNewTransition(a,Prevstate_I,RejectBagstate_I);
-        else
-          addNewTransitionProb(a,Prevstate_I,RejectBagstate_I,T(+1e+0/gv_align_alphabet_size));
+	addNewTransition(a,Prevstate_I,RejectBagstate_I);
       }
     }
     Prevstate_I = Nextstate_I;

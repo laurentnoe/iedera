@@ -121,7 +121,7 @@ Examples
 Spaced seeds
 ~~~~~~~~~~~~
   
-A very small example where the weight is set to 11 and span at most 18 (full enumeration)::
+A very small example where the seed weight is set to 11, and the span is at most 18 (full enumeration)::
 
   iedera -spaced -w 11,11 -s 11,18
 
@@ -132,7 +132,7 @@ will give the classical PatternHunter 1 spaced seed ::
 
 
 
-A second example where the number of seeds is now set to 2, alignment length to 50 and 10000 seeds will be tested with the hill-climbing algorithm activated::
+A second example where the number of seeds is now set to 2, the alignment length is set to 50, and 10000 seeds will be tested with the hill-climbing algorithm activated::
 
   iedera -spaced -n 2 -w 11,11 -s 11,22 -l 50 -r 10000 -k
 
@@ -161,3 +161,13 @@ A second example for lossless seeds (from Kucherov,Noe&Roytberg) on the previous
   iedera -spaced -l 25 -L 1,0 -X 2 -n 2 -s 20,21 -w 14,14  -r 100..some.zeros..00 -k
   
 
+Polynomial form
+~~~~~~~~~~~~~~~
+
+When the probability p to generate a match is not fixed (for example p=0.7 in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called dominant seeds. We have noticed that this dominance applies as well for any other i.i.d criteria (Hit Integration, Lossless seeds, ...) (see <http://cristal.univ-lille.fr/~noe/files/spaced_seed_dominance.pdf>) so:
+
+-p
+  to activate dominant selection and output polynomial coefficients
+ 
+
+is added in the current commited version of iedera.

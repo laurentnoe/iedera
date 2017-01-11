@@ -346,7 +346,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
     next_variable:
       string var_symbol;
       row >> var_symbol;
-      cerr << "variable:" << var_symbol << endl;
+      //cerr << "variable:" << var_symbol << endl;
       int i_var = -1;
       
       // extend var_degree up to this variable if it is already defined

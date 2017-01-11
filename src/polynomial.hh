@@ -335,7 +335,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         _ERROR("operator>>"," missing * or + symbol (found : \""<< c_times_power_plus_symbol << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {
-        p._coefs.push_back( pair<vector<int>, C>(var_degree, coef * sign));
+        p._coefs.push_back(pair<vector<int>, C>(var_degree, coef * sign));
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else
@@ -374,7 +374,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       row >> c_times_power_plus_symbol;
       //cerr << "symbol2:" << c_times_power_plus_symbol << endl;
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {
-        p._coefs.push_back( pair<vector<int>, C>(var_degree, coef * sign));
+        p._coefs.push_back(pair<vector<int>, C>(var_degree, coef * sign));
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else

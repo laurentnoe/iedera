@@ -2880,7 +2880,7 @@ int main(int argc, char * argv[]) {
   }
 
   // build the lossless automaton
-  automaton<int> a_lossless;
+  automaton<void> a_lossless;
   double    lossless_set_sens = 1.0;
   if (gv_lossless_flag) {
     a_lossless.Automaton_Lossless(gv_lossless_costs_vector, gv_lossless_cost_threshold);
@@ -2907,7 +2907,7 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_homogeneous = 1.00;
-  automaton<int> * a_homogeneous = new automaton<int>();
+  automaton<void> * a_homogeneous = new automaton<void>();
   if (gv_homogeneous_flag) {
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Homogeneous automaton : {";
                                            for (int a = 0; a < gv_align_alphabet_size; a++) {
@@ -2920,7 +2920,7 @@ int main(int argc, char * argv[]) {
     a_homogeneous->Automaton_Homogeneous(gv_homogeneous_scores, gv_alignment_length);
     VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - size : " << (a_homogeneous->size())););
     if (gv_minimize_flag) {
-      automaton<int> * na = a_homogeneous->Hopcroft();
+      automaton<void> * na = a_homogeneous->Hopcroft();
       delete a_homogeneous;
       a_homogeneous = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - reduced size : " << (a_homogeneous->size())););
@@ -2944,7 +2944,7 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_excluded = 0.00;
-  automaton<int> * a_excluded = NULL;
+  automaton<void> * a_excluded = NULL;
   if (gv_xseeds.size()) {
 
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Excluded automaton : ";
@@ -2957,12 +2957,12 @@ int main(int argc, char * argv[]) {
     // a) build the excluded seed automaton
     for (unsigned i = 0; i < gv_xseeds.size(); i++){
 
-      automaton<int> * a_se = new automaton<int>();
+      automaton<void> * a_se = new automaton<void>();
       VERB_FILTER(VERBOSITY_MODERATE, INFO__(" = seed : " << (*gv_xseeds[i])););
       SEEDAUTOMATON(a_se, gv_xseeds[i],  gv_xseeds[i]->cycled() || gv_xseeds_multihit_flag );
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - size : " << (a_se->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_se->Hopcroft();
+        automaton<void> * na = a_se->Hopcroft();
         delete a_se;
         a_se = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced size : " << (a_se->size())););
@@ -2972,15 +2972,15 @@ int main(int argc, char * argv[]) {
 
       // excluded seed cycle
       if (gv_xseeds[i]->cycled()) {
-        automaton<int> * na = a_se;
-        automaton<int> * a_cycle = new automaton<int>();
+        automaton<void> * na = a_se;
+        automaton<void> * a_cycle = new automaton<void>();
         a_cycle->Automaton_Cycle(gv_xseeds[i]->maxpos(), gv_xseeds[i]->pos(), gv_xseeds[i]->nbpos());
         a_se = (a_se)->product(*a_cycle, gv_xseeds_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
         delete a_cycle;
         delete na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - cycled size : " << (a_se->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_se->Hopcroft();
+          automaton<void> * na = a_se->Hopcroft();
           delete a_se;
           a_se = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced cycled size : " << (a_se->size())););
@@ -2989,11 +2989,11 @@ int main(int argc, char * argv[]) {
 
       // excluded automaton
       if (i > 0) {
-        automaton<int> * a_excluded_temp = a_excluded;
+        automaton<void> * a_excluded_temp = a_excluded;
         a_excluded = a_excluded->product(*a_se,  gv_xseeds_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = excluded product size : " << (a_excluded->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_excluded->Hopcroft();
+          automaton<void> * na = a_excluded->Hopcroft();
           delete a_excluded;
           a_excluded = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced excluded product size : " << (a_excluded->size())););
@@ -3009,12 +3009,12 @@ int main(int argc, char * argv[]) {
 
     // excluded automaton multihit
     if (gv_xseeds_multihit_flag) {
-      automaton<int> * a_excluded_temp = a_excluded;
+      automaton<void> * a_excluded_temp = a_excluded;
       a_excluded = a_excluded->mhit(gv_xseeds_multihit_nb, gv_alignment_length);
       delete a_excluded_temp;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_excluded->Hopcroft();
+        automaton<void> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded size : " << (a_excluded->size())););
@@ -3026,12 +3026,12 @@ int main(int argc, char * argv[]) {
 
     // b) compute the foreground probability
     if (gv_homogeneous_flag) {
-      automaton<int> * na = a_excluded->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+      automaton<void> * na = a_excluded->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
       delete a_excluded;
       a_excluded = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded x homogeneous size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_excluded->Hopcroft();
+        automaton<void> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded x homogeneous size : " << (a_excluded->size())););
@@ -3070,7 +3070,7 @@ int main(int argc, char * argv[]) {
 
   bool   hillclimbing_flag      = false;
   std::vector<double>      sel  = std::vector<double>    (gv_seeds.size(),0.0);
-  std::vector<automaton<int> *> a_s  = std::vector<automaton<int>*>(gv_seeds.size(),NULL);
+  std::vector<automaton<void> *> a_s  = std::vector<automaton<void>*>(gv_seeds.size(),NULL);
   double hillclimbing_threshold = 1e-6;
 
   int    seed_to_hillclimbing      =                                   rand()%gv_seeds.size();
@@ -3085,7 +3085,7 @@ int main(int argc, char * argv[]) {
   double selp = 0.0;
 
 #ifdef KEEP_PRODUCT_MF
-  std::vector<automaton<int>*> a_s_product(gv_seeds.size(), NULL);
+  std::vector<automaton<void>*> a_s_product(gv_seeds.size(), NULL);
   std::vector<int>        a_s_product_seed(gv_seeds.size(), -1);
 #endif
 
@@ -3244,13 +3244,13 @@ int main(int argc, char * argv[]) {
               }
             }
 #endif
-            (a_s[i]) = new automaton<int>();
+            (a_s[i]) = new automaton<void>();
             SEEDAUTOMATON(a_s[i], gv_seeds[i], gv_seeds[i]->cycled() || gv_multihit_flag);
 
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton size : " << (a_s[i]->size())););
 
             if (gv_minimize_flag) {
-              automaton<int> * na = (a_s[i])->Hopcroft();
+              automaton<void> * na = (a_s[i])->Hopcroft();
               delete (a_s[i]);
               (a_s[i]) = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced size : " << (a_s[i]->size())););
@@ -3270,8 +3270,8 @@ int main(int argc, char * argv[]) {
 
             // cycle
             if (gv_seeds[i]->cycled()) {
-              automaton<int> * na = a_s[i];
-              automaton<int> * a_cycle = new automaton<int>();
+              automaton<void> * na = a_s[i];
+              automaton<void> * a_cycle = new automaton<void>();
               a_cycle->Automaton_Cycle(gv_seeds[i]->maxpos(), gv_seeds[i]->pos(), gv_seeds[i]->nbpos());
               a_s[i] = (a_s[i])->product(*a_cycle, gv_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton cycled size : " << (a_s[i]->size())););
@@ -3279,7 +3279,7 @@ int main(int argc, char * argv[]) {
               delete a_cycle;
               delete na;
               if (gv_minimize_flag) {
-                automaton<int> * na = a_s[i]->Hopcroft();
+                automaton<void> * na = a_s[i]->Hopcroft();
                 delete a_s[i];
                 a_s[i] = na;
                 VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced cycled size : " << (a_s[i]->size())););
@@ -3297,13 +3297,13 @@ int main(int argc, char * argv[]) {
 
       // (2) compute sensitivity (and lossless property when needed ...)
       int lossless = 0;
-      automaton<int> * a_spr = NULL;
+      automaton<void> * a_spr = NULL;
 
       // FIXMECOV >>
       if (gv_covariance_flag) {
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           if (!a_s[i]) {
-            a_s[i] = new automaton<int>();
+            a_s[i] = new automaton<void>();
             a_s[i]->Automaton_SeedLinearMatching(*(gv_seeds[i]),gv_subsetseed_matching_matrix);
           }
         }
@@ -3315,7 +3315,7 @@ int main(int argc, char * argv[]) {
       if (gv_global_coverage_flag) {
 
         // (2.1) global coverage constraint
-        a_spr = new automaton<int>();
+        a_spr = new automaton<void>();
         a_spr->Automaton_SeedPrefixesMatching_CoverageDM(gv_seeds,
                                                          gv_global_coverage_cost,
                                                          gv_subsetseed_matching_matrix);
@@ -3327,7 +3327,7 @@ int main(int argc, char * argv[]) {
         // <<
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = automaton global coverage size : " << (a_spr->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr->Hopcroft();
+          automaton<void> * na = a_spr->Hopcroft();
           delete a_spr;
           a_spr = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - automaton reduced global coverage size : " << (a_spr->size())););
@@ -3384,7 +3384,7 @@ int main(int argc, char * argv[]) {
                         );
 
             if (gv_minimize_flag) {
-              automaton<int> * na = a_spr->Hopcroft();
+              automaton<void> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + reduced multiseed [";
@@ -3408,13 +3408,13 @@ int main(int argc, char * argv[]) {
 #else
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           if (i != 0) {
-            automaton<int> * a_spr_temp = a_spr;
+            automaton<void> * a_spr_temp = a_spr;
             a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
 
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
 
             if (gv_minimize_flag) {
-              automaton<int> * na = a_spr->Hopcroft();
+              automaton<void> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
@@ -3434,7 +3434,7 @@ int main(int argc, char * argv[]) {
       //<<
 
       // multihit (xor) global_coverage
-      automaton<int> * a_spr_mhits_or_gcov_res = a_spr;
+      automaton<void> * a_spr_mhits_or_gcov_res = a_spr;
       if (gv_multihit_flag || gv_global_coverage_flag) {
 
         a_spr_mhits_or_gcov_res = a_spr->mhit(gv_multihit_flag?gv_multihit_nb:gv_global_coverage_nb, gv_alignment_length);
@@ -3442,7 +3442,7 @@ int main(int argc, char * argv[]) {
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_mhits_or_gcov_res->Hopcroft();
+          automaton<void> * na = a_spr_mhits_or_gcov_res->Hopcroft();
           delete a_spr_mhits_or_gcov_res;
           a_spr_mhits_or_gcov_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
@@ -3450,14 +3450,14 @@ int main(int argc, char * argv[]) {
       }
 
       // homogeneous
-      automaton<int> * a_spr_h_res = a_spr_mhits_or_gcov_res;
+      automaton<void> * a_spr_h_res = a_spr_mhits_or_gcov_res;
       if (gv_homogeneous_flag) {
         a_spr_h_res = a_spr_mhits_or_gcov_res->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
 
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = homogeneous product size : " << (a_spr_h_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_h_res->Hopcroft();
+          automaton<void> * na = a_spr_h_res->Hopcroft();
           delete a_spr_h_res;
           a_spr_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced homogeneous product size : " << (a_spr_h_res->size())););
@@ -3465,14 +3465,14 @@ int main(int argc, char * argv[]) {
       }
 
       // excluded seeds
-      automaton<int> * a_spr_mx_h_res = a_spr_h_res;
+      automaton<void> * a_spr_mx_h_res = a_spr_h_res;
       if (gv_xseeds.size()) {
         a_spr_mx_h_res = a_spr_h_res->product(*a_excluded, PRODUCT_BUTNOT_NO_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
 
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mx product size : " << (a_spr_mx_h_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_mx_h_res->Hopcroft();
+          automaton<void> * na = a_spr_mx_h_res->Hopcroft();
           delete a_spr_mx_h_res;
           a_spr_mx_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mx product size : " << (a_spr_mx_h_res->size())););
@@ -3593,10 +3593,10 @@ int main(int argc, char * argv[]) {
 #ifndef LOSSLESS_PROB
             if (gv_hillclimbing_flag) {
 #endif
-              automaton<int> * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              automaton<void> * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
               // @note{NOTE : both "reject" and "final" states are final so "final" should not be use to mesure probs}
               if (gv_minimize_flag) {
-                automaton<int> * na = a_spr_mx_h_res_loss->Hopcroft();
+                automaton<void> * na = a_spr_mx_h_res_loss->Hopcroft();
                 delete a_spr_mx_h_res_loss;
                 a_spr_mx_h_res_loss = na;
               }
@@ -3672,9 +3672,9 @@ int main(int argc, char * argv[]) {
 
                << "\t0\t1" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t0\t x" << endl
+               << "\t\t\t0\t 1" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t1\t 1 - x" << endl
+               << "\t\t\t0\t 1" << endl
 
                << "\t1\t0" << endl
                << "\t\t0\t1" << endl
@@ -3684,15 +3684,15 @@ int main(int argc, char * argv[]) {
 
                << "\t2\t0" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t2\t 1 - x" << endl
+               << "\t\t\t2\t 1 - x - y" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t3\t x" << endl
+               << "\t\t\t3\t x + y" << endl
 
                << "\t3\t0" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t2\t 1 - y" << endl
+               << "\t\t\t2\t 1 - x" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t3\t y" << endl;
+               << "\t\t\t3\t x" << endl;
 
 
             ss >> at;
@@ -3762,9 +3762,9 @@ int main(int argc, char * argv[]) {
             delete a_x_v_j;
             for (int shift = -span_j+1; shift <= span_i-1; shift++) {
               int len = MAX(span_i - MIN(shift,0) , span_j + MAX(shift,0));
-              automaton<int> * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, len, NULL, shift);
+              automaton<void> * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, len, NULL, shift);
               if (gv_minimize_flag) {
-                automaton<int> * na = p->Hopcroft();
+                automaton<void> * na = p->Hopcroft();
                 delete p;
                 p = na;
               }

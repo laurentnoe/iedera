@@ -1112,16 +1112,42 @@ public:
             VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
             // add a transition on from stateN --a--> stateNx.
-            switch (thisOrOtherIsProbabilist) {
-            case PRODUCT_NONE_IS_PROBABILIST:
+            if (std::is_void<T>::value && std::is_void<U>::value ) {
               result->addNewTransition(a,stateN,stateNx);
-              break;
-            case PRODUCT_THIS_IS_PROBABILIST:
-              result->addNewTransition(a,stateN,stateNx,iterA->_prob);
-              break;
-            case PRODUCT_OTHER_IS_PROBABILIST:
-              result->addNewTransition(a,stateN,stateNx,iterB->_prob);
-              break;
+            } else {
+              if (std::is_void<T>::value) {
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_OTHER_IS_PROBABILIST:
+                      result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
+                    break;
+                  default:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  }
+              } else {
+                if (std::is_void<U>::value) {
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_THIS_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx); /* FIXME NOT CORRECt HERE : <U>==<T> to work*/
+                    break;
+                  default:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  }
+                } else {
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_NONE_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  case PRODUCT_THIS_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx);/* FIXME NOT CORRECT HERE : <U>==<T> to work*/
+                    break;
+                  case PRODUCT_OTHER_IS_PROBABILIST:
+                    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
+                    break;
+                  }
+                }
+              }
             }
           }// for (listB)
         }// for (listA)
@@ -1267,7 +1293,7 @@ public:
           VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
           // add a transition on from stateN --a--> stateNx.
-          result->addNewTransition(a,stateN,stateNx,iter->_prob);
+          result->addNewTransition(a,stateN,stateNx);
         }// for (list)
       }// for (a)
     }//while stack nonempty
@@ -1814,7 +1840,15 @@ public:
    */
   inline void selfLoop(const int stateNb) {
     for (int a = 0; a < gv_align_alphabet_size; a++)
-      addNewTransition(a,stateNb,stateNb,T(+1e+0/gv_align_alphabet_size));
+      addNewTransition(a,stateNb,stateNb);
+  }
+
+  /**@brief make the state "stateNb" loop on itselft for any letter
+   * @param stateNb is the state that must be looped
+   */
+  inline void selfLoopProb(const int stateNb) {
+    for (int a = 0; a < gv_align_alphabet_size; a++)
+      addNewTransitionProb(a,stateNb,stateNb,T(+1e+0/gv_align_alphabet_size));
   }
 
 
@@ -1910,14 +1944,45 @@ protected:
     return _states.size() - 1;
   }
 
-
   /** @brief add a new transition between two states
    *  @param "a" is the transition letter
    *  @param startingState is the starting state
    *  @param endingState is the ending state
    *  @param prob is the new probability
    */
-  inline void addNewTransition(const int a , const int startingState , const int endingState, const T prob = T(1.0/gv_align_alphabet_size)) {
+  template<class Q = T> typename disable_if_ca <std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
+
+#ifdef ASSERTB
+    if (a < 0 || a >= gv_align_alphabet_size) {
+      _ERROR("addNewTransitionProb","transition letter out of range");
+    }
+
+    if (startingState >= (int)_states.size() || endingState >= (int)_states.size()) {
+      _ERROR("addNewTransitionProb","state required does not exist");
+    }
+#endif
+
+    // forward linking
+#ifdef ASSERTB
+    // do not add twice the same state in the "a" backward list
+    for (typename vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
+      if ( iter->_state == endingState) {
+        cerr << "> when linking state q2:" << dec << endingState << " with state q1:" << dec << startingState << " on letter a:" << dec << a << endl;
+        _ERROR("addNewTransitionProb"," state q2 has already a transition on \"a\" ");
+      }
+    }
+#endif
+    _states[startingState]._next[a].push_back(transition<T>(endingState,prob));
+  }
+
+
+
+  /** @brief add a new transition between two states
+   *  @param "a" is the transition letter
+   *  @param startingState is the starting state
+   *  @param endingState is the ending state
+   */
+  template<class Q = T> typename enable_if_ca <std::is_void<Q>::value, void>::type  addNewTransition(const int a , const int startingState , const int endingState) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {
@@ -1939,37 +2004,9 @@ protected:
       }
     }
 #endif
-    _states[startingState]._next[a].push_back(transition<T>(endingState,prob));
+    _states[startingState]._next[a].push_back(transition<T>(endingState));
   }
 
-  /** @brief change the transition probability
-   *  @param "a" is the transition letter
-   *  @param startingState is the starting state
-   *  @param endingState is the ending state
-   *  @param prob is the new probability
-   *  @return 0
-   */
-  inline int changeTransitionProb(const int a, const int startingState, const int endingState, const T prob) {
-
-#ifdef ASSERTB
-    if (a < 0 || a >= gv_align_alphabet_size) {
-      _ERROR(":changeTransitionProb","transition letter out of range");
-    }
-
-    if (startingState >= (int)_states.size() || endingState >= (int)_states.size()) {
-      _ERROR(":changeTransitionProb","state required does not exist");
-    }
-#endif
-
-    // forward link probability
-    for (typename vector<transition<T> >::iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
-      if (iter->_state == endingState) {
-        iter->_prob = prob;
-        break;
-      }
-    }
-    return 0;
-  }
 
   /** @brief check if there is at least one transition from the startingState labeled with "a"
    *  @param a is the transition letter
@@ -2111,9 +2148,15 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
 
     for (int a = 0; a < gv_align_alphabet_size; a++){
       if (MATCHES_AB(a,b)){
-        addNewTransition(a,Prevstate_I,Nextstate_I,T(+1e+0/gv_align_alphabet_size));
+        if (std::is_void<T>::value)
+          addNewTransition(a,Prevstate_I,Nextstate_I);
+        else
+          addNewTransitionProb(a,Prevstate_I,Nextstate_I,T(+1e+0/gv_align_alphabet_size));
       } else {
-        addNewTransition(a,Prevstate_I,RejectBagstate_I,T(+1e+0/gv_align_alphabet_size));
+        if (std::is_void<T>::value)
+          addNewTransition(a,Prevstate_I,RejectBagstate_I);
+        else
+          addNewTransitionProb(a,Prevstate_I,RejectBagstate_I,T(+1e+0/gv_align_alphabet_size));
       }
     }
     Prevstate_I = Nextstate_I;
@@ -4219,7 +4262,7 @@ template<typename T> int automaton<T>::Automaton_Bernoulli(const vector <T> & p 
   addNewState();
   int InitState_I = addNewState();
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    addNewTransition(a, InitState_I,  InitState_I, p[a]);
+    addNewTransitionProb(a, InitState_I,  InitState_I, p[a]);
   }
   return 0;
 }
@@ -4237,7 +4280,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
 
   // empty ending state
   addNewState(TRUE);
-  selfLoop(0);
+  selfLoopProb(0);
 
   int InitState_I = addNewState();    // starting at state 1
 
@@ -4270,7 +4313,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
     for (int buklet = 0; buklet < ApowKplus; buklet++) {
       int state = addNewState();
       int base  = state -  InitState_I - 1;
-      addNewTransition(base%gv_align_alphabet_size,
+      addNewTransitionProb(base%gv_align_alphabet_size,
                        base/gv_align_alphabet_size +  InitState_I,
                        state,
                        proba[buklet] / probasum[buklet/gv_align_alphabet_size] /* [FIXME] */);
@@ -4287,7 +4330,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
     }
 
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      addNewTransition(a ,
+      addNewTransitionProb(a ,
                        nextbase +  (b        )%ApowK, // previous word
                        nextbase +  (bplus + a)%ApowK, // next word
                        p[bplus + a] / psum /* [FIXME] */);
@@ -4374,7 +4417,7 @@ template<typename T>  int automaton<T>::Automaton_CountAlphabetSymbols(const int
   addNewState(0);
   for (int i = 0; i < 2; i++)
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      addNewTransition(a, i, (a >=  min_a) ? 0 : 1, 1);
+      addNewTransitionProb(a, i, (a >=  min_a) ? 0 : 1, 1);
     }
   return 0;
 }

@@ -3664,18 +3664,7 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
-
-
-            /*>>*/
-/*
-            vector<string> vn;
-            vn.push_back(string("x"));
-            vn.push_back(string("y"));
-            vn.push_back(string("xp"));
-            vn.push_back(string("yp"));
-
-            polynomial<infint<long long> >::setvars(vn);
-
+            //>>
             automaton<polynomial<infint<long long> > > at;
             std::stringstream ss;
             //
@@ -3683,48 +3672,47 @@ int main(int argc, char * argv[]) {
 
                << "\t0\t1" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t0\t 1" << endl
+               << "\t\t\t0\t x" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t1\t 1" << endl
+               << "\t\t\t1\t 1 - x" << endl
 
                << "\t1\t0" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t2\t xp" << endl
+               << "\t\t\t2\t 1 - x*y" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t3\t yp" << endl
+               << "\t\t\t3\t x*y" << endl
 
                << "\t2\t0" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t2\t xp" << endl
+               << "\t\t\t2\t 1 - x" << endl
                << "\t\t1\t1" << endl
                << "\t\t\t3\t x" << endl
 
                << "\t3\t0" << endl
                << "\t\t0\t1" << endl
-               << "\t\t\t2\t y" << endl
+               << "\t\t\t2\t 1 - y" << endl
                << "\t\t1\t1" << endl
-               << "\t\t\t3\t yp" << endl;
+               << "\t\t\t3\t y" << endl;
 
 
             ss >> at;
             // test 1
             automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(at, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
             polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
-            cout << endl << "[" << pol1 << "]" << endl;
-            //polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
-            //cout << endl << "{" << inv_pol1 << "}" << endl;
-            //cout << endl << "<" << (pol1 + inv_pol1) << ">" << endl;
+            cout << endl << "(a) [" << pol1 << "]" << endl;
+            polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
+            cout << endl << "(a) {" << inv_pol1 << "}" << endl;
+            cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
 
             // test 2
             matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(at, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
-            cout << endl << "[" << pol2 << "]" << endl;
+            cout << endl << "(b) [" << pol2 << "]" << endl;
             polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
-            cout << endl << "{" << inv_pol2 << "}" << endl;
-            cout << endl << "<" << (pol2 + inv_pol2) << ">" << endl;
+            cout << endl << "(b) {" << inv_pol2 << "}" << endl;
+            cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
+            //<<
 
-*/
-            /*<<*/
             sens                       = m_pr_sens->Pr(gv_alignment_length, true);
             delete m_pr_sens;
           }

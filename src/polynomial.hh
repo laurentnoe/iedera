@@ -115,13 +115,13 @@ template<typename C> inline bool    operator> (const polynomial<C> l, const poly
 /// Operator + for two polynomials
 template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] + [" << r << "]"););
-  // Sorting is supposed to be done before ...
+  // Sorting is supposed to be done before; since polynomials l and r are const here, must not be done here
   //sort(l._coefs.begin(),l._coefs.end());
   //sort(r._coefs.begin(),r._coefs.end());
   polynomial<C> result = polynomial<C>();
   typename vector<pair<vector<int>, C > >::const_iterator i_l = l._coefs.begin();
   typename vector<pair<vector<int>, C > >::const_iterator i_r = r._coefs.begin();
-  while ( i_l != l._coefs.end() && i_r != r._coefs.end()) {
+  while (i_l != l._coefs.end() && i_r != r._coefs.end()) {
     if (i_l->first.size() == i_r->first.size() && std::equal(i_l->first.begin(),i_l->first.end(),i_r->first.begin())) {
       C val = C(i_l->second) + C(i_r->second);
       if (val != C(0))
@@ -160,7 +160,7 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
 
 
 
-/// Operator + for two polynomials
+/// Operator - for two polynomials
 template<typename C> inline polynomial<C> operator- (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] - [" << r << "]"););
   // Sorting is supposed to be done before; since polynomials l and r are const here, must not be done here
@@ -169,7 +169,7 @@ template<typename C> inline polynomial<C> operator- (const polynomial<C> & l, co
   polynomial<C> result = polynomial<C>();
   typename vector<pair<vector<int>, C > >::const_iterator i_l = l._coefs.begin();
   typename vector<pair<vector<int>, C > >::const_iterator i_r = r._coefs.begin();
-  while ( i_l != l._coefs.end() && i_r != r._coefs.end()) {
+  while (i_l != l._coefs.end() && i_r != r._coefs.end()) {
     if (i_l->first.size() == i_r->first.size() && std::equal(i_l->first.begin(),i_l->first.end(),i_r->first.begin())) {
       C val = C(i_l->second) - C(i_r->second);
       if (val != C(0))
@@ -313,7 +313,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         row.ignore();
         continue;
       } else {
-        if ( c >= '0' && c <= '9' ) {
+        if (c >= '0' && c <= '9') {
           break;
         } else {
           coef = C(1);
@@ -323,7 +323,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       }
 
       row >> coef;
-      if ( row.fail() ) {
+      if (row.fail()) {
         _ERROR("operator>>"," invalid coefficient (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
       //cerr << "coef:" << coef << endl;
@@ -393,7 +393,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       }
       int power_value = 0;
       row >> power_value;
-      if ( row.fail() ) {
+      if (row.fail()) {
       _ERROR("operator>>"," invalid power coefficient (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
       //cerr << "power:" << power_value << endl;

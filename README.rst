@@ -164,7 +164,7 @@ A second example for lossless seeds (from Kucherov,Noe&Roytberg) on the previous
 Polynomial form
 ---------------
 
-When the probability p to generate a match is not fixed (for example p=0.7 in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called dominant seeds. We have noticed that this dominance applies as well for any other i.i.d criteria (Hit Integration, Lossless seeds, ...) (see <http://cristal.univ-lille.fr/~noe/files/spaced_seed_dominance.pdf>) so:
+When the probability *p* to generate a match is not fixed (for example p=0.7 in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called dominant seeds. We have noticed that this dominance applies as well for any other i.i.d criteria as Hit Integration, Lossless seeds, ... (see <http://cristal.univ-lille.fr/~noe/files/spaced_seed_dominance.pdf>) so:
 
 -p
   to activate dominant selection and output polynomial coefficients

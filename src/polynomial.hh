@@ -371,10 +371,6 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         var_degree.push_back(1);
       }
       
-      if (i_var == -1) {
-        _ERROR("operator>>"," missing correct variable name (found : \"" << var_symbol << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
-      }
-
       row >> c_times_power_plus_symbol;
       //cerr << "symbol2:" << c_times_power_plus_symbol << endl;
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {

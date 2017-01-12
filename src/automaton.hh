@@ -907,14 +907,271 @@ public:
    *  @return a new automaton that only gives reachable states of the product
    *  @see matrix_product
    */
-  
-  template<typename U> automaton<U> * product(const automaton<U> & other,
-                                              const ProductSetFinalType productSetFinalType,
-                                              const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
-                                              const int depth = INT_INFINITY,
-                                              const AddHoc_Final_Func aff = NULL,
-                                              const int shift = 0) const {
+  template<typename U> typename enable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+  product(const automaton<U> & other,
+	  const ProductSetFinalType productSetFinalType,
+	  const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
+	  const int depth = INT_INFINITY,
+	  const AddHoc_Final_Func aff = NULL,
+	  const int shift = 0) const {
 
+    VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== Product == (productsetfinaltype:" << dec << productSetFinalType << ")"););
+
+#ifdef ASSERTB
+    if ((this->size() * other.size()) > (1 << 28)) {
+      _ERROR("product"," size of product automaton will \"certainly\" explode : better stop here ...");
+    }
+#endif
+
+    automaton<U> * result = new automaton<U>();
+    int StateFinal = result->addNewState(TRUE);
+    result->selfLoop(StateFinal);
+
+#ifdef USEMAPPRODUCT
+    typedef less< pair<int,int> > lessp;
+    typedef map< pair<int,int>, int, lessp > maptype;
+    maptype statesNbIndex;
+#define PRODINDEX(i) (i)
+#else
+    vector<int> statesNbIndex( this->size() * other.size(), 0);
+#define PRODINDEX(i) ((i).first * other.size() + (i).second)
+#endif
+
+#ifdef USEQUEUEPRODUCT
+    queue< pair<int,int> >  statesNbRemaining;
+#else
+    stack< pair<int,int> >  statesNbRemaining;
+#endif
+
+    // (0) final loop or not
+    int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
+
+    // (1) start the product init state
+    pair<int,int> indexInit          = pair<int,int>(1,1);
+    int stateInit                    = result->addNewState();
+
+    statesNbIndex[PRODINDEX(indexInit)] = stateInit;
+    statesNbRemaining.push(indexInit);
+
+    if (
+        gv_subalignment_flag && ((this->_init_states.size() > 0) ||
+                                 (other._init_states.size() > 0)
+                                 )
+        ) {
+      result->_init_states.push_back(stateInit);
+    }
+
+#ifdef USEQUEUEPRODUCT
+    // depth of the states being built
+    int level_i                    = 0;
+    int stateN_of_level_i          = stateInit;
+#endif
+
+    // (2) take all the non-considered interesting cases pairs on both automatons
+    while (!statesNbRemaining.empty()) {
+
+      // current state remaining
+#ifdef USEQUEUEPRODUCT
+      pair<int,int> indexN  =  statesNbRemaining.front();
+#else
+      pair<int,int> indexN  =  statesNbRemaining.top();
+#warning "the automaton product function is not compiled with a Queue, but with a Stack :  \"depth\" parameter cannot be used on this implementation"
+#endif
+
+      statesNbRemaining.pop();
+
+      int stateNA = indexN.first;
+      int stateNB = indexN.second;
+      int stateN =  statesNbIndex[PRODINDEX(indexN)];
+
+#ifdef USEQUEUEPRODUCT
+      // compute level
+      if (stateN > stateN_of_level_i) {
+        stateN_of_level_i = (result->size() - 1);
+        level_i++;
+      }
+#endif
+
+      VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$pop state:" << stateN););
+
+      // compute normalizing factor if both are probabilist automata
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+
+        VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
+
+        for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+
+            int stateAnext = iterA->_state;
+            int stateBnext = iterB->_state;
+            pair<int,int> indexNx  = pair<int,int>(stateAnext, stateBnext);
+
+#ifdef USEQUEUEPRODUCT
+
+            // shifter rules
+            if (shift) {
+              if (shift > 0) {
+                if (level_i < shift) {
+                  stateBnext = 1;
+                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                }
+              } else {
+                if (level_i < -shift) {
+                  stateAnext = 1;
+                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                }
+              }
+            }
+#else
+#warning "the automaton product function is not compiled with Queue, but with a Stack : \"shift\"  parameters cannot be  used on this implementation"
+#endif
+
+
+            int stateNx    = 0;
+
+            // final state
+            int final_state = 0;
+
+            switch (productSetFinalType) {
+
+            case PRODUCT_UNION_FINAL_LOOP:
+            case PRODUCT_UNION_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) || (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+            case PRODUCT_UNION_NO_FINAL_LOOP_ADD:
+              final_state =  ((this->_states[stateAnext]._final) + (other._states[stateBnext]._final));
+              break;
+
+            case PRODUCT_INTERSECTION_FINAL_LOOP:
+            case PRODUCT_INTERSECTION_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) && (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_BUTNOT_FINAL_LOOP:
+            case PRODUCT_BUTNOT_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) && (!(other._states[stateBnext]._final))) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_NOTBUT_FINAL_LOOP:
+            case PRODUCT_NOTBUT_NO_FINAL_LOOP:
+              final_state =  ((!(this->_states[stateAnext]._final)) && (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_ADDHOC_FINAL_LOOP:
+            case PRODUCT_ADDHOC_NO_FINAL_LOOP:
+              final_state =  aff(this->_states[stateAnext]._final,other._states[stateBnext]._final);
+              break;
+            }
+
+            // add the "new" state, considering booleans "final_state" and "final_state"
+            if (final_state && final_loop) {
+              stateNx = StateFinal;
+            } else {
+#ifdef USEMAPPRODUCT
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
+#else
+              if  (!statesNbIndex[PRODINDEX(indexNx)]) {
+#endif
+
+#ifdef USEQUEUEPRODUCT
+                if (level_i <= depth) {
+#endif
+                  // create a new state
+                  stateNx = result->addNewState(final_state);
+                  statesNbIndex[PRODINDEX(indexNx)] = stateNx;
+                  statesNbRemaining.push(indexNx);
+
+                  if (
+                      gv_subalignment_flag && ((this->_init_states.size() > 0) ||
+                                               (other._init_states.size() > 0)
+                                               )
+                      &&
+                      (((this->_init_states.size() > 0) && (stateAnext == this->_init_states[result->_init_states.size()%(this->_init_states.size())])) || ((this->_init_states.size() == 0) && (stateAnext == 1)))
+                      &&
+                      (((other._init_states.size() > 0) && (stateBnext == other._init_states[result->_init_states.size()%(other._init_states.size())])) || ((other._init_states.size() == 0) && (stateBnext == 1)))
+                      )
+                    {
+                      result->_init_states.push_back(stateNx);
+                    }
+
+                  VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$push state:" << dec << stateNx););
+
+#ifdef USEQUEUEPRODUCT
+
+                } else {
+                  // max level reached : goes to a "non final" loop state
+                  stateNx = result->addNewState(final_state);
+                  result->selfLoop(stateNx);
+                }
+#endif
+              } else {
+                stateNx = statesNbIndex[PRODINDEX(indexNx)];
+              }
+            }
+
+            VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
+
+            // add a transition on from stateN --a--> stateNx.
+
+            if (IsVoid<T>() && IsVoid<U>()) {
+		  #warning "T void, U void"
+              result->addNewTransition(a,stateN,stateNx);
+            } else {
+              if (IsVoid<T>() && !IsVoid<U>()) {
+		  #warning "T void, U not void"
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_OTHER_IS_PROBABILIST:
+		    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  default:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  }
+              } else {
+                if (!IsVoid<T>() && IsVoid<U>()) {
+		  #warning "T not Void, U void"
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_THIS_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx); /* FIXME NOT CORRECt HERE : <U>==<T> to work*/
+                    break;
+                  default:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  }
+                } else {
+		  #warning "Both not void"
+                  switch (thisOrOtherIsProbabilist) {
+                  case PRODUCT_NONE_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  case PRODUCT_THIS_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx);/* FIXME NOT CORRECT HERE : <U>==<T> to work*/
+                    break;
+                  case PRODUCT_OTHER_IS_PROBABILIST:
+                    result->addNewTransition(a,stateN,stateNx);
+                    break;
+                  }
+                }
+              }
+            }
+          }// for (listB)
+        }// for (listA)
+      }// for (a)
+    }//while stack nonempty
+
+    // Free unused data needed to build the automaton
+    statesNbIndex.clear();
+    return result;
+  }
+
+   template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+     product(const automaton<U> & other,
+	     const ProductSetFinalType productSetFinalType,
+	     const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
+	     const int depth = INT_INFINITY,
+	     const AddHoc_Final_Func aff = NULL,
+	     const int shift = 0) const {
+     
     VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== Product == (productsetfinaltype:" << dec << productSetFinalType << ")"););
 
 #ifdef ASSERTB
@@ -1164,6 +1421,7 @@ public:
     return result;
   }
 
+    
 
   /** @brief Compute the multiple hit automaton
    *  @param m is the number of hits needed to hit an alignment

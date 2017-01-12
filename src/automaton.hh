@@ -907,7 +907,7 @@ public:
    *  @return a new automaton that only gives reachable states of the product
    *  @see matrix_product
    */
-
+  
   template<typename U> automaton<U> * product(const automaton<U> & other,
                                               const ProductSetFinalType productSetFinalType,
                                               const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
@@ -1112,10 +1112,13 @@ public:
             VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
             // add a transition on from stateN --a--> stateNx.
-            if (std::is_void<T>::value && std::is_void<U>::value ) {
+
+            if (IsVoid<T>() && IsVoid<U>()) {
+		  #warning "T void, U void"
               result->addNewTransition(a,stateN,stateNx);
             } else {
-              if (std::is_void<T>::value) {
+              if (IsVoid<T>() && !IsVoid<U>()) {
+		  #warning "T void, U not void"
                   switch (thisOrOtherIsProbabilist) {
                   case PRODUCT_OTHER_IS_PROBABILIST:
 		    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
@@ -1125,7 +1128,8 @@ public:
                     break;
                   }
               } else {
-                if (std::is_void<U>::value) {
+                if (!IsVoid<T>() && IsVoid<U>()) {
+		  #warning "T not Void, U void"
                   switch (thisOrOtherIsProbabilist) {
                   case PRODUCT_THIS_IS_PROBABILIST:
                     result->addNewTransition(a,stateN,stateNx); /* FIXME NOT CORRECt HERE : <U>==<T> to work*/
@@ -1135,6 +1139,7 @@ public:
                     break;
                   }
                 } else {
+		  #warning "Both not void"
                   switch (thisOrOtherIsProbabilist) {
                   case PRODUCT_NONE_IS_PROBABILIST:
                     result->addNewTransition(a,stateN,stateNx);
@@ -1950,7 +1955,7 @@ protected:
    *  @param endingState is the ending state
    *  @param prob is the new probability
    */
-  template<class Q = T> typename enable_if_ca <!std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
+  template<class Q = T> typename disable_if_ca <std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {

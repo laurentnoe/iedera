@@ -1315,7 +1315,7 @@ template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<
             VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
             // add a transition on from stateN --a--> stateNx.
-	    result->addNewTransition(a,stateN,stateNx);
+	    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
           }// for (listB)
         }// for (listA)
       }// for (a)

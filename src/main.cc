@@ -2114,7 +2114,7 @@ class seedproperties {
 public:
   /** @brief build a "seedproperties" object (keep current seed properties when needed)
    */
-  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL) {
+  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL, polynomial<infint<long long> > * multipoly = NULL) {
 
     this->sel   = sel;
     this->sens  = sens;
@@ -2125,6 +2125,11 @@ public:
       this->polynom = vector< pair<pair<int,int>,BIGINT> >(polynom->begin(),polynom->end());
     else
       this->polynom = vector< pair<pair<int,int>,BIGINT> >(0);
+    if (multipoly)
+      this->multipoly = polynomial<infint<long long> >(*multipoly);
+    else
+      this->multipoly = polynomial<infint<long long> >();
+    
   }
 
   /** @brief clone a "seedproperties" object
@@ -2135,7 +2140,8 @@ public:
     this->dist  = other.dist;
     this->str   = string(other.str);
     this->lossless = other.lossless;
-    this->polynom = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
+    this->polynom   = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
+    this->multipoly = polynomial<infint<long long> >(other.multipoly);
   }
 
 
@@ -2151,7 +2157,8 @@ public:
   bool   lossless;
   /// keep polynomial factors for multihit / coverage hit  /vs/
   vector< pair<pair<int,int>,BIGINT> > polynom;
-
+  /// keep multivariable polynomial for output only
+  polynomial<infint<long long> > multipoly;
 
   /** @brief delete a "seedproperties" object (this is just a polynom "check and erase")
    */
@@ -2259,6 +2266,9 @@ std::ostream& operator<<(std::ostream& os, seedproperties& e){
     for (vector< pair<pair<int,int>,BIGINT> >::iterator i = e.polynom.begin(); i != e.polynom.end(); i++) {
       os << (i->first.first) << "," << (i->first.second) << "=" << (i->second) << ";";
     }
+  }
+  if (gv_multipoly_file_flag) {
+    os << "\t[" << e.multipoly << "]";
   }
   return os;
 }
@@ -3515,8 +3525,8 @@ int main(int argc, char * argv[]) {
         }
       }
 
-      std::vector< pair<pair<int,int>,BIGINT> > * polynom = NULL;
-
+      std::vector< pair<pair<int,int>,BIGINT> > *  polynom   = NULL;
+      polynomial<infint<long long> > * multipoly = NULL;
       //FIXMECOV>>
       if (gv_covariance_flag) goto gv_covariance_flag_1;
       //<<
@@ -3700,8 +3710,9 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
-	    // Multinomial evaluation can be enabled in that case
+	    // Multinomial evaluation can be enabled in that case (FIXME : free memory)
 	    if (gv_multipoly_file_flag) {
+	      /*
 	      // test 1 on polynomials
 	      automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
 	      polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
@@ -3709,7 +3720,8 @@ int main(int argc, char * argv[]) {
 	      polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
 	      cout << endl << "(a) {" << inv_pol1 << "}" << endl;
 	      cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
-	      
+	      delete pr;
+ 
 	      // test 2 on matrices
 	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
 	      polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
@@ -3717,6 +3729,13 @@ int main(int argc, char * argv[]) {
 	      polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
 	      cout << endl << "(b) {" << inv_pol2 << "}" << endl;
 	      cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
+	      delete m_pr;
+	      */
+	      // implemented on matrices
+	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+	      polynomial<infint<long long> > mpol = m_pr->Pr(gv_alignment_length,true);
+	      multipoly = new polynomial<infint<long long> >(mpol);
+	      delete m_pr;
 	    }
 	    
             sens                       = m_pr_sens->Pr(gv_alignment_length, true);
@@ -3804,13 +3823,15 @@ int main(int argc, char * argv[]) {
           outs << ",";
         outs << (gv_seeds[i])->str();
       }
-      seedproperties e = seedproperties(selp, sens, distance, outs.str(), lossless, polynom);
+      seedproperties e = seedproperties(selp, sens, distance, outs.str(), lossless, polynom, multipoly);
 
       if (gv_correlation_flag || gv_polynomial_output_flag || gv_polynomial_dominant_selection_flag) {
         polynom->clear();
         delete polynom;
       }
-
+      if (gv_multipoly_file_flag) {
+	delete multipoly;
+      }
       //
       // (5) insertion inside pareto set
       //

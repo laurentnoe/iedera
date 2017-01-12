@@ -2125,7 +2125,13 @@ protected:
    *  @param endingState is the ending state
    *  @param prob is the new probability
    */
-  template<class Q = T> typename disable_if_ca <std::is_void<Q>::value, void>::type addNewTransitionProb(const int a , const int startingState , const int endingState, const Q prob) {
+
+#ifdef HAS_STD_TYPE_TRAITS
+  template<typename U> typename disable_if_ca <std::is_void<U>::value,  void >::type
+#else
+  template<typename U> typename disable_if_ca <std::tr1::is_void<U>::value,  void >::type
+#endif
+  addNewTransitionProb(const int a , const int startingState , const int endingState, const U prob) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {

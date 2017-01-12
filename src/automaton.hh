@@ -132,14 +132,6 @@ typedef enum ProductSetFinalType {
 } ProductSetFinalType;
 
 
-/** @brief Define the probability family of operators : this is used when performing a product of two automata.
- */
-typedef enum ProductProbabilityType {
-  PRODUCT_NONE_IS_PROBABILIST,
-  PRODUCT_THIS_IS_PROBABILIST,
-  PRODUCT_OTHER_IS_PROBABILIST,
-} ProductProbabilityType;
-
 /** @brief Define the final value when crossing of a couple of final states values : this is used when performing a product of two automata.
  */
 typedef int (*AddHoc_Final_Func)(int, int);
@@ -896,10 +888,6 @@ public:
    *       @li PRODUCT_ADDHOC_xxx          : automata addhoc final function aff does this work
    *          with
    *       @li xxx : LOOP / NO_LOOP        : indicates if the final state is a single one absorbant (force it, otherwise keep it as in the "true" product)
-   *  @param thisOrOtherIsProbabilist indicates that either one or both of the automata represents a probabilistic model (false by default)
-   *       @li PRODUCT_NONE_IS_PROBABILIST  : no affectation for probabilities
-   *       @li PRODUCT_THIS_IS_PROBABILIST  : only "this" probability is taken for each transition
-   *       @li PRODUCT_OTHER_IS_PROBABILIST : only "other" probability is taken for each transition
    *  @param depth indicates the maximal depth that must be reached : extra states are non final selflooping states
    *         (by default, this value is greater than 2 Billions, but the given alignment length should be enought in most cases)
    *  @param aff function indicates the final value to be used, is is used when @param productSetFinalType = PRODUCT_ADDHOC_xxx
@@ -910,7 +898,6 @@ public:
   template<typename U> typename enable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
   product(const automaton<U> & other,
 	  const ProductSetFinalType productSetFinalType,
-	  const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
 	  const int depth = INT_INFINITY,
 	  const AddHoc_Final_Func aff = NULL,
 	  const int shift = 0) const {
@@ -1109,51 +1096,10 @@ public:
               }
             }
 
-            VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
+	    VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
-            // add a transition on from stateN --a--> stateNx.
-
-            if (IsVoid<T>() && IsVoid<U>()) {
-		  #warning "T void, U void"
-              result->addNewTransition(a,stateN,stateNx);
-            } else {
-              if (IsVoid<T>() && !IsVoid<U>()) {
-		  #warning "T void, U not void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_OTHER_IS_PROBABILIST:
-		    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  default:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  }
-              } else {
-                if (!IsVoid<T>() && IsVoid<U>()) {
-		  #warning "T not Void, U void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_THIS_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx); /* FIXME NOT CORRECt HERE : <U>==<T> to work*/
-                    break;
-                  default:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  }
-                } else {
-		  #warning "Both not void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_NONE_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  case PRODUCT_THIS_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx);/* FIXME NOT CORRECT HERE : <U>==<T> to work*/
-                    break;
-                  case PRODUCT_OTHER_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  }
-                }
-              }
-            }
+	    // add a transition on from stateN --a--> stateNx.
+	    result->addNewTransition(a,stateN,stateNx);
           }// for (listB)
         }// for (listA)
       }// for (a)
@@ -1164,10 +1110,10 @@ public:
     return result;
   }
 
-   template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+    
+template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
      product(const automaton<U> & other,
 	     const ProductSetFinalType productSetFinalType,
-	     const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
 	     const int depth = INT_INFINITY,
 	     const AddHoc_Final_Func aff = NULL,
 	     const int shift = 0) const {
@@ -1369,48 +1315,7 @@ public:
             VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
             // add a transition on from stateN --a--> stateNx.
-
-            if (IsVoid<T>() && IsVoid<U>()) {
-		  #warning "T void, U void"
-              result->addNewTransition(a,stateN,stateNx);
-            } else {
-              if (IsVoid<T>() && !IsVoid<U>()) {
-		  #warning "T void, U not void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_OTHER_IS_PROBABILIST:
-		    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
-                    break;
-                  default:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  }
-              } else {
-                if (!IsVoid<T>() && IsVoid<U>()) {
-		  #warning "T not Void, U void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_THIS_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx); /* FIXME NOT CORRECt HERE : <U>==<T> to work*/
-                    break;
-                  default:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  }
-                } else {
-		  #warning "Both not void"
-                  switch (thisOrOtherIsProbabilist) {
-                  case PRODUCT_NONE_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx);
-                    break;
-                  case PRODUCT_THIS_IS_PROBABILIST:
-                    result->addNewTransition(a,stateN,stateNx);/* FIXME NOT CORRECT HERE : <U>==<T> to work*/
-                    break;
-                  case PRODUCT_OTHER_IS_PROBABILIST:
-                    result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
-                    break;
-                  }
-                }
-              }
-            }
+	    result->addNewTransition(a,stateN,stateNx);
           }// for (listB)
         }// for (listA)
       }// for (a)

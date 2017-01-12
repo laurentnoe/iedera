@@ -149,7 +149,8 @@ Version 1.06
 
 Version 1.07
 ============
-
 - A Full Templating of the automaton class has been applied to the program
   (it can handle <double>,<cost<int>>, <polynomial<long int>>,...)
-- Polynomial ongoing
+- Multivariate polynomial are command-lined (output only, no seed selection)
+- A automaton<void> templating has been enabled (no additional unused values
+  are stored on transitions)

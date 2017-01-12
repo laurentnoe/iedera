@@ -237,41 +237,6 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
   return is;
 }
 
-/**
- * @class transition<void>
- * @brief transition to a given state (on a given letter)
- */
-template<> class transition<void> {
-public:
-  /** @brief build a transition object
-   *  @param state gives the state number reached by this transition
-   */
-  inline transition<void>(int state = 0) : _state(state) {};
-  /// Erase a transition
-  inline ~transition<void>() {;};
-
-
-protected :
-  /// state number to be reached
-  int     _state;
-
-  /// state is a friend class to ease access
-  friend class state<void>;
-  /// automaton is a friend class to ease access
-  friend class automaton<void>;
-  /// print transition<void> information is friend
-  friend ostream& operator<<(ostream& os, const transition<void>& tr);
-  /// read transition<void> information is friend
-  friend istream& operator>>(istream& is, transition<void>& tr);
-  /// print state<void> information is friend
-  friend ostream& operator<<(ostream& os, const state<void>& st);
-  /// read state<void> information is friend
-  friend istream& operator>>(istream& is, state<void>& st);
-  /// print automaton<void> information is friend
-  friend ostream& operator<<(ostream& os, const automaton<void>& au);
-  /// read automaton<void> information is friend
-  friend istream& operator>>(istream& is, automaton<void>& au);
-};
 
 /**
  * @class state

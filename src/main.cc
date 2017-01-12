@@ -264,6 +264,15 @@ bool gv_polynomial_output_flag = false;
 /// flag that activate the selection of dominant seeds as in "Mak Benson 2009", which is also true for "Chung Park 2010"
 /// (and not the selection according to their sensitivity only: its a more general form that may select more seeds)
 bool gv_polynomial_dominant_selection_flag = false;
+
+
+
+/// flag that activate multinomial evaluation (note : this is independent from the previous dominance selection). Note that this is only a polynomial evaluation, and does not have any other effect than ... FIXME
+bool gv_multipoly_file_flag = false;
+automaton<polynomial<infint<long long> > > * gv_multipoly_bsens_automaton = NULL;
+
+
+
 // @}
 
 /** @name data management
@@ -724,7 +733,7 @@ void PARSEPROBS(int & i, char ** argv, int argc,
 void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> ** p_a) {
   i++;
   if (i >= argc)
-    _ERROR("PARSEPROBAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
+    _ERROR("PARSEPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
 
   // read file
   ifstream ifs_file;
@@ -735,6 +744,27 @@ void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> 
 
   // read the content and set the automaton
   *p_a = new automaton<double>();
+
+  ifs_file >> (**p_a);
+  ifs_file.close();
+}
+
+
+/// parse and check a set of polynomial probabilities as an automaton file
+void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<infint<long long> > > ** p_a) {
+  i++;
+  if (i >= argc)
+    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
+
+  // read file
+  ifstream ifs_file;
+  ifs_file.open(argv[i]);
+  if (!ifs_file){
+    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","unreadable file \"" << (argv[i]) << "\" ");
+  }
+
+  // read the content and set the automaton
+  *p_a = new automaton<polynomial<infint<long long> > >();
 
   ifs_file >> (**p_a);
   ifs_file.close();
@@ -1472,7 +1502,7 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-f")||!strcmp(argv[i],"--foreground")) {
       PARSEPROBS(i, argv, argc, gv_bsens, gv_bsens_k);
     } else if (!strcmp(argv[i],"-fF")||!strcmp(argv[i],"--foregroundFile")) {
-      PARSEPROBSAUTOMATONFILE(i, argv, argc,&gv_bsens_automaton);
+      PARSEPROBSAUTOMATONFILE(i, argv, argc, &gv_bsens_automaton);
     } else if (!strcmp(argv[i],"-l")||!strcmp(argv[i],"--length")) {
       PARSEINT(i, argv, argc, gv_alignment_length, 1, 1000000);
       if (gv_subalignment_flag && gv_subalignment_length >= gv_alignment_length) {
@@ -1641,6 +1671,10 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
       }
 #endif
+    } else if (!strcmp(argv[i],"-pF")||!strcmp(argv[i],"--multipolynomial-file")) {
+      ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
+      gv_multipoly_file_flag = true;
+      PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  &gv_multipoly_bsens_automaton);
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
       if (gv_motif_flag) {
         _ERROR("\"-c\" pattern and \"-m\" are not compatible together", "you must provide the cycle positions on the shape (e.g  \" -m 100101001:1, 3, 5/6\") ");
@@ -3676,7 +3710,7 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
-	    // Multinomial evaluation can be enabled in that case (FIXME : free memory)
+	    // Multinomial evaluation can be enabled in that case
 	    if (gv_multipoly_file_flag) {
 	      /*
 	      // test 1 on polynomials
@@ -3687,7 +3721,6 @@ int main(int argc, char * argv[]) {
 	      cout << endl << "(a) {" << inv_pol1 << "}" << endl;
 	      cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
 	      delete pr;
- 
 	      // test 2 on matrices
 	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
 	      polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);

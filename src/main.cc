@@ -365,7 +365,8 @@ void USAGE() {
   cerr << "      * -y/g note  : -y/-g can be used with SPEARMAN/PEARSON correlation with the alignment %%id (only for -A 2)." << endl;
   cerr << "                     you can select the minimal number of matches (%%id) by setting -y <int> before -y <SPEARMAN/PEARSON>" << endl;
   cerr << "         * example : \"-spaced -l 64 -y 32 -y PEARSON\" for a %%id of 50%% and PEARSON correlation computation" << endl;
-  cerr << "      -p           : activate \"Mak Benson 2009\" dominant selection and output polynomial (useful on Bernoulli only)" << endl;
+  cerr << "      -p                      : activate \"Mak Benson 2009\" dominant selection and output polynomial." << endl;
+  cerr << "         * note    : this is useful for iid models only (Bernoulli,...) " << endl;
   cerr << "         * example : \"-spaced -l 8 -m \"##-#\" -p\" must output the additional values :"<< endl;
   cerr << "                          0,0=1;1,0=8;2,0=28;3,0=51;4,0=45;5,0=15;6,0=1;"<< endl;
   cerr << "                          3,1=5;4,1=25;5,1=41;6,1=27;7,1=8;8,1=1;" << endl;
@@ -377,6 +378,9 @@ void USAGE() {
   cerr << "                             0 8-0   1 8-1    2 8-2    3 8-3    4 8-4    5 8-5   6 8-6" << endl;
   cerr << "                          1.p.q + 8.p.q + 28.p.q + 51.p.q + 45.p.q + 15.p.q + 1.p.q" << endl;
   cerr << "                                                                                " << endl;
+  cerr << "      -pF <filename>          : activate general polynomial evaluation and load the associated file automaton [ONGOING]" << endl;
+  cerr << "         * example : [ONGOING]"<< endl;
+  cerr << "                                                                                " << endl;  
   cerr << "      -c <int>,<int>,...      : consider sensitivity when each seed is indexed on 1/c of its positions" << endl;
   cerr << "         * note    : the position is enumerated or choosen randomly depending on -r parameter" << endl;
   cerr << "         * example : \"##-#:1/5\" means that the seed \"##-#\" will be placed at 1st,6th,11th... positions" << endl;
@@ -1629,8 +1633,7 @@ void SCANARG(int argc , char ** argv) {
       for (int i = 0; i < gv_seed_alphabet_size; i++)
         gv_global_coverage_cost[i] = i;
     } else if (!strcmp(argv[i],"-p")||!strcmp(argv[i],"--polynomial-dominance")) {
-      //FIXME check several parameters incompatible with dominant selection and output
-      //>>
+      ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
       gv_polynomial_output_flag = true;
       gv_polynomial_dominant_selection_flag = true;
 #ifndef USEINFINT
@@ -1638,7 +1641,6 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
       }
 #endif
-      //<<
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
       if (gv_motif_flag) {
         _ERROR("\"-c\" pattern and \"-m\" are not compatible together", "you must provide the cycle positions on the shape (e.g  \" -m 100101001:1, 3, 5/6\") ");

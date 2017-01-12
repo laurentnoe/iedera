@@ -387,9 +387,20 @@ void USAGE() {
   cerr << "                             0 8-0   1 8-1    2 8-2    3 8-3    4 8-4    5 8-5   6 8-6" << endl;
   cerr << "                          1.p.q + 8.p.q + 28.p.q + 51.p.q + 45.p.q + 15.p.q + 1.p.q" << endl;
   cerr << "                                                                                " << endl;
-  cerr << "      -pF <filename>          : activate general polynomial evaluation and load the associated file automaton [ONGOING]" << endl;
-  cerr << "         * example : [ONGOING]"<< endl;
+  cerr << "      -pF <filename>          : activate general polynomial evaluation and load the associated file automaton." << endl;
+  cerr << "         * example : \"-spaced -l 5 -m \"##-#\" -pF _file_\" where the _file_ is:" << endl;
+  cerr << "                                                                                " << endl;
+  cerr << "                             |3   0 1    0 0" << endl;
+  cerr << "                             |           1 0" << endl;
+  cerr << "                             |    1 0    0 1     1 x" << endl;
+  cerr << "                             |           1 1     2 1 - x" << endl;
+  cerr << "                             |    2 0    0 1     1 1 - y" << endl;
+  cerr << "                             |           1 1     2 y" << endl;
   cerr << "                                                                                " << endl;  
+  cerr << "                     will give the following result:" << endl;
+  cerr << "                                                                                " << endl;  
+  cerr << "                             [y - x*y - x*y^2 + 2*x*y^3 - x^2*y + 2*x^2*y^2 - 2*x^2*y^3 + x^3*y - x^3*y^2]" << endl;
+  cerr << "                                                                                " << endl;
   cerr << "      -c <int>,<int>,...      : consider sensitivity when each seed is indexed on 1/c of its positions" << endl;
   cerr << "         * note    : the position is enumerated or choosen randomly depending on -r parameter" << endl;
   cerr << "         * example : \"##-#:1/5\" means that the seed \"##-#\" will be placed at 1st,6th,11th... positions" << endl;
@@ -3710,34 +3721,34 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
-	    // Multinomial evaluation can be enabled in that case (FIXME : free memory)
-	    if (gv_multipoly_file_flag) {
-	      /*
-	      // test 1 on polynomials
-	      automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-	      polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
-	      cout << endl << "(a) [" << pol1 << "]" << endl;
-	      polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
-	      cout << endl << "(a) {" << inv_pol1 << "}" << endl;
-	      cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
-	      delete pr;
- 
-	      // test 2 on matrices
-	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-	      polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
-	      cout << endl << "(b) [" << pol2 << "]" << endl;
-	      polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
-	      cout << endl << "(b) {" << inv_pol2 << "}" << endl;
-	      cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
-	      delete m_pr;
-	      */
-	      // implemented on matrices
-	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-	      polynomial<infint<long long> > mpol = m_pr->Pr(gv_alignment_length,true);
-	      multipoly = new polynomial<infint<long long> >(mpol);
-	      delete m_pr;
-	    }
-	    
+            // Multinomial evaluation can be enabled in that case (FIXME : free memory)
+            if (gv_multipoly_file_flag) {
+              /*
+              // test 1 on polynomials
+              automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
+              cout << endl << "(a) [" << pol1 << "]" << endl;
+              polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
+              cout << endl << "(a) {" << inv_pol1 << "}" << endl;
+              cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
+              delete pr;
+
+              // test 2 on matrices
+              matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
+              cout << endl << "(b) [" << pol2 << "]" << endl;
+              polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
+              cout << endl << "(b) {" << inv_pol2 << "}" << endl;
+              cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
+              delete m_pr;
+              */
+              // implemented on matrices
+              matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<infint<long long> > mpol = m_pr->Pr(gv_alignment_length,true);
+              multipoly = new polynomial<infint<long long> >(mpol);
+              delete m_pr;
+            }
+
             sens                       = m_pr_sens->Pr(gv_alignment_length, true);
             delete m_pr_sens;
           }
@@ -3830,7 +3841,7 @@ int main(int argc, char * argv[]) {
         delete polynom;
       }
       if (gv_multipoly_file_flag) {
-	delete multipoly;
+        delete multipoly;
       }
       //
       // (5) insertion inside pareto set

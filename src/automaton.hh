@@ -895,7 +895,11 @@ public:
    *  @return a new automaton that only gives reachable states of the product
    *  @see matrix_product
    */
+#ifdef HAS_STD_TYPE_TRAITS
   template<typename U> typename enable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+#else
+  template<typename U> typename enable_if_ca <std::tr1::is_void<U>::value,  automaton<U> * >::type
+#endif
   product(const automaton<U> & other,
 	  const ProductSetFinalType productSetFinalType,
 	  const int depth = INT_INFINITY,
@@ -1110,8 +1114,11 @@ public:
     return result;
   }
 
-    
-template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+#ifdef HAS_STD_TYPE_TRAITS
+  template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+#else
+  template<typename U> typename disable_if_ca <std::tr1::is_void<U>::value,  automaton<U> * >::type
+#endif
      product(const automaton<U> & other,
 	     const ProductSetFinalType productSetFinalType,
 	     const int depth = INT_INFINITY,

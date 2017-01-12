@@ -3710,7 +3710,7 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
-	    // Multinomial evaluation can be enabled in that case
+	    // Multinomial evaluation can be enabled in that case (FIXME : free memory)
 	    if (gv_multipoly_file_flag) {
 	      /*
 	      // test 1 on polynomials
@@ -3721,6 +3721,7 @@ int main(int argc, char * argv[]) {
 	      cout << endl << "(a) {" << inv_pol1 << "}" << endl;
 	      cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
 	      delete pr;
+ 
 	      // test 2 on matrices
 	      matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
 	      polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);

@@ -1,10 +1,10 @@
 
 .. image:: https://img.shields.io/travis/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Unix
-    :target: https://travis-ci.org/laurentnoe/iedera/
+    :target: https://travis-ci.org/laurentnoe/iedera
     :alt: Build Status Unix
 
 .. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Windows
-    :target: https://ci.appveyor.com/project/laurentnoe/iedera/
+    :target: https://ci.appveyor.com/project/laurentnoe/iedera
     :alt: Build Status Windows
 
 .. image:: https://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage

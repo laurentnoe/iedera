@@ -8,7 +8,8 @@
  *  @section automata-description Description
  *  This part describes an automaton\<T\> : each @ref automaton\<T\> is mainly a represented by a set of @ref state\<T\> , each itself being represented by a set of @ref transition\<T\>.
  *
- *  An automaton\<T\> can be deterministic or not, and may bring  probabilities (T = double), costs (T = cost\<int\>) or counts (T = unsigned long long).
+ *  - An automaton\<T\> can be deterministic or not.
+ *  - It may bring probabilities (T = double), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
  *
  *  By default the automaton\<T\> constructor is almost empty (it creates only a final state 0 and the init state 1), but several methods are proposed to construct @ref seed-automaton, @ref probabilistic-automaton, @ref structural-automaton (@ref automaton-construction). Several methods are also proposed to manipulate theses automata (@ref automaton-manipulate), compute properties (@ref automaton-computed-properties), convert them into matrices (@ref automaton-matrix-conversion),
  *
@@ -878,6 +879,11 @@ public:
   bool  isIsomorphTo(const automaton<T> & other) const;
 
   /** @brief Generic Automata Product
+   *
+   *  Two definitions exist:
+   *  - one if the second automaton type \<U\> is "void" (cannot be stored in the resulting automaton),
+   *  - another one when type \<U\> can be used for each transition built.
+   *
    *  @param other is the second automaton used for the product
    *  @param productSetFinalType indicates if product final states are the crossproduct of both automaton final states or only one of these
    *       @li PRODUCT_UNION_xxx           : automata "union" of final states,

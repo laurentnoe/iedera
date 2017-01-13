@@ -3316,9 +3316,9 @@ int main(int argc, char * argv[]) {
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton size : " << (a_s[i]->size())););
 
             if (gv_minimize_flag) {
-              automaton<void> * na = (a_s[i])->Hopcroft();
-              delete (a_s[i]);
-              (a_s[i]) = na;
+              automaton<void> * na = a_s[i]->Hopcroft();
+              delete a_s[i];
+              a_s[i] = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced size : " << (a_s[i]->size())););
             }
 

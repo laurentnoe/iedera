@@ -39,12 +39,12 @@ template<typename C> class polynomial {
  public:
 
   /// Build an empty polynomial
-  polynomial() {_coefs.clear();};
+  polynomial() {for(unsigned u = 0; u < _coefs.size(); u++) _coefs[u].first.clear(); _coefs.clear();};
   /// Build a constant polynomial
-  polynomial(int u) {_coefs.clear(); if (u != 0) _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));};
+  polynomial(int u) {for(unsigned u = 0; u < _coefs.size(); u++) _coefs[u].first.clear(); _coefs.clear(); if (u != 0) _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));};
 
   /// Erase a polynomial
-  ~polynomial() {_coefs.clear();};
+  ~polynomial() {for(unsigned u = 0; u < _coefs.size(); u++) _coefs[u].first.clear(); _coefs.clear();};
 
   // @{
   /// Operator @f$ + @f$ for two polynomials
@@ -244,6 +244,8 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
     if (it->second != C(0))
       result._coefs.push_back(pair<vector<int>, C> (vector<int>(it->first),it->second));
 
+  tmp_coefs.clear();
+    
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << result << "]"););
   return result;
 }

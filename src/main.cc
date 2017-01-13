@@ -396,9 +396,9 @@ void USAGE() {
   cerr << "                             |           1 1     2 1 - x" << endl;
   cerr << "                             |    2 0    0 1     1 1 - y" << endl;
   cerr << "                             |           1 1     2 y" << endl;
-  cerr << "                                                                                " << endl;  
+  cerr << "                                                                                " << endl;
   cerr << "                     will give the following result:" << endl;
-  cerr << "                                                                                " << endl;  
+  cerr << "                                                                                " << endl;
   cerr << "                             [y - x*y - x*y^2 + 2*x*y^3 - x^2*y + 2*x^2*y^2 - 2*x^2*y^3 + x^3*y - x^3*y^2]" << endl;
   cerr << "                                                                                " << endl;
   cerr << "      -c <int>,<int>,...      : consider sensitivity when each seed is indexed on 1/c of its positions" << endl;
@@ -1756,8 +1756,10 @@ void SCANARG(int argc , char ** argv) {
       if (gv_align_alphabet_size > 2 && gv_correlation_flag) {
         _ERROR("\"Alignment alphabet of size greater than 2 is not compatible with correlation computation","<not implemented yet>");
       }
+      gv_bsens.clear();
       gv_bsens = std::vector<double>(3); gv_bsens[0] = 0.15; gv_bsens[1] = 0.15; gv_bsens[2] = 0.7;
       gv_bsens_k = 0;
+      gv_bsel.clear();
       gv_bsel  = std::vector<double>(3); gv_bsel[0]  = 0.50; gv_bsel[1]  = 0.25; gv_bsel[2]  = 0.25;
       gv_bsel_k = 0;
       gv_bsel_weight = std::vector<double>(3); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 0.5; gv_bsel_weight[2] = 1.0;
@@ -1796,8 +1798,10 @@ void SCANARG(int argc , char ** argv) {
         gv_lossless_flag = false;
         _WARNING("\"-L\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-L\" option");
       }
+      gv_bsens.clear();
       gv_bsens = std::vector<double>(2); gv_bsens[0] = 0.30; gv_bsens[1] = 0.70;
       gv_bsens_k = 0;
+      gv_bsel.clear();
       gv_bsel  = std::vector<double>(2); gv_bsel[0]  = 0.75; gv_bsel[1]  = 0.25;
       gv_bsel_k = 0;
       gv_bsel_weight = std::vector<double>(2); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 1.0;
@@ -2662,8 +2666,10 @@ int outputPareto(list<seedproperties> & l, char * filename) {
  */
 
 void build_default_subsetseed_matching_matrix() {
-  // build matrix
+  for (unsigned u = 0; u < gv_subsetseed_matching_matrix.size(); u++)
+    gv_subsetseed_matching_matrix[u].clear();
   gv_subsetseed_matching_matrix.clear();
+
   for (int a = 0; a < gv_align_alphabet_size; a++) {
     std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size, 0);
     gv_subsetseed_matching_matrix.push_back(*v);
@@ -2689,9 +2695,10 @@ void build_default_subsetseed_matching_matrix() {
  */
 
 void build_default_vectorizedsubsetseed_scoring_matrix() {
-
-  // build matrix
+  for (unsigned u = 0; u < gv_vectorizedsubsetseed_scoring_matrix.size(); u++)
+    gv_vectorizedsubsetseed_scoring_matrix[u].clear();
   gv_vectorizedsubsetseed_scoring_matrix.clear();
+
   for (int a = 0; a < gv_align_alphabet_size; a++) {
     std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size,-1);
     gv_vectorizedsubsetseed_scoring_matrix.push_back(*v);
@@ -2713,8 +2720,10 @@ void build_default_vectorizedsubsetseed_scoring_matrix() {
  */
 
 void build_default_probabilities()  {
+  gv_bsens.clear();
   gv_bsens    = std::vector<double>(gv_align_alphabet_size, 0);
   gv_bsens_k  = 0;
+  gv_bsel.clear();
   gv_bsel     = std::vector<double>(gv_align_alphabet_size, 0);
   gv_bsel_k   = 0;
 

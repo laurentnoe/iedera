@@ -245,7 +245,7 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
       result._coefs.push_back(pair<vector<int>, C> (vector<int>(it->first),it->second));
 
   tmp_coefs.clear();
-    
+
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << result << "]"););
   return result;
 }
@@ -267,7 +267,7 @@ template<typename C> ostream& operator<< (ostream& os, const polynomial<C> & p) 
     else
       if (i > 0)
         os << " + ";
-    
+
     bool first_prod = true;
     // dont print '1 *'  "something ..."
     C abs_coef = sign * (p._coefs[i].second);
@@ -341,7 +341,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else
-          sign = C(1); 
+          sign = C(1);
         continue;
       }
 
@@ -350,7 +350,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       row >> var_symbol;
       //cerr << "variable:" << var_symbol << endl;
       int i_var = -1;
-      
+
       // extend var_degree up to this variable if it is already defined
       bool defined_var = false;
       for (unsigned i=0; i < p._var_names.size(); i++) {
@@ -372,7 +372,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
           var_degree.push_back(0);
         var_degree.push_back(1);
       }
-      
+
       row >> c_times_power_plus_symbol;
       //cerr << "symbol2:" << c_times_power_plus_symbol << endl;
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {
@@ -380,7 +380,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else
-          sign = C(1); 
+          sign = C(1);
         continue;
       }
       if (c_times_power_plus_symbol == '*') {

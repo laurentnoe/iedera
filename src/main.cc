@@ -530,13 +530,13 @@ void PARSEDINT(int & i, char ** argv, int argc,
 
 /// parse and check a list of integers
 void PARSEINTS(int & i, char ** argv, int argc,
-               std::vector<int> & table, int neededsize = 0, bool minmax=false, int vmin=0, int vmax=1000, bool complete=false) {
+               std::vector<int> & r_table, int neededsize = 0, bool minmax=false, int vmin=0, int vmax=1000, bool complete=false) {
   i++;
   if (i >= argc)
     _ERROR("PARSEINTS","\"" << argv[i-1] << "\" found without argument");
 
   // read table
-  table.clear();
+  r_table.clear();
   char * pch = strtok(argv[i],",;");
   while (pch){
     int value = 0;
@@ -547,18 +547,18 @@ void PARSEINTS(int & i, char ** argv, int argc,
       if (value < vmin || value > vmax)
         _ERROR("PARSEINTS","\"" << value << "\" is by an integer out of the range");
     }
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size if needed
   if (neededsize != 0) {
-    if (complete && (int) table.size() < neededsize) {
-      while ((int)table.size() < neededsize)
-        table.push_back(table.back());
+    if (complete && (int) r_table.size() < neededsize) {
+      while ((int)r_table.size() < neededsize)
+        r_table.push_back(r_table.back());
     }
-    if ((int)table.size() != neededsize)
-      _ERROR("PARSEINTS", " there is not a correct number of <int> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
+    if ((int)r_table.size() != neededsize)
+      _ERROR("PARSEINTS", " there is not a correct number of <int> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
   }
 }
 
@@ -594,13 +594,13 @@ void PARSEDDOUBLE(int & i, char ** argv, int argc,
 
 /// parse and check a list of double
 void PARSEDOUBLES(int & i, char ** argv, int argc,
-                  std::vector<double> & table, int neededsize = 0, bool positive_values=false) {
+                  std::vector<double> & r_table, int neededsize = 0, bool positive_values=false) {
   i++;
   if (i >= argc)
     _ERROR("PARSEDOUBLES","\"" << argv[i-1] << "\" found without argument");
 
   // read table
-  table.clear();
+  r_table.clear();
   char * pch = strtok(argv[i],",;");
   while (pch){
     double value = 0.0;
@@ -611,14 +611,14 @@ void PARSEDOUBLES(int & i, char ** argv, int argc,
       if (value < 0)
         _ERROR("PARSEDOUBLES","\"" << value << "\" is a negative <dbl>");
     }
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size if needed
   if (neededsize != 0) {
-    if ((int)table.size() != neededsize)
-      _ERROR("PARSEDOUBLES", " there is not a correct number of <dbl> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
+    if ((int)r_table.size() != neededsize)
+      _ERROR("PARSEDOUBLES", " there is not a correct number of <dbl> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
   }
 }
 
@@ -654,14 +654,14 @@ void CHECKSIGNATURE() {
 }
 
 /// parse and check a signature (number of seed elements inside a seed)
-void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
+void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & r_table) {
   i++;
   if (i >= argc)
     _ERROR("PARSESIGNATURE","\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i],",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     int value = 0;
     int i_tmp = sscanf(pch,"%d",&value);
@@ -669,26 +669,26 @@ void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
       _ERROR("PARSESIGNATURE","\"" << pch << "\" is not a correct integer");
     if (value < 0 || value >= 64)
       _ERROR("PARSESIGNATURE","\"" << pch << "\" is out of the range [0..N] (N=64)");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size
-  if ((int)table.size() != gv_seed_alphabet_size)
+  if ((int)r_table.size() != gv_seed_alphabet_size)
     _ERROR("PARSESIGNATURE", " there is not a correct number of <int> values given by " << argv[i-1] << " when compared with the current seed alphabet size B = " << gv_seed_alphabet_size);
   // check signature and weight interval
   CHECKSIGNATURE();
 }
 
 /// parse and check a homogeneous scoring system
-void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & table) {
+void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & r_table) {
   i++;
   if (i >= argc)
     _ERROR("PARSEHOMOGENEOUS","\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i],",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     int value = 0;
     int i_tmp = sscanf(pch,"%d",&value);
@@ -696,25 +696,25 @@ void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & table)
       _ERROR("PARSEHOMOGENEOUS","\"" << pch << "\" is not a correct integer");
     if (value < -1000 || value > 1000)
       _ERROR("PARSEHOMOGENEOUS","\"" << pch << "\" is out of the range [-1000..1000]");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size
-  if ((int)table.size() != gv_align_alphabet_size)
+  if ((int)r_table.size() != gv_align_alphabet_size)
     _ERROR("PARSEHOMOGENEOUS", " there is not a correct number of <int> values given by " << argv[i-1] << " when compared with the current align alphabet size A = " << gv_align_alphabet_size);
 }
 
 /// parse and check a set of probabilities
 void PARSEPROBS(int & i, char ** argv, int argc,
-                std::vector<double> & table, int & k) {
+                std::vector<double> & r_table, int & k) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPROBS", "\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i], ",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     double value = 0.0;
     int i_tmp = sscanf(pch, "%lf", &value);
@@ -722,7 +722,7 @@ void PARSEPROBS(int & i, char ** argv, int argc,
       _ERROR("PARSEPROBS","\"" << pch << "\" is not a correct <dbl>");
     if (value < 0 || value > 1 )
       _ERROR("PARSEPROBS","\"" << pch << "\" is  out of the range [0,1]");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
@@ -730,18 +730,18 @@ void PARSEPROBS(int & i, char ** argv, int argc,
   int a = gv_align_alphabet_size;
   k = 0;
   while(1) {
-    if ((int)table.size() == a)
+    if ((int)r_table.size() == a)
       break;
-    else if ((int)table.size() < a)
-      _ERROR("PARSEPROBS", " there is not a correct number of <dbl> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the current alphabet size A = " << gv_align_alphabet_size);
+    else if ((int)r_table.size() < a)
+      _ERROR("PARSEPROBS", " there is not a correct number of <dbl> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the current alphabet size A = " << gv_align_alphabet_size);
     a *= gv_align_alphabet_size;
     k++;
   }
-  CHECKPROB(table);
+  CHECKPROB(r_table);
 }
 
 /// parse and check a set of probabilities as an automaton file
-void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> ** p_a) {
+void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> * &r_automaton) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
@@ -750,19 +750,21 @@ void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> 
   ifstream ifs_file;
   ifs_file.open(argv[i]);
   if (!ifs_file){
-    _ERROR("PARSEPROBSAUTOMATONFILE","unreadable file \"" << (argv[i]) << "\" ");
+    _ERROR("PARSEPROBSAUTOMATONFILE","unreadable file \"" << argv[i] << "\" ");
   }
 
   // read the content and set the automaton
-  *p_a = new automaton<double>();
+  if (r_automaton)
+    delete r_automaton;
+  r_automaton = new automaton<double>();
 
-  ifs_file >> (**p_a);
+  ifs_file >> (*r_automaton);
   ifs_file.close();
 }
 
 
 /// parse and check a set of polynomial probabilities as an automaton file
-void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<infint<long long> > > ** p_a) {
+void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<infint<long long> > > * &r_automaton) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPOLYPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
@@ -771,13 +773,15 @@ void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<poly
   ifstream ifs_file;
   ifs_file.open(argv[i]);
   if (!ifs_file){
-    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","unreadable file \"" << (argv[i]) << "\" ");
+    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","unreadable file \"" << argv[i] << "\" ");
   }
 
   // read the content and set the automaton
-  *p_a = new automaton<polynomial<infint<long long> > >();
+  if (r_automaton)
+    delete r_automaton;
+  r_automaton = new automaton<polynomial<infint<long long> > >();
 
-  ifs_file >> (**p_a);
+  ifs_file >> (*r_automaton);
   ifs_file.close();
 }
 
@@ -913,7 +917,7 @@ void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector< std::vector<i
   ifstream ifs_file;
   ifs_file.open(argv[i]);
   if (!ifs_file){
-    _ERROR("PARSEMATRIXFILE","unreadable file \"" << (argv[i]) << "\" ");
+    _ERROR("PARSEMATRIXFILE","unreadable file \"" << argv[i] << "\" ");
   }
 
   // transform it simply into a string
@@ -1036,8 +1040,8 @@ void CHECKMATCHINGMATRIX(std::vector< std::vector<int> > & matrix ) {
     }
   }
   // check the '#' symbol existance
-  for (int a=0; a <gv_align_alphabet_size-1;a++) {
-    if ( matrix[a][gv_seed_alphabet_size-1] == 1 ) {
+  for (int a = 0; a < gv_align_alphabet_size - 1; a++) {
+    if (matrix[a][gv_seed_alphabet_size-1] == 1) {
       gv_matching_symbol_flag = false;
     }
   }
@@ -1052,17 +1056,19 @@ void CHECKMATCHINGMATRIX(std::vector< std::vector<int> > & matrix ) {
  * @param argv is the command line arguments being processed
  * @param argc is the command line maximal number of arguments being processed
  * @param size is the size of the seed alphabet
- * @param array is the new table where seed alphabet symbols will be stored
+ * @param r_str is the new str where seed alphabet symbols will be stored
  * @see gv_bsymbols_flag, gv_bsymbols_array
  */
-void PARSESYMBOLS(int & i, char ** argv, int argc, int size, char * &array) {
+void PARSESYMBOLS(int & i, char ** argv, int argc, int size, char * &r_str) {
   i++;
   if (i >= argc)
     _ERROR("PARSESYMBOLS","\"" << argv[i-1] << "\" found without argument");
   if (strlen(argv[i]) != (unsigned) size)
     _ERROR("PARSESYMBOLS","\"" << argv[i] << "\" is not of required length " << size);
-  array = new char[size];
-  for (char * d = array, *s = argv[i]; *s; d++, s++){
+  if (r_str)
+    delete[] r_str;
+  r_str = new char[size];
+  for (char * d = r_str, *s = argv[i]; *s; d++, s++){
     if (*s == ':') {
       _ERROR("PARSESYMBOLS","\'" << *s << "\' is a reserved symbol that must not be used in a seed");
     }
@@ -1513,7 +1519,7 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-f")||!strcmp(argv[i],"--foreground")) {
       PARSEPROBS(i, argv, argc, gv_bsens, gv_bsens_k);
     } else if (!strcmp(argv[i],"-fF")||!strcmp(argv[i],"--foregroundFile")) {
-      PARSEPROBSAUTOMATONFILE(i, argv, argc, &gv_bsens_automaton);
+      PARSEPROBSAUTOMATONFILE(i, argv, argc, gv_bsens_automaton);
     } else if (!strcmp(argv[i],"-l")||!strcmp(argv[i],"--length")) {
       PARSEINT(i, argv, argc, gv_alignment_length, 1, 1000000);
       if (gv_subalignment_flag && gv_subalignment_length >= gv_alignment_length) {
@@ -1685,7 +1691,7 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-pF")||!strcmp(argv[i],"--multipolynomial-file")) {
       ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
       gv_multipoly_file_flag = true;
-      PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  &gv_multipoly_bsens_automaton);
+      PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  gv_multipoly_bsens_automaton);
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
       if (gv_motif_flag) {
         _ERROR("\"-c\" pattern and \"-m\" are not compatible together", "you must provide the cycle positions on the shape (e.g  \" -m 100101001:1, 3, 5/6\") ");
@@ -2973,8 +2979,9 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_homogeneous = 1.00;
-  automaton<void> * a_homogeneous = new automaton<void>();
+  automaton<void> * a_homogeneous = NULL;
   if (gv_homogeneous_flag) {
+    a_homogeneous = new automaton<void>();
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Homogeneous automaton : {";
                                            for (int a = 0; a < gv_align_alphabet_size; a++) {
                                              if  (a>0)  cerr << ",";
@@ -3310,7 +3317,7 @@ int main(int argc, char * argv[]) {
               }
             }
 #endif
-            (a_s[i]) = new automaton<void>();
+            a_s[i] = new automaton<void>();
             SEEDAUTOMATON(a_s[i], gv_seeds[i], gv_seeds[i]->cycled() || gv_multihit_flag);
 
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton size : " << (a_s[i]->size())););

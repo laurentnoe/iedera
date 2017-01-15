@@ -1091,7 +1091,11 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESEEDS","" << argv[i-1] << "\" found without argument");
   gv_motif_flag = true;
+
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    delete gv_seeds[v];
   gv_seeds.clear();
+  gv_cycles_flag = false;
   gv_cycles.clear();
   gv_cycles_pos_nb.clear();
   gv_cycles_pos_list.clear();
@@ -1251,6 +1255,8 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESXEEDS","" << argv[i-1] << "\" found without argument");
 
+  gv_xseeds.clear();
+  gv_xseeds_cycles_flag = true;
   gv_xseeds_cycles.clear();
   gv_xseeds_cycles_pos_nb.clear();
   gv_xseeds_cycles_pos_list.clear();
@@ -1465,13 +1471,15 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("\"-BSymbols\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-BSymbols\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        gv_xseeds.clear();
         gv_xseeds_cycles_flag = false;
-        gv_xseeds_multihit_flag = false;
         _WARNING("\"-mx\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-mx\" option");
       }
       if (gv_motif_flag) {
         gv_motif_flag   = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++)
+          delete gv_seeds[v];
+        gv_seeds.clear();
         _WARNING("\"-m\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-m\" option");
       }
       // 1.1) subset seeds
@@ -1741,18 +1749,26 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 3;
       gv_seed_alphabet_size  = 3;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++)
+          delete gv_seeds[v];
+        gv_seeds.clear();
         _WARNING("\"-m\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
@@ -1786,12 +1802,17 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 2;
       gv_seed_alphabet_size  = 2;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
@@ -3978,7 +3999,7 @@ int main(int argc, char * argv[]) {
 
               // delete automaton associated with the modified seed
               if (a_s[seed_to_hillclimbing]) {
-                delete (a_s[seed_to_hillclimbing]);
+                delete a_s[seed_to_hillclimbing];
                 a_s[seed_to_hillclimbing] = NULL;
               }
               if (seed_to_hillclimbing == last_seed_to_hillclimbing) {
@@ -3991,7 +4012,7 @@ int main(int argc, char * argv[]) {
 
             // delete automaton associated with the modified seed
             if (a_s[seed_to_hillclimbing]) {
-              delete (a_s[seed_to_hillclimbing]);
+              delete a_s[seed_to_hillclimbing];
               a_s[seed_to_hillclimbing] = NULL;
             }
 
@@ -4047,7 +4068,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[i]) {
-            delete (a_s[i]);
+            delete a_s[i];
             a_s[i] = NULL;
           }
 
@@ -4075,7 +4096,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[j]) {
-            delete (a_s[j]);
+            delete a_s[j];
             a_s[j] = NULL;
           }
 
@@ -4088,12 +4109,12 @@ int main(int argc, char * argv[]) {
 
         // delete automaton associated with the modified seed (a_s[j]->next == 1)
         if (j < gv_seeds.size() && a_s[j]) {
-          delete (a_s[j]);
+          delete a_s[j];
           a_s[j] = NULL;
         }
 
         for (unsigned i = 0; i < j; i++) { // reset the span of previous j-th seeds to min
-          delete (gv_seeds[i]);
+          delete gv_seeds[i];
           gv_seeds[i] = new seed();
           if (gv_cycles_flag)
             gv_seeds[i]->setCyclePos(gv_cycles_pos_list[i], gv_cycles[i]);

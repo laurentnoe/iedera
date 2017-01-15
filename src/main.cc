@@ -1823,9 +1823,10 @@ void SCANARG(int argc , char ** argv) {
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
-        for (unsigned v = 0; v < gv_seeds.size(); v++)
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
           delete gv_seeds[v];
-        gv_seeds.clear();
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {

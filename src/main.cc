@@ -1792,6 +1792,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-@#").c_str());
       gv_bsymbols_flag = true;
       build_default_subsetseed_matching_matrix();
@@ -1839,6 +1841,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-#").c_str());
       gv_bsymbols_flag  = true;
       build_default_subsetseed_matching_matrix();

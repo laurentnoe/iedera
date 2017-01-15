@@ -1477,9 +1477,10 @@ void SCANARG(int argc , char ** argv) {
       }
       if (gv_motif_flag) {
         gv_motif_flag   = false;
-        for (unsigned v = 0; v < gv_seeds.size(); v++)
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
           delete gv_seeds[v];
-        gv_seeds.clear();
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-m\" option");
       }
       // 1.1) subset seeds
@@ -1766,9 +1767,10 @@ void SCANARG(int argc , char ** argv) {
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
-        for (unsigned v = 0; v < gv_seeds.size(); v++)
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
           delete gv_seeds[v];
-        gv_seeds.clear();
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
@@ -1821,6 +1823,9 @@ void SCANARG(int argc , char ** argv) {
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++)
+          delete gv_seeds[v];
+        gv_seeds.clear();
         _WARNING("\"-m\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {

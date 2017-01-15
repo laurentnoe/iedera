@@ -463,6 +463,7 @@ TESTS_LOGS = iedera_gcov_test1 iedera_gcov_test2 iedera_gcov_test3 iedera_gcov_t
 iedera_gcov_CXXFLAGS = -fprofile-arcs -ftest-coverage -g -O0
 iedera_gcov_SOURCES = ../src/main.cc ../src/seed.cc ../src/macro.cc
 EXTRA_DIST = iedera_gcov_test1 iedera_gcov_test2 iedera_gcov_test3 iedera_gcov_test4 iedera_gcov_test5 iedera_gcov_test6
+CLEANFILES = ../src/*.gcno ../src/*.gcda ../src/*.o *.trs *.log _filein*_ _fileout*_
 all: all-am
 
 .SUFFIXES:
@@ -896,6 +897,7 @@ mostlyclean-generic:
 	-test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)

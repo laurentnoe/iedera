@@ -1091,10 +1091,10 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESEEDS","" << argv[i-1] << "\" found without argument");
   gv_motif_flag = true;
-  gv_seeds           = std::vector<seed *>(0);
-  gv_cycles          = std::vector<int>(0);
-  gv_cycles_pos_nb   = std::vector<int>(0);
-  gv_cycles_pos_list = std::vector< std::vector<int> >(0);
+  gv_seeds.clear();
+  gv_cycles.clear();
+  gv_cycles_pos_nb.clear();
+  gv_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -1251,9 +1251,9 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESXEEDS","" << argv[i-1] << "\" found without argument");
 
-  gv_xseeds_cycles          = std::vector<int>(0);
-  gv_xseeds_cycles_pos_nb   = std::vector<int>(0);
-  gv_xseeds_cycles_pos_list = std::vector< std::vector<int> >(0);
+  gv_xseeds_cycles.clear();
+  gv_xseeds_cycles_pos_nb.clear();
+  gv_xseeds_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -4133,7 +4133,14 @@ int main(int argc, char * argv[]) {
     delete gv_bsens_automaton;
 
   if (gv_bsymbols_array)
-    delete gv_bsymbols_array;
+    free(gv_bsymbols_array);
+
+#ifdef KEEP_PRODUCT_MF
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    if (v > 0 && a_s_product[v])
+      delete a_s_product[v];
+#endif
+
 
   //
   // (10) Display pareto set and area
@@ -4151,6 +4158,12 @@ int main(int argc, char * argv[]) {
     list_and_areaPareto(l);
   else
     outputPareto(l, gv_output_filename);
+
+  // cleaning filename memory
+  for (unsigned v = 0; v < gv_nb_input_filenames; v++)
+    free(gv_input_filenames[v]);
+  if (gv_output_filename)
+    free(gv_output_filename);
   return 0;
 }
 

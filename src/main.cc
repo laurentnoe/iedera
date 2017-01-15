@@ -1118,16 +1118,16 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -1274,16 +1274,16 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -2677,8 +2677,7 @@ void build_default_subsetseed_matching_matrix() {
   gv_subsetseed_matching_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size, 0);
-    gv_subsetseed_matching_matrix.push_back(*v);
+    gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
   }
 
   // fill it in
@@ -2706,8 +2705,7 @@ void build_default_vectorizedsubsetseed_scoring_matrix() {
   gv_vectorizedsubsetseed_scoring_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size,-1);
-    gv_vectorizedsubsetseed_scoring_matrix.push_back(*v);
+    gv_vectorizedsubsetseed_scoring_matrix.push_back(vector<int>(gv_seed_alphabet_size,-1));
   }
 
   // fill it in
@@ -4114,6 +4112,28 @@ int main(int argc, char * argv[]) {
 
   }// while (1)
  end_loop:;
+
+  // deleting several global allocated structures
+  if (gv_homogeneous_flag)
+    delete a_homogeneous;
+
+  if (gv_xseeds.size()) {
+    delete a_excluded;
+    for (unsigned i = 0; i < gv_xseeds.size(); i++)
+      delete gv_xseeds[i];
+  }
+
+  for (unsigned i = 0; i < gv_seeds.size(); i++) {
+    delete gv_seeds[i];
+    if (a_s[i])
+      delete a_s[i];
+  }
+
+  if (gv_bsens_automaton)
+    delete gv_bsens_automaton;
+
+  if (gv_bsymbols_array)
+    delete gv_bsymbols_array;
 
   //
   // (10) Display pareto set and area

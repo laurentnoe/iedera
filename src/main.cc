@@ -1091,10 +1091,14 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESEEDS","" << argv[i-1] << "\" found without argument");
   gv_motif_flag = true;
-  gv_seeds           = std::vector<seed *>(0);
-  gv_cycles          = std::vector<int>(0);
-  gv_cycles_pos_nb   = std::vector<int>(0);
-  gv_cycles_pos_list = std::vector< std::vector<int> >(0);
+
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    delete gv_seeds[v];
+  gv_seeds.clear();
+  gv_cycles_flag = false;
+  gv_cycles.clear();
+  gv_cycles_pos_nb.clear();
+  gv_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -1118,16 +1122,16 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -1251,9 +1255,11 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESXEEDS","" << argv[i-1] << "\" found without argument");
 
-  gv_xseeds_cycles          = std::vector<int>(0);
-  gv_xseeds_cycles_pos_nb   = std::vector<int>(0);
-  gv_xseeds_cycles_pos_list = std::vector< std::vector<int> >(0);
+  gv_xseeds.clear();
+  gv_xseeds_cycles_flag = true;
+  gv_xseeds_cycles.clear();
+  gv_xseeds_cycles_pos_nb.clear();
+  gv_xseeds_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -1274,16 +1280,16 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -1465,13 +1471,16 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("\"-BSymbols\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-BSymbols\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        gv_xseeds.clear();
         gv_xseeds_cycles_flag = false;
-        gv_xseeds_multihit_flag = false;
         _WARNING("\"-mx\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-mx\" option");
       }
       if (gv_motif_flag) {
         gv_motif_flag   = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-m\" option");
       }
       // 1.1) subset seeds
@@ -1741,18 +1750,27 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 3;
       gv_seed_alphabet_size  = 3;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
@@ -1776,6 +1794,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-@#").c_str());
       gv_bsymbols_flag = true;
       build_default_subsetseed_matching_matrix();
@@ -1786,18 +1806,27 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 2;
       gv_seed_alphabet_size  = 2;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
@@ -1818,6 +1847,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-#").c_str());
       gv_bsymbols_flag  = true;
       build_default_subsetseed_matching_matrix();
@@ -2677,8 +2708,7 @@ void build_default_subsetseed_matching_matrix() {
   gv_subsetseed_matching_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size, 0);
-    gv_subsetseed_matching_matrix.push_back(*v);
+    gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
   }
 
   // fill it in
@@ -2706,8 +2736,7 @@ void build_default_vectorizedsubsetseed_scoring_matrix() {
   gv_vectorizedsubsetseed_scoring_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size,-1);
-    gv_vectorizedsubsetseed_scoring_matrix.push_back(*v);
+    gv_vectorizedsubsetseed_scoring_matrix.push_back(vector<int>(gv_seed_alphabet_size,-1));
   }
 
   // fill it in
@@ -3980,7 +4009,7 @@ int main(int argc, char * argv[]) {
 
               // delete automaton associated with the modified seed
               if (a_s[seed_to_hillclimbing]) {
-                delete (a_s[seed_to_hillclimbing]);
+                delete a_s[seed_to_hillclimbing];
                 a_s[seed_to_hillclimbing] = NULL;
               }
               if (seed_to_hillclimbing == last_seed_to_hillclimbing) {
@@ -3993,7 +4022,7 @@ int main(int argc, char * argv[]) {
 
             // delete automaton associated with the modified seed
             if (a_s[seed_to_hillclimbing]) {
-              delete (a_s[seed_to_hillclimbing]);
+              delete a_s[seed_to_hillclimbing];
               a_s[seed_to_hillclimbing] = NULL;
             }
 
@@ -4049,7 +4078,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[i]) {
-            delete (a_s[i]);
+            delete a_s[i];
             a_s[i] = NULL;
           }
 
@@ -4077,7 +4106,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[j]) {
-            delete (a_s[j]);
+            delete a_s[j];
             a_s[j] = NULL;
           }
 
@@ -4090,12 +4119,12 @@ int main(int argc, char * argv[]) {
 
         // delete automaton associated with the modified seed (a_s[j]->next == 1)
         if (j < gv_seeds.size() && a_s[j]) {
-          delete (a_s[j]);
+          delete a_s[j];
           a_s[j] = NULL;
         }
 
         for (unsigned i = 0; i < j; i++) { // reset the span of previous j-th seeds to min
-          delete (gv_seeds[i]);
+          delete gv_seeds[i];
           gv_seeds[i] = new seed();
           if (gv_cycles_flag)
             gv_seeds[i]->setCyclePos(gv_cycles_pos_list[i], gv_cycles[i]);
@@ -4115,6 +4144,35 @@ int main(int argc, char * argv[]) {
   }// while (1)
  end_loop:;
 
+  // deleting several global allocated structures
+  if (gv_homogeneous_flag)
+    delete a_homogeneous;
+
+  if (gv_xseeds.size()) {
+    delete a_excluded;
+    for (unsigned i = 0; i < gv_xseeds.size(); i++)
+      delete gv_xseeds[i];
+  }
+
+  for (unsigned i = 0; i < gv_seeds.size(); i++) {
+    delete gv_seeds[i];
+    if (a_s[i])
+      delete a_s[i];
+  }
+
+  if (gv_bsens_automaton)
+    delete gv_bsens_automaton;
+
+  if (gv_bsymbols_array)
+    free(gv_bsymbols_array);
+
+#ifdef KEEP_PRODUCT_MF
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    if (v > 0 && a_s_product[v])
+      delete a_s_product[v];
+#endif
+
+
   //
   // (10) Display pareto set and area
   //
@@ -4131,6 +4189,12 @@ int main(int argc, char * argv[]) {
     list_and_areaPareto(l);
   else
     outputPareto(l, gv_output_filename);
+
+  // cleaning filename memory
+  for (unsigned v = 0; v < gv_nb_input_filenames; v++)
+    free(gv_input_filenames[v]);
+  if (gv_output_filename)
+    free(gv_output_filename);
   return 0;
 }
 

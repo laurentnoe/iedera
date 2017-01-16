@@ -1476,12 +1476,21 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("\"-mx\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-mx\" option");
       }
       if (gv_motif_flag) {
-        gv_motif_flag   = false;
+        gv_motif_flag = false;
         for (unsigned v = 0; v < gv_seeds.size(); v++) {
           delete gv_seeds[v];
           gv_seeds[v] = NULL;
         }
         _WARNING("\"-m\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-m\" option");
+      }
+      if (gv_lossless_flag) {
+        gv_lossless_flag = false;
+        _WARNING("\"-L\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-L\" option");
+      }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-u\" option");
       }
       // 1.1) subset seeds
     } else if (!strcmp(argv[i],"-M")||!strcmp(argv[i],"--Matching")) {
@@ -1777,6 +1786,11 @@ void SCANARG(int argc , char ** argv) {
         gv_lossless_flag = false;
         _WARNING("\"-L\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-L\" option");
       }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-u\" option");
+      }
       if (gv_align_alphabet_size > 2 && gv_correlation_flag) {
         _ERROR("\"Alignment alphabet of size greater than 2 is not compatible with correlation computation","<not implemented yet>");
       }
@@ -1832,6 +1846,11 @@ void SCANARG(int argc , char ** argv) {
       if (gv_lossless_flag) {
         gv_lossless_flag = false;
         _WARNING("\"-L\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-L\" option");
+      }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-u\" option");
       }
       gv_bsens.clear();
       gv_bsens = std::vector<double>(2); gv_bsens[0] = 0.30; gv_bsens[1] = 0.70;

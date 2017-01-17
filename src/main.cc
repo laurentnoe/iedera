@@ -3904,9 +3904,11 @@ int main(int argc, char * argv[]) {
         polynom->clear();
         delete polynom;
       }
+
       if (gv_multipoly_file_flag) {
         delete multipoly;
       }
+
       //
       // (5) insertion inside pareto set
       //
@@ -4181,6 +4183,9 @@ int main(int argc, char * argv[]) {
 
   if (gv_bsens_automaton)
     delete gv_bsens_automaton;
+
+  if (gv_multipoly_file_flag)
+    delete gv_multipoly_bsens_automaton;
 
   if (gv_bsymbols_array)
     free(gv_bsymbols_array);

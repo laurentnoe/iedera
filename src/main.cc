@@ -64,7 +64,7 @@ using namespace std;
 #define BIGINT infint<long long>
 #else
 /// BIGINT polynomial coefs computation defined as long long (quite fast ... but overflows quickly ...)
-#define BIGINT unsigned long long
+#define BIGINT long long
 #endif
 
 
@@ -269,7 +269,7 @@ bool gv_polynomial_dominant_selection_flag = false;
 
 /// flag that activate multinomial evaluation (note : this is independent from the previous dominance selection). Note that this is only a polynomial evaluation, and does not have any other effect than ... FIXME
 bool gv_multipoly_file_flag = false;
-automaton<polynomial<infint<long long> > > * gv_multipoly_bsens_automaton = NULL;
+automaton<polynomial<BIGINT > > * gv_multipoly_bsens_automaton = NULL;
 
 
 
@@ -764,7 +764,7 @@ void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> 
 
 
 /// parse and check a set of polynomial probabilities as an automaton file
-void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<infint<long long> > > * &r_automaton) {
+void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<BIGINT > > * &r_automaton) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPOLYPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
@@ -779,7 +779,7 @@ void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<poly
   // read the content and set the automaton
   if (r_automaton)
     delete r_automaton;
-  r_automaton = new automaton<polynomial<infint<long long> > >();
+  r_automaton = new automaton<polynomial<BIGINT > >();
 
   ifs_file >> (*r_automaton);
   ifs_file.close();
@@ -1708,6 +1708,9 @@ void SCANARG(int argc , char ** argv) {
 #endif
     } else if (!strcmp(argv[i],"-pF")||!strcmp(argv[i],"--multipolynomial-file")) {
       ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
+#ifndef USEINFINT
+      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Multivariate polynomial evaluation on <int64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+#endif      
       gv_multipoly_file_flag = true;
       PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  gv_multipoly_bsens_automaton);
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
@@ -2185,7 +2188,7 @@ class seedproperties {
 public:
   /** @brief build a "seedproperties" object (keep current seed properties when needed)
    */
-  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL, polynomial<infint<long long> > * multipoly = NULL) {
+  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL, polynomial<BIGINT > * multipoly = NULL) {
 
     this->sel   = sel;
     this->sens  = sens;
@@ -2197,9 +2200,9 @@ public:
     else
       this->polynom = vector< pair<pair<int,int>,BIGINT> >(0);
     if (multipoly)
-      this->multipoly = polynomial<infint<long long> >(*multipoly);
+      this->multipoly = polynomial<BIGINT >(*multipoly);
     else
-      this->multipoly = polynomial<infint<long long> >();
+      this->multipoly = polynomial<BIGINT >();
 
   }
 
@@ -2212,7 +2215,7 @@ public:
     this->str   = string(other.str);
     this->lossless = other.lossless;
     this->polynom   = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
-    this->multipoly = polynomial<infint<long long> >(other.multipoly);
+    this->multipoly = polynomial<BIGINT >(other.multipoly);
   }
 
 
@@ -2229,7 +2232,7 @@ public:
   /// keep polynomial factors for multihit / coverage hit  /vs/
   vector< pair<pair<int,int>,BIGINT> > polynom;
   /// keep multivariable polynomial for output only
-  polynomial<infint<long long> > multipoly;
+  polynomial<BIGINT > multipoly;
 
   /** @brief delete a "seedproperties" object (this is just a polynom "check and erase")
    */
@@ -3601,7 +3604,7 @@ int main(int argc, char * argv[]) {
       }
 
       std::vector< pair<pair<int,int>,BIGINT> > *  polynom   = NULL;
-      polynomial<infint<long long> > * multipoly = NULL;
+      polynomial<BIGINT > * multipoly = NULL;
       //FIXMECOV>>
       if (gv_covariance_flag) goto gv_covariance_flag_1;
       //<<
@@ -3789,27 +3792,27 @@ int main(int argc, char * argv[]) {
             if (gv_multipoly_file_flag) {
               /*
               // test 1 on polynomials
-              automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-              polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
+              automaton<polynomial<BIGINT > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              polynomial<BIGINT > pol1  = pr->Pr(gv_alignment_length,true);
               cout << endl << "(a) [" << pol1 << "]" << endl;
-              polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
+              polynomial<BIGINT > inv_pol1  = pr->Pr(gv_alignment_length,false);
               cout << endl << "(a) {" << inv_pol1 << "}" << endl;
               cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
               delete pr;
 
               // test 2 on matrices
-              matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-              polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
+              matrix<polynomial<BIGINT > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<BIGINT > pol2 = m_pr->Pr(gv_alignment_length,true);
               cout << endl << "(b) [" << pol2 << "]" << endl;
-              polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
+              polynomial<BIGINT > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
               cout << endl << "(b) {" << inv_pol2 << "}" << endl;
               cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
               delete m_pr;
               */
               // implemented on matrices
-              matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-              polynomial<infint<long long> > mpol = m_pr->Pr(gv_alignment_length,true);
-              multipoly = new polynomial<infint<long long> >(mpol);
+              matrix<polynomial<BIGINT > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<BIGINT > mpol = m_pr->Pr(gv_alignment_length,true);
+              multipoly = new polynomial<BIGINT >(mpol);
               delete m_pr;
             }
 

@@ -150,16 +150,36 @@ Lossless seeds
 ~~~~~~~~~~~~~~
 
 A very small example for lossless seeds (from Burkhard&Karkkainen) : find a *lossless seed* of weight 12, span at most 19, on alignments of length 25 with 2 mismatches::
-
   
   iedera -spaced -s 12,19 -w 12,12 -l 25 -L 1,0 -X 2
 
 
 A second example for lossless seeds (from Kucherov,Noe&Roytberg) on the previous problem, but with two seeds of weight 14, and span between 20 and 21 (to ease the search)::
 
-
   iedera -spaced -l 25 -L 1,0 -X 2 -n 2 -s 20,21 -w 14,14  -r 100..some.zeros..00 -k
-  
+
+
+Input/Ouput and reoptimization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes, it may be helpful to rerun several times the same experiment, and keep the *best result of all runs*. This can be easily done with input/ouput:
+
+-e <filename>
+  for input file (filename can be a non existing file)
+
+-o <filename>
+  for output file (filename may be of same name as input)
+
+
+so running this command-line multiple times::
+
+  iedera -spaced -l 25 -L 1,0 -X 2 -n 2 -w 14,14 -s 20,21 -r 10000 -k -e file_n2_w14_l25_x2_lossless.txt -o file_n2_w14_l25_x2_lossless.txt
+
+will probably find a *lossless set* of two seeds. Running this command-line multiple times::
+
+  iedera -spaced -l 64 -n 2 -w 11,11 -s 11,22 -r 10000 -k -e file_n2_w11_l64_lossy.txt -o file_n2_w11_l64_lossy.txt
+
+will also probably improve the sensitivity result.
 
 Polynomial form
 ---------------

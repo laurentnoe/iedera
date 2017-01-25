@@ -2563,6 +2563,8 @@ int inputPareto(list<seedproperties> & l, char * filename) {
       seedproperties sp(sel, sens, dist, shape, lossless, &polynom);
       insertPareto(l,sp);
     }
+  } else {
+    _WARNING("inputPareto", " unable to read  \"" << filename << "\"");
   }
   in.close();
   selectPareto(l);

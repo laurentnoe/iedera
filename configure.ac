@@ -182,7 +182,7 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
 
 
 
-AC_INIT([iedera],[1.07],[laurent DT noe AT univ-lille1 DT fr],[iedera],[http://bioinfo.lifl.fr/yass/iedera])
+AC_INIT([iedera],[1.07],[laurent DT noe AT univ-lille DT fr],[iedera],[http://bioinfo.cristal.univ-lille.fr/yass/iedera])
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_LANG([C++])
 AM_INIT_AUTOMAKE([subdir-objects

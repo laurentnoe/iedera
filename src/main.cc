@@ -11,7 +11,7 @@
  *
  * @section Download
  * Download the iedera source code and binaries on the following web page:\n
- * <A HREF="http://bioinfo.lifl.fr/yass/iedera.php">http://bioinfo.lifl.fr/yass/iedera.php</A>\n
+ * <A HREF="http://bioinfo.cristal.univ-lille.fr/yass/iedera.php">http://bioinfo.cristal.univ-lille.fr/yass/iedera.php</A>\n
  * A small tutorial to use iedera is also provided on this web page.\n
  *
  * @author <A HREF="http://www.cristal.univ-lille.fr/~noe" TARGET="_top">Laurent Noe</A>
@@ -333,7 +333,7 @@ void USAGE() {
   cerr << "      -b <dbl>,<dbl>,...      : set the Bernoulli/Markov background distribution (size |'A'|^k)" << endl;
   cerr << "      -f <dbl>,<dbl>,...      : set the Bernoulli/Markov foreground distribution (size |'A'|^k)" << endl;
   cerr << "      -fF <filename>          : set the foreground model (as a probabilistic NFA)" << endl;
-  cerr << "                                for more details, see http://bioinfo.lifl.fr/yass/iedera.php#fFFormat" << endl;
+  cerr << "                                for more details, see http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#fFFormat" << endl;
   cerr << "      -l <int>                : set the alignment length (default = " <<  gv_alignment_length << ") " << endl;
   cerr << "      -ll <int>               : select the sub-align window computation and set its length (default = disabled)" << endl;
   cerr << "      -llf <function>         : set the sub-align function used to merge the results (default = \"min\")" << endl;

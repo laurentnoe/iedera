@@ -39,9 +39,37 @@ template<typename C> class polynomial {
  public:
 
   /// Build an empty polynomial
-  polynomial() {for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();};
+  polynomial() {
+    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+  };
+
   /// Build a constant polynomial
-  polynomial(int u) {for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear(); if (u != 0) _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));};
+  polynomial(int u) {
+    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+    if (u != 0)
+      _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));
+
+    /* extends all the coef vectors to size "_var_names.size()" by adding extra zeros, sort them */
+    for (typename vector<pair<vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
+      i_p->first.resize(_var_names.size(),0);
+    sort(_coefs.begin(), _coefs.end());
+  };
+
+  /// Copy Constructor
+  polynomial(const polynomial<C> &other) {
+    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+
+    /* copy */
+    for (unsigned i = 0; i < other._coefs.size(); i++)
+      _coefs.push_back(pair<vector<int>, C> (vector<int>(other._coefs[i].first), C(other._coefs[i].second)));
+
+    /* extends all the coef vectors to size "p._var_names.size()" by adding extra zeros, sort them */
+    for (typename vector<pair<vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
+      i_p->first.resize(_var_names.size(),0);
+    sort(_coefs.begin(), _coefs.end());
+  };
+
+
 
   /// Erase a polynomial
   ~polynomial() {for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();};
@@ -310,21 +338,32 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
 
       // read spaces until a symbol or a number occurs
       while (!row.eof()) {
-      char c = row.peek();
-      if (c == ' ' || c == '\t') {
-        row.ignore();
-        continue;
-      } else {
-        if (c >= '0' && c <= '9') {
-          break;
+        char c = row.peek();
+        if (c == ' ' || c == '\t') {
+          row.ignore();
+          continue;
         } else {
-          coef = C(1);
-          goto next_variable;
+          if (c >= '0' && c <= '9') {
+            break;
+          } else {
+            if (c == '+' || c == '-') {
+              if (c == '-') {
+                sign = C(-1);
+              } else {
+                sign = C(1);
+              }
+              row.ignore();
+              continue;
+            } else {
+              coef = C(1);
+              goto next_variable;
+            }
+          }
         }
-      }
       }
 
       row >> coef;
+
       if (row.fail()) {
         _ERROR("operator>>"," invalid coefficient (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
@@ -399,7 +438,9 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       goto next_symbol;
     }
   }
-
+  /* extends all the coef vectors to size "p._var_names.size()" by adding extra zeros, sort them */
+  for (typename vector<pair<vector<int>, C > >::iterator i_p = p._coefs.begin(); i_p != p._coefs.end(); i_p++)
+    i_p->first.resize(p._var_names.size(),0);
   sort(p._coefs.begin(), p._coefs.end());
   return is;
 }

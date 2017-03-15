@@ -191,3 +191,14 @@ When the probability *p* to generate a *match* is not fixed (for example *p=0.7*
  
 
 is added in the current commited version of iedera (master branch).
+
+
+References
+----------
+
+how to cite this tool:
+
+    Kucherov G., Noe L., Roytberg, M., A unifying framework for seed sensitivity and its application to subset seeds, Journal of Bioinformatics and Computational Biology, 4(2):553-569, 2006 <http://doi.org/10.1142/S0219720006001977>
+
+    Noe L., Best hits of 11110110111: model-free selection and parameter-free sensitivity calculation of spaced seeds, Algorithms for Molecular Biology, 12(1). 2017 <http://doi.org/10.1186/s13015-017-0092-1>
+																																														     

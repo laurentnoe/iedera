@@ -1,10 +1,10 @@
 
 .. image:: https://img.shields.io/travis/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Unix
-    :target: https://travis-ci.org/laurentnoe/iedera
+    :target: https://travis-ci.org/laurentnoe/iedera/
     :alt: Build Status Unix
 
 .. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Windows
-    :target: https://ci.appveyor.com/project/laurentnoe/iedera
+    :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
 .. image:: https://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
@@ -184,10 +184,21 @@ will also probably improve the sensitivity result.
 Polynomial form
 ---------------
 
-When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://cristal.univ-lille.fr/~noe/files/spaced_seed_dominance.pdf>) so the flag :
+When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://doi.org/10.1186/s13015-017-0092-1>) so the flag :
 
 -p
   to activate dominant selection and output polynomial coefficients
  
 
 is added in the current commited version of iedera (master branch).
+
+
+References
+----------
+
+how to cite this tool:
+
+    Kucherov G., Noe L., Roytberg, M., A unifying framework for seed sensitivity and its application to subset seeds, Journal of Bioinformatics and Computational Biology, 4(2):553-569, 2006 <http://doi.org/10.1142/S0219720006001977>
+
+    Noe L., Best hits of 11110110111: model-free selection and parameter-free sensitivity calculation of spaced seeds, Algorithms for Molecular Biology, 12(1). 2017 <http://doi.org/10.1186/s13015-017-0092-1>
+																																														     

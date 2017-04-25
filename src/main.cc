@@ -2327,7 +2327,7 @@ bool operator==(const seedproperties & e1, const seedproperties & e2) {
  */
 std::ostream& operator<<(std::ostream& os, seedproperties& e){
   os.setf(ios_base::fixed, ios_base::floatfield);
-  os.precision(12);
+  os.precision(13);
   os <<  e.str << "\t" << e.sel << "\t";
   os.precision(6);
   if (gv_lossless_flag && e.lossless)
@@ -2392,8 +2392,6 @@ double areaConvex(list<seedproperties> & l) {
 
   // (1) push border seedproperties and sort
   l.sort();
-  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag));
-  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false));
 
   // (2) compute convex hull
   list<seedproperties>::iterator i = l.begin();
@@ -2553,7 +2551,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
   // seach the position where to insert
   list<seedproperties>::iterator i = l.begin();
   list<seedproperties>::iterator j = l.begin();
-  while(i != l.end() && i->sel + 1e-32 < e.sel) {
+  while(i != l.end() && i->sel + 1e-13 < e.sel) {
     j = i;
     i++;
   }
@@ -2567,7 +2565,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
   } else {
     // e.sel <= i->sel
     // same sel
-    if (i->sel + 1e-32 >= e.sel && i->sel - 1e-32 <= e.sel) {
+    if (i->sel + 1e-13 >= e.sel && i->sel - 1e-13 <= e.sel) {
       bool lossless = e.lossless && (!(i->lossless));
       double dist   = e.sens - i->sens;
       if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 0))) {
@@ -2578,7 +2576,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
       } else {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
-          while (i != l.end() && i->sel + 1e-32 >= e.sel && i->sel - 1e-32 <= e.sel) {
+          while (i != l.end() && i->sel + 1e-13 >= e.sel && i->sel - 1e-13 <= e.sel) {
             if ((*i) == e)
               return 0;
             dist = MIN(dist, e.sens - i->sens);
@@ -2948,8 +2946,10 @@ int main(int argc, char * argv[]) {
   SCANARG(argc, argv);
 
   l = list<seedproperties>();
-  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag));
-  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false));
+  vector< pair<pair<int,int>,BIGINT> > v1_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,1),1));
+  vector< pair<pair<int,int>,BIGINT> > v0_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,0),1));
+  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag, &v1_one));
+  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false,            &v0_one));
 
   // randomize
   srand(GETMSTIME()*GETPID());

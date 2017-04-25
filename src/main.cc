@@ -2553,7 +2553,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
   // seach the position where to insert
   list<seedproperties>::iterator i = l.begin();
   list<seedproperties>::iterator j = l.begin();
-  while(i != l.end() && i->sel + 1e-12 < e.sel) {
+  while(i != l.end() && i->sel + 1e-32 < e.sel) {
     j = i;
     i++;
   }
@@ -2567,7 +2567,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
   } else {
     // e.sel <= i->sel
     // same sel
-    if (i->sel + 1e-12 >= e.sel && i->sel - 1e-12 <= e.sel) {
+    if (i->sel + 1e-32 >= e.sel && i->sel - 1e-32 <= e.sel) {
       bool lossless = e.lossless && (!(i->lossless));
       double dist   = e.sens - i->sens;
       if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 0))) {
@@ -2578,7 +2578,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
       } else {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
-          while (i != l.end() && i->sel + 1e-12 >= e.sel && i->sel - 1e-12 <= e.sel) {
+          while (i != l.end() && i->sel + 1e-32 >= e.sel && i->sel - 1e-32 <= e.sel) {
             if ((*i) == e)
               return 0;
             dist = MIN(dist, e.sens - i->sens);

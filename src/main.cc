@@ -2430,33 +2430,34 @@ double list_and_areaPareto(list<seedproperties> & l) {
 double insertPareto(list<seedproperties> & l, seedproperties & e) {
   // seach the position where to insert
   list<seedproperties>::iterator i = l.begin();
-  list<seedproperties>::iterator j = l.begin();
+  double last_sens = 1.0;
   while(i != l.end() && i->sel + 1e-13 < e.sel) {
-    j = i;
+    last_sens = i->sens;
     i++;
   }
   // insert (front/back/between)
   if ( i ==  l.end()) {
+    // "e" is the first seed, or has higher selectivity
     l.push_back(e);
-    return (e.sens - j->sens);
-  } else if ( i == l.begin() ) {
-    l.push_front(e);
-    return (e.sens - i->sens);
+    return (e.sens - last_sens);
   } else {
-    // e.sel <= i->sel
-    // same sel
-    if (i->sel + 1e-13 >= e.sel && i->sel - 1e-13 <= e.sel) {
+    // "e" has lower selectivity
+    if (i->sel - 1e-13 > e.sel) {
+      l.insert(i, e);
+      return (e.sens - last_sens);
+    } else {
+      // "e" has approximately the same selectivity : (i->sel - 1e-13 <= e.sel && i->sel + 1e+13)
       bool lossless = e.lossless && (!(i->lossless));
       double dist   = e.sens - i->sens;
       if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 0))) {
-        // replace i by e
+        // better lossy seed, or "first" new lossless seed : replace i by e
         l.insert(i, e);
         l.erase(i);
         return dist;
       } else {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
-          while (i != l.end() && i->sel + 1e-13 >= e.sel && i->sel - 1e-13 <= e.sel) {
+          while (i != l.end() && i->sel - 1e-13 <= e.sel && e.sel <= i->sel + 1e-13) {
             if ((*i) == e)
               return 0;
             dist = MIN(dist, e.sens - i->sens);
@@ -2483,23 +2484,11 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
             l.insert(i, e);
           }
           return dist;
-        } else {
-          return dist;
         }
-      }
-    } else {
-      bool lossless = e.lossless && (!(i->lossless));
-      double dist = e.sens - i->sens;
-      // j->sel < e.sel < i->sel
-      if (lossless || (dist > 0) || gv_polynomial_dominant_selection_flag) {
-        // add e before i (so between j and i)
-        l.insert(i, e);
-        return dist;
-      } else {
-        return dist;
       }
     }
   }
+  return 0;
 }
 
 

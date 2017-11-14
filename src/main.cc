@@ -11,7 +11,7 @@
  *
  * @section Download
  * Download the iedera source code and binaries on the following web page:\n
- * <A HREF="http://bioinfo.lifl.fr/yass/iedera.php">http://bioinfo.lifl.fr/yass/iedera.php</A>\n
+ * <A HREF="http://bioinfo.cristal.univ-lille.fr/yass/iedera.php">http://bioinfo.cristal.univ-lille.fr/yass/iedera.php</A>\n
  * A small tutorial to use iedera is also provided on this web page.\n
  *
  * @author <A HREF="http://www.cristal.univ-lille.fr/~noe" TARGET="_top">Laurent Noe</A>
@@ -324,7 +324,7 @@ void USAGE() {
   cerr << "      -b <dbl>,<dbl>,...      : set the Bernoulli/Markov background distribution (size |'A'|^k)" << endl;
   cerr << "      -f <dbl>,<dbl>,...      : set the Bernoulli/Markov foreground distribution (size |'A'|^k)" << endl;
   cerr << "      -fF <filename>          : set the foreground model (as a probabilistic NFA)" << endl;
-  cerr << "                                for more details, see http://bioinfo.lifl.fr/yass/iedera.php#fFFormat" << endl;
+  cerr << "                                for more details, see http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#fFFormat" << endl;
   cerr << "      -l <int>                : set the alignment length (default = " <<  gv_alignment_length << ") " << endl;
   cerr << "      -ll <int>               : select the sub-align window computation and set its length (default = disabled)" << endl;
   cerr << "      -llf <function>         : set the sub-align function used to merge the results (default = \"min\")" << endl;
@@ -2210,7 +2210,7 @@ bool operator==(const seedproperties & e1, const seedproperties & e2) {
  */
 std::ostream& operator<<(std::ostream& os, seedproperties& e){
   os.setf(ios_base::fixed, ios_base::floatfield);
-  os.precision(12);
+  os.precision(13);
   os <<  e.str << "\t" << e.sel << "\t";
   os.precision(6);
   if (gv_lossless_flag && e.lossless)
@@ -2272,8 +2272,6 @@ double areaConvex(list<seedproperties> & l) {
 
   // (1) push border seedproperties and sort
   l.sort();
-  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag));
-  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false));
 
   // (2) compute convex hull
   list<seedproperties>::iterator i = l.begin();
@@ -2432,33 +2430,34 @@ double list_and_areaPareto(list<seedproperties> & l) {
 double insertPareto(list<seedproperties> & l, seedproperties & e) {
   // seach the position where to insert
   list<seedproperties>::iterator i = l.begin();
-  list<seedproperties>::iterator j = l.begin();
-  while(i != l.end() && i->sel + 1e-12 < e.sel) {
-    j = i;
+  double last_sens = 1.0;
+  while(i != l.end() && i->sel + 1e-13 < e.sel) {
+    last_sens = i->sens;
     i++;
   }
   // insert (front/back/between)
   if ( i ==  l.end()) {
+    // "e" is the first seed, or has higher selectivity
     l.push_back(e);
-    return (e.sens - j->sens);
-  } else if ( i == l.begin() ) {
-    l.push_front(e);
-    return (e.sens - i->sens);
+    return (e.sens - last_sens);
   } else {
-    // e.sel <= i->sel
-    // same sel
-    if (i->sel + 1e-12 >= e.sel && i->sel - 1e-12 <= e.sel) {
+    // "e" has lower selectivity
+    if (i->sel - 1e-13 > e.sel) {
+      l.insert(i, e);
+      return (e.sens - last_sens);
+    } else {
+      // "e" has approximately the same selectivity : (i->sel - 1e-13 <= e.sel && i->sel + 1e+13)
       bool lossless = e.lossless && (!(i->lossless));
       double dist   = e.sens - i->sens;
       if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 0))) {
-        // replace i by e
+        // better lossy seed, or "first" new lossless seed : replace i by e
         l.insert(i, e);
         l.erase(i);
         return dist;
       } else {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
-          while (i != l.end() && i->sel + 1e-12 >= e.sel && i->sel - 1e-12 <= e.sel) {
+          while (i != l.end() && i->sel - 1e-13 <= e.sel && e.sel <= i->sel + 1e-13) {
             if ((*i) == e)
               return 0;
             dist = MIN(dist, e.sens - i->sens);
@@ -2485,23 +2484,11 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
             l.insert(i, e);
           }
           return dist;
-        } else {
-          return dist;
         }
-      }
-    } else {
-      bool lossless = e.lossless && (!(i->lossless));
-      double dist = e.sens - i->sens;
-      // j->sel < e.sel < i->sel
-      if (lossless || (dist > 0) || gv_polynomial_dominant_selection_flag) {
-        // add e before i (so between j and i)
-        l.insert(i, e);
-        return dist;
-      } else {
-        return dist;
       }
     }
   }
+  return 0;
 }
 
 
@@ -2563,6 +2550,8 @@ int inputPareto(list<seedproperties> & l, char * filename) {
       seedproperties sp(sel, sens, dist, shape, lossless, &polynom);
       insertPareto(l,sp);
     }
+  } else {
+    _WARNING("inputPareto", " unable to read  \"" << filename << "\"");
   }
   in.close();
   selectPareto(l);
@@ -2823,8 +2812,10 @@ int main(int argc, char * argv[]) {
   SCANARG(argc, argv);
 
   l = list<seedproperties>();
-  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag));
-  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false));
+  vector< pair<pair<int,int>,BIGINT> > v1_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,1),1));
+  vector< pair<pair<int,int>,BIGINT> > v0_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,0),1));
+  l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag, &v1_one));
+  l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false,            &v0_one));
 
   // randomize
   srand(GETMSTIME()*GETPID());

@@ -203,11 +203,11 @@ When the probabilitic model is more complex compared to a simple Bernoulli model
 -pF <filename>
   to activate the output of the multivariate polynomial on the given model
 
-is added in this local branch. The following example, compute the sensitivity of the seed 1101 on alignments of length 8 ::
+is added in this local branch. The next example gives sensitivity of the seed 1101 on alignments of length 8 ::
 
   iedera -spaced -pF model_bernoulli_simple_x_xp.txt  -m "##-#" -l 8
 
-on the bernoulli model given by the file *model_bernoulli_simple_x_xp.txt* ::
+on the bernoulli model provided by the file *model_bernoulli_simple_x_xp.txt* ::
 
   2
      0   1

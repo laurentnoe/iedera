@@ -198,16 +198,16 @@ is added in the current commited version of iedera (master branch).
 Other multivariate models 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.* The flag :
+When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.*  The flag :
 
--pF
-  to activate the output only (pareto selection made)  of the multivariate polynomial coefficients, according to this model
+-pF <filename>
+  to activate the output of the multivariate polynomial on the given model
 
-is added in this local branch. The following example, compute the sensitivity of the seed 1101 on alignments of length 8 :
+is added in this local branch. The following example, compute the sensitivity of the seed 1101 on alignments of length 8 ::
 
   iedera -spaced -pF model_bernoulli_simple_x_xp.txt  -m "##-#" -l 8
 
-on the bernoulli model given by the file *model_bernoulli_simple_x_xp.txt* : 
+on the bernoulli model given by the file *model_bernoulli_simple_x_xp.txt* ::
 
   2
      0   1

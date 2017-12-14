@@ -187,21 +187,22 @@ Polynomial form
 Bernoulli model
 ~~~~~~~~~~~~~~~
  
-When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://doi.org/10.1186/s13015-017-0092-1>) so the flag :
+When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://doi.org/10.1186/s13015-017-0092-1>) so the flag:
 
 -p
   to activate dominant selection and output polynomial coefficients
- 
+
 
 is added in the current commited version of iedera (master branch).
 
 Other multivariate models 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.*  The flag :
+When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.*  The flag:
 
 -pF <filename>
   to activate the output of the multivariate polynomial on the given model
+
 
 is added in this local branch. The next example gives sensitivity of the seed 1101 on alignments of length 8 ::
 

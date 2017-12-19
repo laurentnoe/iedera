@@ -200,9 +200,9 @@ Other multivariate models
 
 When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.*  The flag:
 
--pF <filename>
-  to activate the output of the multivariate polynomial on the given model
-
++================+==========================================================================+
+| -pF <filename> | to activate the output of the multivariate polynomial on the given model |
++----------------+--------------------------------------------------------------------------+
 
 is added in this local branch. The next example gives sensitivity of the seed 1101 on alignments of length 8 ::
 

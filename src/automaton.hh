@@ -9,7 +9,7 @@
  *  This part describes an automaton\<T\> : each @ref automaton\<T\> is mainly a represented by a set of @ref state\<T\> , each itself being represented by a set of @ref transition\<T\>.
  *
  *  - An automaton\<T\> can be deterministic or not.
- *  - It may bring probabilities (T = double), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
+ *  - It may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
  *
  *  By default the automaton\<T\> constructor is almost empty (it creates only a final state 0 and the init state 1), but several methods are proposed to construct @ref seed-automaton, @ref probabilistic-automaton, @ref structural-automaton (@ref automaton-construction). Several methods are also proposed to manipulate theses automata (@ref automaton-manipulate), compute properties (@ref automaton-computed-properties), convert them into matrices (@ref automaton-matrix-conversion),
  *
@@ -35,12 +35,12 @@
  *
  *  @section automaton-computed-properties Computing properties
  *
- *  From the probabilities attached to each transition (@ref automaton::Prob), it is possible to compute the probability (T = double), cost (T = cost\<int\>) or count (T = unsigned long long) to be at any final state after some @f$n@f$ steps without any restriction (@ref automaton::Pr), or with the restriction to be in the lossless accepted language (@ref automaton::PrLossless).
+ *  From the probabilities attached to each transition (@ref automaton::Prob), it is possible to compute the probability (T = double, T = polynomial\<long long int\>), cost (T = cost\<int\>) or count (T = unsigned long long) to be at any final state after some @f$n@f$ steps without any restriction (@ref automaton::Pr), or with the restriction to be in the lossless accepted language (@ref automaton::PrLossless).
  *
  *  @section automaton-matrix-conversion Converting into matrices
  *  Several methods are proposed to convert the @f$ Automaton \times ProbabilisticModel @f$, @f$ Automaton \times CostModel @f$, or @f$ Automaton \times CountModel @f$ into matrices for more convenient computations. The probability @ref automaton::matrix_pr_product , the cost @ref automaton::matrix_cost_product and the counting @ref automaton::matrix_count_product give the product of two automata into a resulting matrix @f$M@f$ (that store either probabilities, costs, or counts) so that @f$M^n@f$ usually compute the needed properties. There are also three "stepwise equivalent" methods @ref automaton::matrices_step_pr_product,  @ref automaton::matrices_step_cost_product, and @ref automaton::matrices_step_count_product : these three methods give the "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$, thus enabling any computation @f$M_i,M_{i+1}\ldots,M_{j}@f$ @f$\forall 0 \leq i < j \leq l@f$ @see matrix @see matrices_slicer .
  *
- *  @todo FIXME : to be continued
+ *  @todo{FIXME : to be continued}
  */
 
 /** @defgroup automaton automaton class templates
@@ -156,7 +156,7 @@ public:
   /** @brief build a transition object
    *  @param state gives the state number reached by this transition
    *  @param prob  gives the probability of this transition
-   *  @todo{[FIXME] : clear is here needed for composed T types, since T must be delete ; check if the automatic deletion work for T = polynomial<C>}
+   *  @todo{FIXME : clear() function is here needed for "composed T types", since T must also be deleted to free memory; check if the automatic deletion works for T = polynomial<C>}
    */
   transition(int state = 0, const T prob = One<T>()) : _state(state), _prob(prob) {};
 
@@ -206,8 +206,8 @@ template<typename T> inline ostream& operator<<(ostream& os, const transition<T>
  */
 template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) {
   // previous data removed if any
-  //tr._prob.clear(); //[FIXME] must be done for polynomial but doesnt work for <double>
-  ///@todo{[FIXME] : clear is here needed for composed T types, since T must be delete ; check if the automatic deletion work for T = polynomial<C>}
+  //tr._prob.clear(); //FIXME : this must be done for polynomial but it doesnt obviously work for <double>
+  ///@todo{FIXME : clear() function is here needed for "composed T types", since T must also be deleted to free memory; check if the automatic deletion works for T = polynomial<C>}
   tr._state = 0;
 
   // reading state

@@ -4209,8 +4209,8 @@ int main(int argc, char * argv[]) {
     outputPareto(l, gv_output_filename);
 
   // cleaning filename memory
-  for (unsigned v = 0; v < gv_nb_input_filenames; v++)
-    free(gv_input_filenames[v]);
+  for (int i = 0; i < gv_nb_input_filenames; i++)
+    free(gv_input_filenames[i]);
   if (gv_output_filename)
     free(gv_output_filename);
   return 0;

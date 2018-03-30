@@ -17,3 +17,17 @@ build_script:
   - bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && ./configure"
   - bash -lc "exec 0</dev/null && cd $APPVEYOR_BUILD_FOLDER && make"
   - bash -lc true
+
+artifacts:
+  - path: src\iedera.exe
+    name: Releases
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: tHdOZd4WuISqvOGoP2UQQMH98teawtdSIZikUbanK4/06NzgINRT6LspbH1pdme3
+  artifact: /iedera.exe/
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true

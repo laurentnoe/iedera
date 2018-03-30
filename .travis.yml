@@ -8,9 +8,9 @@ matrix:
     - os: linux
       dist: trusty
       sudo: false
-      compiler: clang      
+      compiler: clang
     - os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
       sudo: false
 script:
   - autoreconf && ./configure && automake && make && make check

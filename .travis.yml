@@ -24,7 +24,9 @@ after_success:
 
 
 before_deploy:
-  - export FILE_TO_UPLOAD=$(ls src/iedera*)
+  - export FILE_TO_UPLOAD=$(ls src/iedera)
+  - echo ${PWD}
+  - ls
   - echo ${FILE_TO_UPLOAD}
 
 deploy:

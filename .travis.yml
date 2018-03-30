@@ -35,6 +35,8 @@ deploy:
   file: "${FILE_TO_UPLOAD}"
   skip_cleanup: true
   on:
-    tags: true
+    tags: false
     repo: laurentnoe/iedera
     all_branches: true
+    notifications:
+      email: false

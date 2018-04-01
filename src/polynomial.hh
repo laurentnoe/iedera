@@ -362,8 +362,9 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
           }
         }
       }
-
-      row >> coef;
+      long long int cof;
+      row >> cof;
+      coef = C(cof);
 
       if (row.fail()) {
         _ERROR("operator>>"," invalid coefficient (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
@@ -388,6 +389,11 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
     next_variable:
       string var_symbol;
       row >> var_symbol;
+      for(string::iterator it = var_symbol.begin(); it != var_symbol.end(); it++) {
+        if ( ! ((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '_')) {
+          _ERROR("operator>>"," variable name \""<< var_symbol<<"\" include non alpha symbols \'"<< (*it) <<"\' (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+        }
+      }
       //cerr << "variable:" << var_symbol << endl;
       int i_var = -1;
 

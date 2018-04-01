@@ -1,8 +1,8 @@
 #!/bin/sh
-# Multinomial tests
-echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multinomial_automaton_
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multinomial_automaton_ || exit 99
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multinomial_automaton_ || exit 99
-echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multinomial_automaton_
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multinomial_automaton_ || exit 99
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multinomial_automaton_ || exit 99
+# Multivariate tests
+echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multivariate_automaton_
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multivariate_automaton_ || exit 99
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multivariate_automaton_ || exit 99
+echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multivariate_automaton_
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multivariate_automaton_ || exit 99
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multivariate_automaton_ || exit 99

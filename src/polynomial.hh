@@ -326,6 +326,7 @@ template<typename C> ostream& operator<< (ostream& os, const polynomial<C> & p) 
 template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
   p._coefs          = vector<pair<vector<int>, C> > ();
   string line;
+  //cerr << "\"" << line << "\"" << endl;
   C sign = C(1);
   // must be formatted only on one single line
   if (getline(is, line)) {
@@ -395,23 +396,36 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       for (unsigned i=0; i < p._var_names.size(); i++) {
         if (!p._var_names[i].compare(var_symbol)) {
           i_var = i;
-          for (unsigned j=var_degree.size(); j < i; j++)
-            var_degree.push_back(0);
-          var_degree.push_back(1);
           defined_var = true;
+          // already in the monomial list, so no need to extend the monomial list
+          if (i_var < var_degree.size()) {
+            if (var_degree[i_var] != 0) { // check if possibly not at zero, because this is a classical error is to set it twice
+              _ERROR("operator>>"," variable \""<< var_symbol<<"\" occuring twice in a monomial (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+            } else {
+              var_degree[i_var] = 1;
+            }
+          } else {
+            // or need to extend it up to "i_var"
+            for (unsigned j=var_degree.size(); j < i_var; j++)
+              var_degree.push_back(0);
+            var_degree.push_back(1);
+          }
           break;
         }
       }
+
       // if not defined, create its name and extend "var_degree"
       if (!defined_var) {
         unsigned i = p._var_names.size();
         i_var = i;
         p._var_names.push_back(var_symbol);
+        //cerr << "new symbol " << var_symbol <<  " at index "  << (p._var_names.size()) << endl;
         for (unsigned j=var_degree.size(); j < i; j++)
           var_degree.push_back(0);
         var_degree.push_back(1);
       }
 
+      // possible next symbol if + or - (continue)
       row >> c_times_power_plus_symbol;
       //cerr << "symbol2:" << c_times_power_plus_symbol << endl;
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {

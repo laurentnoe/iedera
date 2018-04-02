@@ -397,7 +397,7 @@ void USAGE() {
   cerr << "                             |    2 0    0 1     1 1 - y" << endl;
   cerr << "                             |           1 1     2 y" << endl;
   cerr << "                                                                                " << endl;
-  cerr << "                     will give the following result:" << endl;
+  cerr << "                     will give the following result (with spaces between each ^*+- symbols):" << endl;
   cerr << "                                                                                " << endl;
   cerr << "                             [y - x*y - x*y^2 + 2*x*y^3 - x^2*y + 2*x^2*y^2 - 2*x^2*y^3 + x^3*y - x^3*y^2]" << endl;
   cerr << "                                                                                " << endl;

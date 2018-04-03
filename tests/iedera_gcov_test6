@@ -1,7 +1,7 @@
 #!/bin/sh
 # Multivariate tests
-echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multivariate_automaton_
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multivariate_automaton_ -o _fileout_l64_n1_w11_pF_ || exit 99
-diff _fileout_l64_n1_w11_pF_  _filemodel_l64_n1_w11_pF.txt || exit 99
-./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multivariate_automaton_ -o _fileout_l128_n1_w11_pF_ || exit 99
-diff _fileout_l128_n1_w11_pF_  _filemodel_l128_n1_w11_pF.txt || exit 99
+echo "2\n        0       1\n                0       1\n                        0        xp\n                1       1\n                        0        x\n        1       0\n                0       1\n                        1        xp\n                1       1\n                        1        x\n" > _filein_multivariate_automaton_bernoulli_x_xp
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 64 -pF _filein_multivariate_automaton_bernoulli_x_xp -o _fileout_l64_n1_w11_pF_bernoulli_x_xp || exit 99
+diff _fileout_l64_n1_w11_pF_bernoulli_x_xp  _filemodel_l64_n1_w11_pF_bernoulli_x_xp.txt || exit 99
+./iedera_gcov -spaced -BSymbols 01 -n 1 -w 11,11 -s 11,22 -z 1 -m "11111111111" -l 128 -pF _filein_multivariate_automaton_bernoulli_x_xp -o _fileout_l128_n1_w11_pF_bernoulli_x_xp || exit 99
+diff _fileout_l128_n1_w11_pF_bernoulli_x_xp  _filemodel_l128_n1_w11_pF_bernoulli_x_xp.txt || exit 99

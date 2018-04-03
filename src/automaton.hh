@@ -220,8 +220,10 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
   }
 
   // reading prob
-  T prob;
-  is >> prob;
+  T prob_read;
+  is >> prob_read;
+  // normalize prob by using a product with T(1) : mostly here for user inputs such as "1 + 2 * y ^ 0 + 3 * x ^ 0" ...
+  T prob = prob_read *  One<T>(); // for T = cost<C> template, it will "add" C(0) element
 
   // setting tr
   tr._state = state;

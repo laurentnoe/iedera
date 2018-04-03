@@ -1,8 +1,10 @@
 environment:
   matrix:
-  - MSYSTEM: MINGW64
+  - platform: x64
+    MSYSTEM: MINGW64
     PATH: C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\Windows\System32;C:\Windows;%PATH%
-  - MSYSTEM: MINGW32
+  - platform: x86
+    MSYSTEM: MINGW32
     PATH: C:\msys64\usr\bin;C:\msys64\mingw32\bin;C:\Windows\System32;C:\Windows;%PATH%
 
 install:
@@ -31,3 +33,4 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
+    platform: x64

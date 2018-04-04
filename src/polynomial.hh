@@ -235,8 +235,9 @@ template<typename C> inline polynomial<C> operator- (const polynomial<C> & l, co
 }
 
 
-/// Operator @f$ \times @f$ for two polynomials
-//  @todo{FIXME : this must be updated with Concrete FFT Polynomial product}
+/** Operator @f$ \times @f$ for two polynomials
+ *  @todo{FIXME : this must be updated with Karatsuba, Toom-k or FFT/NNT methods (Strassen)}
+ */
 template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] * [" << r << "]"););
   // Sorting is supposed to be done before; since polynomials l and r are const here, must not be done here

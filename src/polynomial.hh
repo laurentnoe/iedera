@@ -40,12 +40,16 @@ template<typename C> class polynomial {
 
   /// Build an empty polynomial
   polynomial() {
-    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+    for(unsigned i = 0; i < _coefs.size(); i++)
+      _coefs[i].first.clear();
+    _coefs.clear();
   };
 
   /// Build a constant polynomial
   polynomial(int u) {
-    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+    for(unsigned i = 0; i < _coefs.size(); i++)
+      _coefs[i].first.clear();
+    _coefs.clear();
     if (u != 0)
       _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));
 
@@ -57,7 +61,9 @@ template<typename C> class polynomial {
 
   /// Copy Constructor
   polynomial(const polynomial<C> &other) {
-    for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();
+    for(unsigned i = 0; i < _coefs.size(); i++)
+      _coefs[i].first.clear();
+    _coefs.clear();
 
     /* copy */
     for (unsigned i = 0; i < other._coefs.size(); i++)
@@ -72,7 +78,9 @@ template<typename C> class polynomial {
 
 
   /// Erase a polynomial
-  ~polynomial() {for(unsigned i = 0; i < _coefs.size(); i++) _coefs[i].first.clear(); _coefs.clear();};
+  ~polynomial() {for(unsigned i = 0; i < _coefs.size(); i++)
+      _coefs[i].first.clear();
+    _coefs.clear();};
 
   // @{
   /// Operator @f$ + @f$ for two polynomials
@@ -401,12 +409,12 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
 
       // extend var_degree up to this variable if it is already defined
       bool defined_var = false;
-      for (unsigned i=0; i < p._var_names.size(); i++) {
+      for (unsigned i = 0; i < p._var_names.size(); i++) {
         if (!p._var_names[i].compare(var_symbol)) {
-          i_var = i;
+          i_var = (int) i;
           defined_var = true;
           // already in the monomial list, so no need to extend the monomial list
-          if (i_var < var_degree.size()) {
+          if (i_var < (int) var_degree.size()) {
             if (var_degree[i_var] != 0) { // check if possibly not at zero, because this is a classical error is to set it twice
               _ERROR("operator>>"," variable \""<< var_symbol<<"\" occuring twice in a monomial (found inside : \"" << line << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
             } else {
@@ -414,7 +422,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
             }
           } else {
             // or need to extend it up to "i_var"
-            for (unsigned j=var_degree.size(); j < i_var; j++)
+            for (int j = (int) var_degree.size(); j < i_var; j++)
               var_degree.push_back(0);
             var_degree.push_back(1);
           }
@@ -425,10 +433,10 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       // if not defined, create its name and extend "var_degree"
       if (!defined_var) {
         unsigned i = p._var_names.size();
-        i_var = i;
+        i_var = (int) i;
         p._var_names.push_back(var_symbol);
         //cerr << "new symbol " << var_symbol <<  " at index "  << (p._var_names.size()) << endl;
-        for (unsigned j=var_degree.size(); j < i; j++)
+        for (unsigned j = var_degree.size(); j < i; j++)
           var_degree.push_back(0);
         var_degree.push_back(1);
       }
@@ -467,10 +475,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
   return is;
 }
 
-
 template<typename C> vector<string> polynomial<C>::_var_names = vector<string>(0);
 // @}
 
 #endif
-
-

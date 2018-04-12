@@ -280,11 +280,18 @@ public:
 
 
   /// Erase a state (clear transition lists first)
-  inline ~state()     { for(int a = 0; a < gv_align_alphabet_size; a++) _next[a].clear();  _next.clear(); };
+  inline ~state()     {
+    for(int a = 0; a < gv_align_alphabet_size; a++)
+      _next[a].clear();
+    _next.clear();
+  };
 
   /** @brief Clear transition lists
    */
-  inline void clear() { for(int a = 0; a < gv_align_alphabet_size; a++) _next[a].clear();  _next.clear(); };
+  inline void clear() { for(int a = 0; a < gv_align_alphabet_size; a++)
+      _next[a].clear();
+    _next.clear();
+  };
 
 protected:
   /// forward  transitions list on letter A
@@ -323,7 +330,10 @@ template<typename T> inline ostream& operator<<(ostream& os, const state<T>& st)
 /// input method for a state<T> st
 template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
   // previous data removed if any
-  for (int a = 0; a < gv_align_alphabet_size; a++) st._next[a].clear(); st._next.clear(); st._final = 0;
+  for (int a = 0; a < gv_align_alphabet_size; a++)
+    st._next[a].clear();
+  st._next.clear();
+  st._final = 0;
 
   // reading final
   int final = 0;

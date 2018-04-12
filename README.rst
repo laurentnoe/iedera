@@ -31,7 +31,9 @@ Installation
 
 (more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#downloadiedera>)
 
-You need a C++ compiler and the autotools. On Linux, you can install
+Binaries for Windows (x64) and OS X (x64) are available [here](https://github.com/laurentnoe/iedera/releases).
+
+Otherwise, you need a C++ compiler and the autotools. On Linux, you can install
 ``g++``, ``autoconf``, ``automake``. On Mac, you can install
 ``xcode``, or the command line developer tools (or you can use
 ``macports`` to install ``g++-mp-5`` for example).
@@ -60,6 +62,7 @@ you can install  ``iedera`` to a standard ``/local/bin`` directory::
 or copy the binary directly to your homedir::
    
   cp src/iedera ~/.
+
 
 Command-line
 ------------

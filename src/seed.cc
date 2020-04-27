@@ -21,8 +21,8 @@ seed::seed(const int nbcyclepos, const int maxcyclepos){
     _seedMotif_int[i] = 0;
 
   if (gv_signature_flag) {
-    checksignature();
-    setsignature();
+    //checksignature();
+    //setsignature();
   }
 
   if (_seedNbCyclePos > 0) {
@@ -363,22 +363,22 @@ int seed::random(){
   if (gv_signature_flag) {
 
     /* 1) signature random generation */
-    // check signature
-    checksignature();
+    // // check signature
+    // checksignature();
 
-    // select a new span
-    int newspan = rand()%(gv_maxspan - gv_minspan + 1) + gv_minspan;
-    if (newspan != _span) {
-      _span = newspan;
-      delete[] _seedMotif_int;
-      _seedMotif_int = new int[_span];
-    }
+    // // select a new span
+    // int newspan = rand()%(gv_maxspan - gv_minspan + 1) + gv_minspan;
+    // if (newspan != _span) {
+    //   _span = newspan;
+    //   delete[] _seedMotif_int;
+    //   _seedMotif_int = new int[_span];
+    // }
 
 
-    // "fill and swap" randomization :
+    // // "fill and swap" randomization :
 
-    // fill
-    setsignature();
+    // // fill
+    // setsignature();
     // swap
   swap:
     for (int i = 0; i < _span; i++){

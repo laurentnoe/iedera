@@ -31,7 +31,9 @@ Installation
 
 (more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#downloadiedera>)
 
-You need a C++ compiler and the autotools. On Linux, you can install
+Binaries for Windows (x64) and OS X (x64) are available at <https://github.com/laurentnoe/iedera/releases>.
+
+Otherwise, you need a C++ compiler and the autotools. On Linux, you can install
 ``g++``, ``autoconf``, ``automake``. On Mac, you can install
 ``xcode``, or the command line developer tools (or you can use
 ``macports`` to install ``g++-mp-5`` for example).
@@ -60,6 +62,7 @@ you can install  ``iedera`` to a standard ``/local/bin`` directory::
 or copy the binary directly to your homedir::
    
   cp src/iedera ~/.
+
 
 Command-line
 ------------
@@ -184,13 +187,37 @@ will also probably improve the sensitivity result.
 Polynomial form
 ---------------
 
-When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://doi.org/10.1186/s13015-017-0092-1>) so the flag :
+Bernoulli model
+~~~~~~~~~~~~~~~
+ 
+When the probability *p* to generate a *match* is not fixed (for example *p=0.7* was set in all the previous examples), Mak & Benson have proposed to use a polynomial form and select what they called **dominant seeds**. We have noticed that this dominance applies as well for any other i.i.d criteria as the *Hit Integration* (Chung & Park), for *Lossless seeds*, and several discrete models ... (see <http://doi.org/10.1186/s13015-017-0092-1>) so the flag:
 
 -p
   to activate dominant selection and output polynomial coefficients
- 
+
 
 is added in the current commited version of iedera (master branch).
+
+Other multivariate models 
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the probabilitic model is more complex compared to a simple Bernoulli model on a binary alphabet, it is possible to compute the probability as a multivariate polynomial form. For a given seed provided with the *-m* parameter, the output will contain this polynomial form set in square brackets. *Selection of the best seeds is left as an exercice for the reader.*  The flag ``-pF <filename>``  activates the output of the multivariate polynomial on the given model. This flag is added on this local branch. The next example gives sensitivity of the seed 1101 on alignments of length 8 ::
+
+  iedera -spaced -pF model_bernoulli_simple_x_xp.txt  -m "##-#" -l 8
+
+on the bernoulli model provided by the file *model_bernoulli_simple_x_xp.txt* ::
+
+  2
+     0   1
+        0   1
+           0   x
+        1   1
+           0   xp
+     1   0
+        0   1
+           1   x
+        1   1
+           1   xp
 
 
 References

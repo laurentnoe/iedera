@@ -8,7 +8,8 @@
  *  @section automata-description Description
  *  This part describes an automaton\<T\> : each @ref automaton\<T\> is mainly a represented by a set of @ref state\<T\> , each itself being represented by a set of @ref transition\<T\>.
  *
- *  An automaton\<T\> can be deterministic or not, and may bring  probabilities (T = double), costs (T = cost\<int\>) or counts (T = unsigned long long).
+ *  - An automaton\<T\> can be deterministic or not.
+ *  - It may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
  *
  *  By default the automaton\<T\> constructor is almost empty (it creates only a final state 0 and the init state 1), but several methods are proposed to construct @ref seed-automaton, @ref probabilistic-automaton, @ref structural-automaton (@ref automaton-construction). Several methods are also proposed to manipulate theses automata (@ref automaton-manipulate), compute properties (@ref automaton-computed-properties), convert them into matrices (@ref automaton-matrix-conversion),
  *
@@ -34,12 +35,12 @@
  *
  *  @section automaton-computed-properties Computing properties
  *
- *  From the probabilities attached to each transition (@ref automaton::Prob), it is possible to compute the probability (T = double), cost (T = cost\<int\>) or count (T = unsigned long long) to be at any final state after some @f$n@f$ steps without any restriction (@ref automaton::Pr), or with the restriction to be in the lossless accepted language (@ref automaton::PrLossless).
+ *  From the probabilities attached to each transition (@ref automaton::Prob), it is possible to compute the probability (T = double, T = polynomial\<long long int\>), cost (T = cost\<int\>) or count (T = unsigned long long) to be at any final state after some @f$n@f$ steps without any restriction (@ref automaton::Pr), or with the restriction to be in the lossless accepted language (@ref automaton::PrLossless).
  *
  *  @section automaton-matrix-conversion Converting into matrices
  *  Several methods are proposed to convert the @f$ Automaton \times ProbabilisticModel @f$, @f$ Automaton \times CostModel @f$, or @f$ Automaton \times CountModel @f$ into matrices for more convenient computations. The probability @ref automaton::matrix_pr_product , the cost @ref automaton::matrix_cost_product and the counting @ref automaton::matrix_count_product give the product of two automata into a resulting matrix @f$M@f$ (that store either probabilities, costs, or counts) so that @f$M^n@f$ usually compute the needed properties. There are also three "stepwise equivalent" methods @ref automaton::matrices_step_pr_product,  @ref automaton::matrices_step_cost_product, and @ref automaton::matrices_step_count_product : these three methods give the "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$, thus enabling any computation @f$M_i,M_{i+1}\ldots,M_{j}@f$ @f$\forall 0 \leq i < j \leq l@f$ @see matrix @see matrices_slicer .
  *
- *  @todo FIXME : to be continued
+ *  @todo{FIXME : to be continued}
  */
 
 /** @defgroup automaton automaton class templates
@@ -132,14 +133,6 @@ typedef enum ProductSetFinalType {
 } ProductSetFinalType;
 
 
-/** @brief Define the probability family of operators : this is used when performing a product of two automata.
- */
-typedef enum ProductProbabilityType {
-  PRODUCT_NONE_IS_PROBABILIST,
-  PRODUCT_THIS_IS_PROBABILIST,
-  PRODUCT_OTHER_IS_PROBABILIST,
-} ProductProbabilityType;
-
 /** @brief Define the final value when crossing of a couple of final states values : this is used when performing a product of two automata.
  */
 typedef int (*AddHoc_Final_Func)(int, int);
@@ -163,7 +156,7 @@ public:
   /** @brief build a transition object
    *  @param state gives the state number reached by this transition
    *  @param prob  gives the probability of this transition
-   *  @todo{[FIXME] : clear is here needed for composed T types, since T must be delete ; check if the automatic deletion work for T = polynomial<C>}
+   *  @todo{FIXME : clear() function is here needed for "composed T types", since T must also be deleted to free memory; check if the automatic deletion works for T = polynomial<C>}
    */
   transition(int state = 0, const T prob = One<T>()) : _state(state), _prob(prob) {};
 
@@ -213,8 +206,8 @@ template<typename T> inline ostream& operator<<(ostream& os, const transition<T>
  */
 template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) {
   // previous data removed if any
-  //tr._prob.clear(); //[FIXME] must be done for polynomial but doesnt work for <double>
-  ///@todo{[FIXME] : clear is here needed for composed T types, since T must be delete ; check if the automatic deletion work for T = polynomial<C>}
+  //tr._prob.clear(); //FIXME : this must be done for polynomial but it doesnt obviously work for <double>
+  ///@todo{FIXME : clear() function is here needed for "composed T types", since T must also be deleted to free memory; check if the automatic deletion works for T = polynomial<C>}
   tr._state = 0;
 
   // reading state
@@ -227,8 +220,10 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
   }
 
   // reading prob
-  T prob;
-  is >> prob;
+  T prob_read;
+  is >> prob_read;
+  // normalize prob by using a product with T(1) : mostly here for user inputs such as "1 + 2 * y ^ 0 + 3 * x ^ 0" ...
+  T prob = prob_read *  One<T>(); // for T = cost<C> template, it will "add" C(0) element
 
   // setting tr
   tr._state = state;
@@ -237,6 +232,41 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
   return is;
 }
 
+/**
+ * @class transition<void>
+ * @brief transition to a given state (on a given letter)
+ */
+template<> class transition<void> {
+public:
+  /** @brief build a transition object
+   *  @param state gives the state number reached by this transition
+   */
+  inline transition<void>(int state = 0) : _state(state) {};
+  /// Erase a transition
+  inline ~transition<void>() {;};
+
+
+protected :
+  /// state number to be reached
+  int     _state;
+
+  /// state is a friend class to ease access
+  friend class state<void>;
+  /// automaton is a friend class to ease access
+  friend class automaton<void>;
+  /// print transition<void> information is friend
+  friend ostream& operator<<(ostream& os, const transition<void>& tr);
+  /// read transition<void> information is friend
+  friend istream& operator>>(istream& is, transition<void>& tr);
+  /// print state<void> information is friend
+  friend ostream& operator<<(ostream& os, const state<void>& st);
+  /// read state<void> information is friend
+  friend istream& operator>>(istream& is, state<void>& st);
+  /// print automaton<void> information is friend
+  friend ostream& operator<<(ostream& os, const automaton<void>& au);
+  /// read automaton<void> information is friend
+  friend istream& operator>>(istream& is, automaton<void>& au);
+};
 
 /**
  * @class state
@@ -250,11 +280,18 @@ public:
 
 
   /// Erase a state (clear transition lists first)
-  inline ~state()     { for(int a = 0; a < gv_align_alphabet_size; a++) _next[a].clear();  _next.clear(); };
+  inline ~state()     {
+    for(int a = 0; a < gv_align_alphabet_size; a++)
+      _next[a].clear();
+    _next.clear();
+  };
 
   /** @brief Clear transition lists
    */
-  inline void clear() { for(int a = 0; a < gv_align_alphabet_size; a++) _next[a].clear();  _next.clear(); };
+  inline void clear() { for(int a = 0; a < gv_align_alphabet_size; a++)
+      _next[a].clear();
+    _next.clear();
+  };
 
 protected:
   /// forward  transitions list on letter A
@@ -293,7 +330,10 @@ template<typename T> inline ostream& operator<<(ostream& os, const state<T>& st)
 /// input method for a state<T> st
 template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
   // previous data removed if any
-  for (int a = 0; a < gv_align_alphabet_size; a++) st._next[a].clear(); st._next.clear(); st._final = 0;
+  for (int a = 0; a < gv_align_alphabet_size; a++)
+    st._next[a].clear();
+  st._next.clear();
+  st._final = 0;
 
   // reading final
   int final = 0;
@@ -851,6 +891,11 @@ public:
   bool  isIsomorphTo(const automaton<T> & other) const;
 
   /** @brief Generic Automata Product
+   *
+   *  Two definitions exist:
+   *  - one if the second automaton type \<U\> is "void" (cannot be stored in the resulting automaton),
+   *  - another one when type \<U\> can be used for each transition built.
+   *
    *  @param other is the second automaton used for the product
    *  @param productSetFinalType indicates if product final states are the crossproduct of both automaton final states or only one of these
    *       @li PRODUCT_UNION_xxx           : automata "union" of final states,
@@ -861,10 +906,6 @@ public:
    *       @li PRODUCT_ADDHOC_xxx          : automata addhoc final function aff does this work
    *          with
    *       @li xxx : LOOP / NO_LOOP        : indicates if the final state is a single one absorbant (force it, otherwise keep it as in the "true" product)
-   *  @param thisOrOtherIsProbabilist indicates that either one or both of the automata represents a probabilistic model (false by default)
-   *       @li PRODUCT_NONE_IS_PROBABILIST  : no affectation for probabilities
-   *       @li PRODUCT_THIS_IS_PROBABILIST  : only "this" probability is taken for each transition
-   *       @li PRODUCT_OTHER_IS_PROBABILIST : only "other" probability is taken for each transition
    *  @param depth indicates the maximal depth that must be reached : extra states are non final selflooping states
    *         (by default, this value is greater than 2 Billions, but the given alignment length should be enought in most cases)
    *  @param aff function indicates the final value to be used, is is used when @param productSetFinalType = PRODUCT_ADDHOC_xxx
@@ -872,13 +913,16 @@ public:
    *  @return a new automaton that only gives reachable states of the product
    *  @see matrix_product
    */
-
-  template<typename U> automaton<U> * product(const automaton<U> & other,
-                                              const ProductSetFinalType productSetFinalType,
-                                              const ProductProbabilityType thisOrOtherIsProbabilist = PRODUCT_NONE_IS_PROBABILIST,
-                                              const int depth = INT_INFINITY,
-                                              const AddHoc_Final_Func aff = NULL,
-                                              const int shift = 0) const {
+#ifdef HAS_STD_TYPE_TRAITS
+  template<typename U> typename enable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+#else
+  template<typename U> typename enable_if_ca <std::tr1::is_void<U>::value,  automaton<U> * >::type
+#endif
+  product(const automaton<U> & other,
+          const ProductSetFinalType productSetFinalType,
+          const int depth = INT_INFINITY,
+          const AddHoc_Final_Func aff = NULL,
+          const int shift = 0) const {
 
     VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== Product == (productsetfinaltype:" << dec << productSetFinalType << ")"););
 
@@ -1077,17 +1121,7 @@ public:
             VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
             // add a transition on from stateN --a--> stateNx.
-            switch (thisOrOtherIsProbabilist) {
-            case PRODUCT_NONE_IS_PROBABILIST:
-              result->addNewTransition(a,stateN,stateNx);
-              break;
-            case PRODUCT_THIS_IS_PROBABILIST:
-              result->addNewTransition(a,stateN,stateNx,iterA->_prob);
-              break;
-            case PRODUCT_OTHER_IS_PROBABILIST:
-              result->addNewTransition(a,stateN,stateNx,iterB->_prob);
-              break;
-            }
+            result->addNewTransition(a,stateN,stateNx);
           }// for (listB)
         }// for (listA)
       }// for (a)
@@ -1097,6 +1131,226 @@ public:
     statesNbIndex.clear();
     return result;
   }
+
+#ifdef HAS_STD_TYPE_TRAITS
+  template<typename U> typename disable_if_ca <std::is_void<U>::value,  automaton<U> * >::type
+#else
+  template<typename U> typename disable_if_ca <std::tr1::is_void<U>::value,  automaton<U> * >::type
+#endif
+     product(const automaton<U> & other,
+             const ProductSetFinalType productSetFinalType,
+             const int depth = INT_INFINITY,
+             const AddHoc_Final_Func aff = NULL,
+             const int shift = 0) const {
+
+    VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== Product == (productsetfinaltype:" << dec << productSetFinalType << ")"););
+
+#ifdef ASSERTB
+    if ((this->size() * other.size()) > (1 << 28)) {
+      _ERROR("product"," size of product automaton will \"certainly\" explode : better stop here ...");
+    }
+#endif
+
+    automaton<U> * result = new automaton<U>();
+    int StateFinal = result->addNewState(TRUE);
+    result->selfLoop(StateFinal);
+
+#ifdef USEMAPPRODUCT
+    typedef less< pair<int,int> > lessp;
+    typedef map< pair<int,int>, int, lessp > maptype;
+    maptype statesNbIndex;
+#define PRODINDEX(i) (i)
+#else
+    vector<int> statesNbIndex( this->size() * other.size(), 0);
+#define PRODINDEX(i) ((i).first * other.size() + (i).second)
+#endif
+
+#ifdef USEQUEUEPRODUCT
+    queue< pair<int,int> >  statesNbRemaining;
+#else
+    stack< pair<int,int> >  statesNbRemaining;
+#endif
+
+    // (0) final loop or not
+    int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
+
+    // (1) start the product init state
+    pair<int,int> indexInit          = pair<int,int>(1,1);
+    int stateInit                    = result->addNewState();
+
+    statesNbIndex[PRODINDEX(indexInit)] = stateInit;
+    statesNbRemaining.push(indexInit);
+
+    if (
+        gv_subalignment_flag && ((this->_init_states.size() > 0) ||
+                                 (other._init_states.size() > 0)
+                                 )
+        ) {
+      result->_init_states.push_back(stateInit);
+    }
+
+#ifdef USEQUEUEPRODUCT
+    // depth of the states being built
+    int level_i                    = 0;
+    int stateN_of_level_i          = stateInit;
+#endif
+
+    // (2) take all the non-considered interesting cases pairs on both automatons
+    while (!statesNbRemaining.empty()) {
+
+      // current state remaining
+#ifdef USEQUEUEPRODUCT
+      pair<int,int> indexN  =  statesNbRemaining.front();
+#else
+      pair<int,int> indexN  =  statesNbRemaining.top();
+#warning "the automaton product function is not compiled with a Queue, but with a Stack :  \"depth\" parameter cannot be used on this implementation"
+#endif
+
+      statesNbRemaining.pop();
+
+      int stateNA = indexN.first;
+      int stateNB = indexN.second;
+      int stateN =  statesNbIndex[PRODINDEX(indexN)];
+
+#ifdef USEQUEUEPRODUCT
+      // compute level
+      if (stateN > stateN_of_level_i) {
+        stateN_of_level_i = (result->size() - 1);
+        level_i++;
+      }
+#endif
+
+      VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$pop state:" << stateN););
+
+      // compute normalizing factor if both are probabilist automata
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+
+        VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
+
+        for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+
+            int stateAnext = iterA->_state;
+            int stateBnext = iterB->_state;
+            pair<int,int> indexNx  = pair<int,int>(stateAnext, stateBnext);
+
+#ifdef USEQUEUEPRODUCT
+
+            // shifter rules
+            if (shift) {
+              if (shift > 0) {
+                if (level_i < shift) {
+                  stateBnext = 1;
+                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                }
+              } else {
+                if (level_i < -shift) {
+                  stateAnext = 1;
+                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                }
+              }
+            }
+#else
+#warning "the automaton product function is not compiled with Queue, but with a Stack : \"shift\"  parameters cannot be  used on this implementation"
+#endif
+
+
+            int stateNx    = 0;
+
+            // final state
+            int final_state = 0;
+
+            switch (productSetFinalType) {
+
+            case PRODUCT_UNION_FINAL_LOOP:
+            case PRODUCT_UNION_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) || (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+            case PRODUCT_UNION_NO_FINAL_LOOP_ADD:
+              final_state =  ((this->_states[stateAnext]._final) + (other._states[stateBnext]._final));
+              break;
+
+            case PRODUCT_INTERSECTION_FINAL_LOOP:
+            case PRODUCT_INTERSECTION_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) && (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_BUTNOT_FINAL_LOOP:
+            case PRODUCT_BUTNOT_NO_FINAL_LOOP:
+              final_state =  ((this->_states[stateAnext]._final) && (!(other._states[stateBnext]._final))) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_NOTBUT_FINAL_LOOP:
+            case PRODUCT_NOTBUT_NO_FINAL_LOOP:
+              final_state =  ((!(this->_states[stateAnext]._final)) && (other._states[stateBnext]._final)) ? TRUE : FALSE;
+              break;
+
+            case PRODUCT_ADDHOC_FINAL_LOOP:
+            case PRODUCT_ADDHOC_NO_FINAL_LOOP:
+              final_state =  aff(this->_states[stateAnext]._final,other._states[stateBnext]._final);
+              break;
+            }
+
+            // add the "new" state, considering booleans "final_state" and "final_state"
+            if (final_state && final_loop) {
+              stateNx = StateFinal;
+            } else {
+#ifdef USEMAPPRODUCT
+              if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
+#else
+              if  (!statesNbIndex[PRODINDEX(indexNx)]) {
+#endif
+
+#ifdef USEQUEUEPRODUCT
+                if (level_i <= depth) {
+#endif
+                  // create a new state
+                  stateNx = result->addNewState(final_state);
+                  statesNbIndex[PRODINDEX(indexNx)] = stateNx;
+                  statesNbRemaining.push(indexNx);
+
+                  if (
+                      gv_subalignment_flag && ((this->_init_states.size() > 0) ||
+                                               (other._init_states.size() > 0)
+                                               )
+                      &&
+                      (((this->_init_states.size() > 0) && (stateAnext == this->_init_states[result->_init_states.size()%(this->_init_states.size())])) || ((this->_init_states.size() == 0) && (stateAnext == 1)))
+                      &&
+                      (((other._init_states.size() > 0) && (stateBnext == other._init_states[result->_init_states.size()%(other._init_states.size())])) || ((other._init_states.size() == 0) && (stateBnext == 1)))
+                      )
+                    {
+                      result->_init_states.push_back(stateNx);
+                    }
+
+                  VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$push state:" << dec << stateNx););
+
+#ifdef USEQUEUEPRODUCT
+
+                } else {
+                  // max level reached : goes to a "non final" loop state
+                  stateNx = result->addNewState(final_state);
+                  result->selfLoop(stateNx);
+                }
+#endif
+              } else {
+                stateNx = statesNbIndex[PRODINDEX(indexNx)];
+              }
+            }
+
+            VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
+
+            // add a transition on from stateN --a--> stateNx.
+            result->addNewTransitionProb(a,stateN,stateNx,iterB->_prob);
+          }// for (listB)
+        }// for (listA)
+      }// for (a)
+    }//while stack nonempty
+
+    // Free unused data needed to build the automaton
+    statesNbIndex.clear();
+    return result;
+  }
+
 
 
   /** @brief Compute the multiple hit automaton
@@ -1232,7 +1486,7 @@ public:
           VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("> add transition ( a:" << dec << a << ", q1:" << dec << stateN << ", q2:" << stateNx << " ) "););
 
           // add a transition on from stateN --a--> stateNx.
-          result->addNewTransition(a,stateN,stateNx,iter->_prob);
+          result->addNewTransition(a,stateN,stateNx);
         }// for (list)
       }// for (a)
     }//while stack nonempty
@@ -1779,7 +2033,15 @@ public:
    */
   inline void selfLoop(const int stateNb) {
     for (int a = 0; a < gv_align_alphabet_size; a++)
-      addNewTransition(a,stateNb,stateNb,T(+1e+0/gv_align_alphabet_size));
+      addNewTransition(a,stateNb,stateNb);
+  }
+
+  /**@brief make the state "stateNb" loop on itselft for any letter
+   * @param stateNb is the state that must be looped
+   */
+  inline void selfLoopProb(const int stateNb) {
+    for (int a = 0; a < gv_align_alphabet_size; a++)
+      addNewTransitionProb(a,stateNb,stateNb,T(+1e+0/gv_align_alphabet_size));
   }
 
 
@@ -1875,14 +2137,51 @@ protected:
     return _states.size() - 1;
   }
 
-
   /** @brief add a new transition between two states
    *  @param "a" is the transition letter
    *  @param startingState is the starting state
    *  @param endingState is the ending state
    *  @param prob is the new probability
    */
-  inline void addNewTransition(const int a , const int startingState , const int endingState, const T prob = T(1.0/gv_align_alphabet_size)) {
+
+#ifdef HAS_STD_TYPE_TRAITS
+  template<typename U> typename disable_if_ca <std::is_void<U>::value,  void >::type
+#else
+  template<typename U> typename disable_if_ca <std::tr1::is_void<U>::value,  void >::type
+#endif
+  addNewTransitionProb(const int a , const int startingState , const int endingState, const U prob) {
+
+#ifdef ASSERTB
+    if (a < 0 || a >= gv_align_alphabet_size) {
+      _ERROR("addNewTransitionProb","transition letter out of range");
+    }
+
+    if (startingState >= (int)_states.size() || endingState >= (int)_states.size()) {
+      _ERROR("addNewTransitionProb","state required does not exist");
+    }
+#endif
+
+    // forward linking
+#ifdef ASSERTB
+    // do not add twice the same state in the "a" backward list
+    for (typename vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
+      if ( iter->_state == endingState) {
+        cerr << "> when linking state q2:" << dec << endingState << " with state q1:" << dec << startingState << " on letter a:" << dec << a << endl;
+        _ERROR("addNewTransitionProb"," state q2 has already a transition on \"a\" ");
+      }
+    }
+#endif
+    _states[startingState]._next[a].push_back(transition<T>(endingState,prob));
+  }
+
+
+
+  /** @brief add a new transition between two states
+   *  @param "a" is the transition letter
+   *  @param startingState is the starting state
+   *  @param endingState is the ending state
+   */
+  inline void addNewTransition(const int a , const int startingState , const int endingState) {
 
 #ifdef ASSERTB
     if (a < 0 || a >= gv_align_alphabet_size) {
@@ -1904,37 +2203,9 @@ protected:
       }
     }
 #endif
-    _states[startingState]._next[a].push_back(transition<T>(endingState,prob));
+    _states[startingState]._next[a].push_back(transition<T>(endingState));
   }
 
-  /** @brief change the transition probability
-   *  @param "a" is the transition letter
-   *  @param startingState is the starting state
-   *  @param endingState is the ending state
-   *  @param prob is the new probability
-   *  @return 0
-   */
-  inline int changeTransitionProb(const int a, const int startingState, const int endingState, const T prob) {
-
-#ifdef ASSERTB
-    if (a < 0 || a >= gv_align_alphabet_size) {
-      _ERROR(":changeTransitionProb","transition letter out of range");
-    }
-
-    if (startingState >= (int)_states.size() || endingState >= (int)_states.size()) {
-      _ERROR(":changeTransitionProb","state required does not exist");
-    }
-#endif
-
-    // forward link probability
-    for (typename vector<transition<T> >::iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
-      if (iter->_state == endingState) {
-        iter->_prob = prob;
-        break;
-      }
-    }
-    return 0;
-  }
 
   /** @brief check if there is at least one transition from the startingState labeled with "a"
    *  @param a is the transition letter
@@ -2076,9 +2347,9 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
 
     for (int a = 0; a < gv_align_alphabet_size; a++){
       if (MATCHES_AB(a,b)){
-        addNewTransition(a,Prevstate_I,Nextstate_I,T(+1e+0/gv_align_alphabet_size));
+        addNewTransition(a,Prevstate_I,Nextstate_I);
       } else {
-        addNewTransition(a,Prevstate_I,RejectBagstate_I,T(+1e+0/gv_align_alphabet_size));
+        addNewTransition(a,Prevstate_I,RejectBagstate_I);
       }
     }
     Prevstate_I = Nextstate_I;
@@ -4184,7 +4455,7 @@ template<typename T> int automaton<T>::Automaton_Bernoulli(const vector <T> & p 
   addNewState();
   int InitState_I = addNewState();
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    addNewTransition(a, InitState_I,  InitState_I, p[a]);
+    addNewTransitionProb(a, InitState_I,  InitState_I, p[a]);
   }
   return 0;
 }
@@ -4202,7 +4473,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
 
   // empty ending state
   addNewState(TRUE);
-  selfLoop(0);
+  selfLoopProb(0);
 
   int InitState_I = addNewState();    // starting at state 1
 
@@ -4235,7 +4506,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
     for (int buklet = 0; buklet < ApowKplus; buklet++) {
       int state = addNewState();
       int base  = state -  InitState_I - 1;
-      addNewTransition(base%gv_align_alphabet_size,
+      addNewTransitionProb(base%gv_align_alphabet_size,
                        base/gv_align_alphabet_size +  InitState_I,
                        state,
                        proba[buklet] / probasum[buklet/gv_align_alphabet_size] /* [FIXME] */);
@@ -4252,7 +4523,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
     }
 
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      addNewTransition(a ,
+      addNewTransitionProb(a ,
                        nextbase +  (b        )%ApowK, // previous word
                        nextbase +  (bplus + a)%ApowK, // next word
                        p[bplus + a] / psum /* [FIXME] */);
@@ -4339,7 +4610,7 @@ template<typename T>  int automaton<T>::Automaton_CountAlphabetSymbols(const int
   addNewState(0);
   for (int i = 0; i < 2; i++)
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      addNewTransition(a, i, (a >=  min_a) ? 0 : 1, 1);
+      addNewTransitionProb(a, i, (a >=  min_a) ? 0 : 1, 1);
     }
   return 0;
 }

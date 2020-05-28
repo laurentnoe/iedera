@@ -1,10 +1,9 @@
 
 # Check for type traits in <type_traits> and std namespace
-
-AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
+AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX11], [
   AC_LANG_PUSH([C++])
 
-  AC_MSG_CHECKING([for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++0x is needed])
+  AC_MSG_CHECKING([for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++11 is needed])
   acx_type_traits=no
 
 # (1) =========================== no compiler option ===========================
@@ -14,7 +13,7 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
       [
         AC_LANG_PROGRAM(
       	  [[#include <type_traits>]],
-          [[typedef std::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::is_void<double> isVoidT;]]
       	)	  
       ],		    
       [
@@ -30,7 +29,7 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
       [
         AC_LANG_PROGRAM(
           [[#include <type_traits>]],
-          [[typedef std::tr1::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::tr1::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -46,7 +45,7 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
       [
         AC_LANG_PROGRAM(
           [[#include <tr1/type_traits>]],
-          [[typedef std::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -62,7 +61,7 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
       [
         AC_LANG_PROGRAM(
           [[#include <tr1/type_traits>]],
-          [[typedef std::tr1::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::tr1::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -77,12 +76,12 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
   
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     AC_COMPILE_IFELSE(
       [
         AC_LANG_PROGRAM(
       	  [[#include <type_traits>]],
-          [[typedef std::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::is_void<double> isVoidT;]]
       	)	  
       ],		    
       [
@@ -100,12 +99,12 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
 
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     AC_COMPILE_IFELSE(
       [
         AC_LANG_PROGRAM(
           [[#include <type_traits>]],
-          [[typedef std::tr1::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::tr1::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -123,12 +122,12 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
   
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     AC_COMPILE_IFELSE(
       [
         AC_LANG_PROGRAM(
           [[#include <tr1/type_traits>]],
-          [[typedef std::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -146,12 +145,12 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX0X], [
   
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     AC_COMPILE_IFELSE(
       [
         AC_LANG_PROGRAM(
           [[#include <tr1/type_traits>]],
-          [[typedef std::tr1::is_arithmetic<double> isArithmeticT;]]
+          [[typedef std::tr1::is_void<double> isVoidT;]]
         )
       ],
       [
@@ -193,7 +192,7 @@ CXXFLAGS=""
 AC_PROG_CXX
 AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h])
 AC_CHECK_FUNCS([gettimeofday sqrt strdup strtol])
-ACX_CHECK_TYPE_TRAITS_CXX0X
+ACX_CHECK_TYPE_TRAITS_CXX11
 LIBS="$LIBS -lm"
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LIBS)

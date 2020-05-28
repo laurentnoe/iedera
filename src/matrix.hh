@@ -119,6 +119,14 @@ template<typename T> typename enable_if_ca< (std::is_arithmetic<T>::value && std
 /// integer count and costs
 template<typename T> typename disable_if_ca< (std::is_arithmetic<T>::value && std::is_floating_point<T>::value) || std::is_same<T, polynomial<long long int> >::value || std::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                   IsProb()                 {return false;}
 
+/** @brief IsVoid() check if \<T\> is a void type
+ *  @return true if \<T\> is a void, false otherwise
+ */
+/// floating point and polynomial
+template<typename T> typename  enable_if_ca< std::is_void<T>::value && true, bool>::type                                         IsVoid()                 {return true;}
+/// integer count and costs
+template<typename T> typename disable_if_ca< std::is_void<T>::value && true, bool>::type                                         IsVoid()                 {return false;}
+
 #else
 
 /// arithmetic templates (for double)
@@ -151,9 +159,17 @@ template<typename T> typename disable_if_ca < std::tr1::is_arithmetic<T>::value 
  *  @return true if \<T\> is a probability, false otherwise
  */
 /// floating point and polynomials
-template<typename T> typename enable_if_ca< (std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value) || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                         IsProb()                 {return true;}
+template<typename T> typename  enable_if_ca< (std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value) || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                         IsProb()                 {return true;}
 /// integer count and costs
 template<typename T> typename disable_if_ca< (std::tr1::is_arithmetic<T>::value && std::tr1::is_floating_point<T>::value) || std::tr1::is_same<T, polynomial<long long int> >::value || std::tr1::is_same<T, polynomial<infint<long long int> > >::value, bool>::type                                        IsProb()                 {return false;}
+
+/** @brief IsVoid() check if \<T\> is a void type
+ *  @return true if \<T\> is a void, false otherwise
+ */
+/// floating point and polynomials
+template<typename T> typename  enable_if_ca< std::tr1::is_void<T>::value && true, bool>::type                                         IsVoid()                 {return true;}
+/// integer count and costs
+template<typename T> typename disable_if_ca< std::tr1::is_void<T>::value && true, bool>::type                                         IsVoid()                 {return false;}
 
 #endif
 // @}

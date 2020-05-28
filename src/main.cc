@@ -64,7 +64,7 @@ using namespace std;
 #define BIGINT infint<long long>
 #else
 /// BIGINT polynomial coefs computation defined as long long (quite fast ... but overflows quickly ...)
-#define BIGINT unsigned long long
+#define BIGINT long long
 #endif
 
 
@@ -264,6 +264,15 @@ bool gv_polynomial_output_flag = false;
 /// flag that activate the selection of dominant seeds as in "Mak Benson 2009", which is also true for "Chung Park 2010"
 /// (and not the selection according to their sensitivity only: its a more general form that may select more seeds)
 bool gv_polynomial_dominant_selection_flag = false;
+
+
+
+/// flag that activate multinomial evaluation (note : this is independent from the previous dominance selection). Note that this is only a polynomial evaluation, and does not have any other effect than ... FIXME
+bool gv_multipoly_file_flag = false;
+automaton<polynomial<BIGINT > > * gv_multipoly_bsens_automaton = NULL;
+
+
+
 // @}
 
 /** @name data management
@@ -365,7 +374,8 @@ void USAGE() {
   cerr << "      * -y/g note  : -y/-g can be used with SPEARMAN/PEARSON correlation with the alignment %%id (only for -A 2)." << endl;
   cerr << "                     you can select the minimal number of matches (%%id) by setting -y <int> before -y <SPEARMAN/PEARSON>" << endl;
   cerr << "         * example : \"-spaced -l 64 -y 32 -y PEARSON\" for a %%id of 50%% and PEARSON correlation computation" << endl;
-  cerr << "      -p           : activate \"Mak Benson 2009\" dominant selection and output polynomial (useful on Bernoulli only)" << endl;
+  cerr << "      -p                      : activate \"Mak Benson 2009\" dominant selection and output polynomial." << endl;
+  cerr << "         * note    : this is useful for iid models only (Bernoulli,...) " << endl;
   cerr << "         * example : \"-spaced -l 8 -m \"##-#\" -p\" must output the additional values :"<< endl;
   cerr << "                          0,0=1;1,0=8;2,0=28;3,0=51;4,0=45;5,0=15;6,0=1;"<< endl;
   cerr << "                          3,1=5;4,1=25;5,1=41;6,1=27;7,1=8;8,1=1;" << endl;
@@ -376,6 +386,20 @@ void USAGE() {
   cerr << "                      or complementary (non-matching) polynomial (first line: terms contain \",0\"):" << endl;
   cerr << "                             0 8-0   1 8-1    2 8-2    3 8-3    4 8-4    5 8-5   6 8-6" << endl;
   cerr << "                          1.p.q + 8.p.q + 28.p.q + 51.p.q + 45.p.q + 15.p.q + 1.p.q" << endl;
+  cerr << "                                                                                " << endl;
+  cerr << "      -pF <filename>          : activate general polynomial evaluation and load the associated file automaton." << endl;
+  cerr << "         * example : \"-spaced -l 5 -m \"##-#\" -pF _file_\" where the _file_ is:" << endl;
+  cerr << "                                                                                " << endl;
+  cerr << "                             |3   0 1    0 0" << endl;
+  cerr << "                             |           1 0" << endl;
+  cerr << "                             |    1 0    0 1     1 x" << endl;
+  cerr << "                             |           1 1     2 1 - x" << endl;
+  cerr << "                             |    2 0    0 1     1 1 - y" << endl;
+  cerr << "                             |           1 1     2 y" << endl;
+  cerr << "                                                                                " << endl;
+  cerr << "                     will give the following result (with spaces between each ^*+- symbols):" << endl;
+  cerr << "                                                                                " << endl;
+  cerr << "                             [y - x*y - x*y^2 + 2*x*y^3 - x^2*y + 2*x^2*y^2 - 2*x^2*y^3 + x^3*y - x^3*y^2]" << endl;
   cerr << "                                                                                " << endl;
   cerr << "      -c <int>,<int>,...      : consider sensitivity when each seed is indexed on 1/c of its positions" << endl;
   cerr << "         * note    : the position is enumerated or choosen randomly depending on -r parameter" << endl;
@@ -506,13 +530,13 @@ void PARSEDINT(int & i, char ** argv, int argc,
 
 /// parse and check a list of integers
 void PARSEINTS(int & i, char ** argv, int argc,
-               std::vector<int> & table, int neededsize = 0, bool minmax=false, int vmin=0, int vmax=1000, bool complete=false) {
+               std::vector<int> & r_table, int neededsize = 0, bool minmax=false, int vmin=0, int vmax=1000, bool complete=false) {
   i++;
   if (i >= argc)
     _ERROR("PARSEINTS","\"" << argv[i-1] << "\" found without argument");
 
   // read table
-  table.clear();
+  r_table.clear();
   char * pch = strtok(argv[i],",;");
   while (pch){
     int value = 0;
@@ -523,18 +547,18 @@ void PARSEINTS(int & i, char ** argv, int argc,
       if (value < vmin || value > vmax)
         _ERROR("PARSEINTS","\"" << value << "\" is by an integer out of the range");
     }
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size if needed
   if (neededsize != 0) {
-    if (complete && (int) table.size() < neededsize) {
-      while ((int)table.size() < neededsize)
-        table.push_back(table.back());
+    if (complete && (int) r_table.size() < neededsize) {
+      while ((int)r_table.size() < neededsize)
+        r_table.push_back(r_table.back());
     }
-    if ((int)table.size() != neededsize)
-      _ERROR("PARSEINTS", " there is not a correct number of <int> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
+    if ((int)r_table.size() != neededsize)
+      _ERROR("PARSEINTS", " there is not a correct number of <int> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
   }
 }
 
@@ -570,13 +594,13 @@ void PARSEDDOUBLE(int & i, char ** argv, int argc,
 
 /// parse and check a list of double
 void PARSEDOUBLES(int & i, char ** argv, int argc,
-                  std::vector<double> & table, int neededsize = 0, bool positive_values=false) {
+                  std::vector<double> & r_table, int neededsize = 0, bool positive_values=false) {
   i++;
   if (i >= argc)
     _ERROR("PARSEDOUBLES","\"" << argv[i-1] << "\" found without argument");
 
   // read table
-  table.clear();
+  r_table.clear();
   char * pch = strtok(argv[i],",;");
   while (pch){
     double value = 0.0;
@@ -587,14 +611,14 @@ void PARSEDOUBLES(int & i, char ** argv, int argc,
       if (value < 0)
         _ERROR("PARSEDOUBLES","\"" << value << "\" is a negative <dbl>");
     }
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size if needed
   if (neededsize != 0) {
-    if ((int)table.size() != neededsize)
-      _ERROR("PARSEDOUBLES", " there is not a correct number of <dbl> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
+    if ((int)r_table.size() != neededsize)
+      _ERROR("PARSEDOUBLES", " there is not a correct number of <dbl> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the needed size " << neededsize);
   }
 }
 
@@ -630,14 +654,14 @@ void CHECKSIGNATURE() {
 }
 
 /// parse and check a signature (number of seed elements inside a seed)
-void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
+void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & r_table) {
   i++;
   if (i >= argc)
     _ERROR("PARSESIGNATURE","\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i],",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     int value = 0;
     int i_tmp = sscanf(pch,"%d",&value);
@@ -645,26 +669,26 @@ void PARSESIGNATURE(int & i, char ** argv, int argc, std::vector<int> & table) {
       _ERROR("PARSESIGNATURE","\"" << pch << "\" is not a correct integer");
     if (value < 0 || value >= 64)
       _ERROR("PARSESIGNATURE","\"" << pch << "\" is out of the range [0..N] (N=64)");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size
-  if ((int)table.size() != gv_seed_alphabet_size)
+  if ((int)r_table.size() != gv_seed_alphabet_size)
     _ERROR("PARSESIGNATURE", " there is not a correct number of <int> values given by " << argv[i-1] << " when compared with the current seed alphabet size B = " << gv_seed_alphabet_size);
   // check signature and weight interval
   CHECKSIGNATURE();
 }
 
 /// parse and check a homogeneous scoring system
-void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & table) {
+void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & r_table) {
   i++;
   if (i >= argc)
     _ERROR("PARSEHOMOGENEOUS","\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i],",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     int value = 0;
     int i_tmp = sscanf(pch,"%d",&value);
@@ -672,25 +696,25 @@ void PARSEHOMOGENEOUS(int & i, char ** argv, int argc, std::vector<int> & table)
       _ERROR("PARSEHOMOGENEOUS","\"" << pch << "\" is not a correct integer");
     if (value < -1000 || value > 1000)
       _ERROR("PARSEHOMOGENEOUS","\"" << pch << "\" is out of the range [-1000..1000]");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
   // check table size
-  if ((int)table.size() != gv_align_alphabet_size)
+  if ((int)r_table.size() != gv_align_alphabet_size)
     _ERROR("PARSEHOMOGENEOUS", " there is not a correct number of <int> values given by " << argv[i-1] << " when compared with the current align alphabet size A = " << gv_align_alphabet_size);
 }
 
 /// parse and check a set of probabilities
 void PARSEPROBS(int & i, char ** argv, int argc,
-                std::vector<double> & table, int & k) {
+                std::vector<double> & r_table, int & k) {
   i++;
   if (i >= argc)
     _ERROR("PARSEPROBS", "\"" << argv[i-1] << "\" found without argument");
 
   // read table
   char * pch = strtok(argv[i], ",;");
-  table.clear();
+  r_table.clear();
   while (pch){
     double value = 0.0;
     int i_tmp = sscanf(pch, "%lf", &value);
@@ -698,7 +722,7 @@ void PARSEPROBS(int & i, char ** argv, int argc,
       _ERROR("PARSEPROBS","\"" << pch << "\" is not a correct <dbl>");
     if (value < 0 || value > 1 )
       _ERROR("PARSEPROBS","\"" << pch << "\" is  out of the range [0,1]");
-    table.push_back(value);
+    r_table.push_back(value);
     pch = strtok(NULL,",;");
   }
 
@@ -706,33 +730,58 @@ void PARSEPROBS(int & i, char ** argv, int argc,
   int a = gv_align_alphabet_size;
   k = 0;
   while(1) {
-    if ((int)table.size() == a)
+    if ((int)r_table.size() == a)
       break;
-    else if ((int)table.size() < a)
-      _ERROR("PARSEPROBS", " there is not a correct number of <dbl> values (" << (table.size()) << ") given by " << argv[i-1] << " when compared with the current alphabet size A = " << gv_align_alphabet_size);
+    else if ((int)r_table.size() < a)
+      _ERROR("PARSEPROBS", " there is not a correct number of <dbl> values (" << (r_table.size()) << ") given by " << argv[i-1] << " when compared with the current alphabet size A = " << gv_align_alphabet_size);
     a *= gv_align_alphabet_size;
     k++;
   }
-  CHECKPROB(table);
+  CHECKPROB(r_table);
 }
 
 /// parse and check a set of probabilities as an automaton file
-void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> ** p_a) {
+void PARSEPROBSAUTOMATONFILE(int & i, char ** argv, int argc, automaton<double> * &r_automaton) {
   i++;
   if (i >= argc)
-    _ERROR("PARSEPROBAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
+    _ERROR("PARSEPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
 
   // read file
   ifstream ifs_file;
   ifs_file.open(argv[i]);
   if (!ifs_file){
-    _ERROR("PARSEPROBSAUTOMATONFILE","unreadable file \"" << (argv[i]) << "\" ");
+    _ERROR("PARSEPROBSAUTOMATONFILE","unreadable file \"" << argv[i] << "\" ");
   }
 
   // read the content and set the automaton
-  *p_a = new automaton<double>();
+  if (r_automaton)
+    delete r_automaton;
+  r_automaton = new automaton<double>();
 
-  ifs_file >> (**p_a);
+  ifs_file >> (*r_automaton);
+  ifs_file.close();
+}
+
+
+/// parse and check a set of polynomial probabilities as an automaton file
+void PARSEMULTIPOLYAUTOMATONFILE(int & i, char ** argv, int argc, automaton<polynomial<BIGINT > > * &r_automaton) {
+  i++;
+  if (i >= argc)
+    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","\"" << argv[i-1] << "\" found without argument");
+
+  // read file
+  ifstream ifs_file;
+  ifs_file.open(argv[i]);
+  if (!ifs_file){
+    _ERROR("PARSEPOLYPROBSAUTOMATONFILE","unreadable file \"" << argv[i] << "\" ");
+  }
+
+  // read the content and set the automaton
+  if (r_automaton)
+    delete r_automaton;
+  r_automaton = new automaton<polynomial<BIGINT > >();
+
+  ifs_file >> (*r_automaton);
   ifs_file.close();
 }
 
@@ -868,7 +917,7 @@ void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector< std::vector<i
   ifstream ifs_file;
   ifs_file.open(argv[i]);
   if (!ifs_file){
-    _ERROR("PARSEMATRIXFILE","unreadable file \"" << (argv[i]) << "\" ");
+    _ERROR("PARSEMATRIXFILE","unreadable file \"" << argv[i] << "\" ");
   }
 
   // transform it simply into a string
@@ -991,8 +1040,8 @@ void CHECKMATCHINGMATRIX(std::vector< std::vector<int> > & matrix ) {
     }
   }
   // check the '#' symbol existance
-  for (int a=0; a <gv_align_alphabet_size-1;a++) {
-    if ( matrix[a][gv_seed_alphabet_size-1] == 1 ) {
+  for (int a = 0; a < gv_align_alphabet_size - 1; a++) {
+    if (matrix[a][gv_seed_alphabet_size-1] == 1) {
       gv_matching_symbol_flag = false;
     }
   }
@@ -1007,17 +1056,19 @@ void CHECKMATCHINGMATRIX(std::vector< std::vector<int> > & matrix ) {
  * @param argv is the command line arguments being processed
  * @param argc is the command line maximal number of arguments being processed
  * @param size is the size of the seed alphabet
- * @param array is the new table where seed alphabet symbols will be stored
+ * @param r_str is the new str where seed alphabet symbols will be stored
  * @see gv_bsymbols_flag, gv_bsymbols_array
  */
-void PARSESYMBOLS(int & i, char ** argv, int argc, int size, char * &array) {
+void PARSESYMBOLS(int & i, char ** argv, int argc, int size, char * &r_str) {
   i++;
   if (i >= argc)
     _ERROR("PARSESYMBOLS","\"" << argv[i-1] << "\" found without argument");
   if (strlen(argv[i]) != (unsigned) size)
     _ERROR("PARSESYMBOLS","\"" << argv[i] << "\" is not of required length " << size);
-  array = new char[size];
-  for (char * d = array, *s = argv[i]; *s; d++, s++){
+  if (r_str)
+    delete[] r_str;
+  r_str = new char[size];
+  for (char * d = r_str, *s = argv[i]; *s; d++, s++){
     if (*s == ':') {
       _ERROR("PARSESYMBOLS","\'" << *s << "\' is a reserved symbol that must not be used in a seed");
     }
@@ -1040,10 +1091,14 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESEEDS","" << argv[i-1] << "\" found without argument");
   gv_motif_flag = true;
-  gv_seeds           = std::vector<seed *>(0);
-  gv_cycles          = std::vector<int>(0);
-  gv_cycles_pos_nb   = std::vector<int>(0);
-  gv_cycles_pos_list = std::vector< std::vector<int> >(0);
+
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    delete gv_seeds[v];
+  gv_seeds.clear();
+  gv_cycles_flag = false;
+  gv_cycles.clear();
+  gv_cycles_pos_nb.clear();
+  gv_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -1067,16 +1122,16 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s(pch_seed);
           gv_seeds.push_back(new seed(s));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -1200,9 +1255,11 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
   if (i >= argc)
     _ERROR("PARSESXEEDS","" << argv[i-1] << "\" found without argument");
 
-  gv_xseeds_cycles          = std::vector<int>(0);
-  gv_xseeds_cycles_pos_nb   = std::vector<int>(0);
-  gv_xseeds_cycles_pos_list = std::vector< std::vector<int> >(0);
+  gv_xseeds.clear();
+  gv_xseeds_cycles_flag = true;
+  gv_xseeds_cycles.clear();
+  gv_xseeds_cycles_pos_nb.clear();
+  gv_xseeds_cycles_pos_list.clear();
 
   char * pch = argv[i];
   int    num = 0;
@@ -1223,16 +1280,16 @@ void PARSEXSEEDS(int & i, char ** argv, int argc) {
       case ';':
         *pch = '\0';
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         break;
       case '\0':
         {
-          string s = string(strdup(pch_seed));
-          pch_seed = NULL;
+          string s (pch_seed);
           gv_xseeds.push_back(new seed(s,false));
+          pch_seed = NULL;
         }
         goto eowhile;
 
@@ -1414,14 +1471,26 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("\"-BSymbols\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-BSymbols\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        gv_xseeds.clear();
         gv_xseeds_cycles_flag = false;
-        gv_xseeds_multihit_flag = false;
         _WARNING("\"-mx\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-mx\" option");
       }
       if (gv_motif_flag) {
-        gv_motif_flag   = false;
+        gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-m\" option");
+      }
+      if (gv_lossless_flag) {
+        gv_lossless_flag = false;
+        _WARNING("\"-L\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-L\" option");
+      }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-u\" option");
       }
       // 1.1) subset seeds
     } else if (!strcmp(argv[i],"-M")||!strcmp(argv[i],"--Matching")) {
@@ -1468,7 +1537,7 @@ void SCANARG(int argc , char ** argv) {
     } else if (!strcmp(argv[i],"-f")||!strcmp(argv[i],"--foreground")) {
       PARSEPROBS(i, argv, argc, gv_bsens, gv_bsens_k);
     } else if (!strcmp(argv[i],"-fF")||!strcmp(argv[i],"--foregroundFile")) {
-      PARSEPROBSAUTOMATONFILE(i, argv, argc,&gv_bsens_automaton);
+      PARSEPROBSAUTOMATONFILE(i, argv, argc, gv_bsens_automaton);
     } else if (!strcmp(argv[i],"-l")||!strcmp(argv[i],"--length")) {
       PARSEINT(i, argv, argc, gv_alignment_length, 1, 1000000);
       if (gv_subalignment_flag && gv_subalignment_length >= gv_alignment_length) {
@@ -1629,8 +1698,7 @@ void SCANARG(int argc , char ** argv) {
       for (int i = 0; i < gv_seed_alphabet_size; i++)
         gv_global_coverage_cost[i] = i;
     } else if (!strcmp(argv[i],"-p")||!strcmp(argv[i],"--polynomial-dominance")) {
-      //FIXME check several parameters incompatible with dominant selection and output
-      //>>
+      ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
       gv_polynomial_output_flag = true;
       gv_polynomial_dominant_selection_flag = true;
 #ifndef USEINFINT
@@ -1638,7 +1706,13 @@ void SCANARG(int argc , char ** argv) {
         _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
       }
 #endif
-      //<<
+    } else if (!strcmp(argv[i],"-pF")||!strcmp(argv[i],"--multipolynomial-file")) {
+      ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
+#ifndef USEINFINT
+      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Multivariate polynomial evaluation on <int64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+#endif      
+      gv_multipoly_file_flag = true;
+      PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  gv_multipoly_bsens_automaton);
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
       if (gv_motif_flag) {
         _ERROR("\"-c\" pattern and \"-m\" are not compatible together", "you must provide the cycle positions on the shape (e.g  \" -m 100101001:1, 3, 5/6\") ");
@@ -1688,29 +1762,45 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 3;
       gv_seed_alphabet_size  = 3;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
         gv_lossless_flag = false;
         _WARNING("\"-L\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-L\" option");
       }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-u\" option");
+      }
       if (gv_align_alphabet_size > 2 && gv_correlation_flag) {
         _ERROR("\"Alignment alphabet of size greater than 2 is not compatible with correlation computation","<not implemented yet>");
       }
+      gv_bsens.clear();
       gv_bsens = std::vector<double>(3); gv_bsens[0] = 0.15; gv_bsens[1] = 0.15; gv_bsens[2] = 0.7;
       gv_bsens_k = 0;
+      gv_bsel.clear();
       gv_bsel  = std::vector<double>(3); gv_bsel[0]  = 0.50; gv_bsel[1]  = 0.25; gv_bsel[2]  = 0.25;
       gv_bsel_k = 0;
       gv_bsel_weight = std::vector<double>(3); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 0.5; gv_bsel_weight[2] = 1.0;
@@ -1721,6 +1811,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-@#").c_str());
       gv_bsymbols_flag = true;
       build_default_subsetseed_matching_matrix();
@@ -1731,26 +1823,42 @@ void SCANARG(int argc , char ** argv) {
       gv_align_alphabet_size = 2;
       gv_seed_alphabet_size  = 2;
       if (gv_signature_flag) {
-        gv_signature = std::vector<int>(0);
+        gv_signature.clear();
         gv_signature_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
-        gv_xseeds = std::vector<seed *>(0);
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
         _WARNING("\"-mx\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-mx\" option");
       }
       gv_xseeds_cycles_flag = false;
       gv_xseeds_multihit_flag = false;
       if (gv_motif_flag) {
         gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
         _WARNING("\"-m\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-m\" option");
       }
       if (gv_lossless_flag) {
         gv_lossless_flag = false;
         _WARNING("\"-L\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-L\" option");
       }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-u\" option");
+      }
+      gv_bsens.clear();
       gv_bsens = std::vector<double>(2); gv_bsens[0] = 0.30; gv_bsens[1] = 0.70;
       gv_bsens_k = 0;
+      gv_bsel.clear();
       gv_bsel  = std::vector<double>(2); gv_bsel[0]  = 0.75; gv_bsel[1]  = 0.25;
       gv_bsel_k = 0;
       gv_bsel_weight = std::vector<double>(2); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 1.0;
@@ -1761,6 +1869,8 @@ void SCANARG(int argc , char ** argv) {
       gv_minweight = 9; gv_maxweight = 9;
       gv_weight_interval_flag = true;
       gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
       gv_bsymbols_array = strdup(string("-#").c_str());
       gv_bsymbols_flag  = true;
       build_default_subsetseed_matching_matrix();
@@ -2078,7 +2188,7 @@ class seedproperties {
 public:
   /** @brief build a "seedproperties" object (keep current seed properties when needed)
    */
-  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL) {
+  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL, polynomial<BIGINT > * multipoly = NULL) {
 
     this->sel   = sel;
     this->sens  = sens;
@@ -2089,6 +2199,11 @@ public:
       this->polynom = vector< pair<pair<int,int>,BIGINT> >(polynom->begin(),polynom->end());
     else
       this->polynom = vector< pair<pair<int,int>,BIGINT> >(0);
+    if (multipoly)
+      this->multipoly = polynomial<BIGINT >(*multipoly);
+    else
+      this->multipoly = polynomial<BIGINT >();
+
   }
 
   /** @brief clone a "seedproperties" object
@@ -2099,7 +2214,8 @@ public:
     this->dist  = other.dist;
     this->str   = string(other.str);
     this->lossless = other.lossless;
-    this->polynom = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
+    this->polynom   = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
+    this->multipoly = polynomial<BIGINT >(other.multipoly);
   }
 
 
@@ -2115,7 +2231,8 @@ public:
   bool   lossless;
   /// keep polynomial factors for multihit / coverage hit  /vs/
   vector< pair<pair<int,int>,BIGINT> > polynom;
-
+  /// keep multivariable polynomial for output only
+  polynomial<BIGINT > multipoly;
 
   /** @brief delete a "seedproperties" object (this is just a polynom "check and erase")
    */
@@ -2223,6 +2340,9 @@ std::ostream& operator<<(std::ostream& os, seedproperties& e){
     for (vector< pair<pair<int,int>,BIGINT> >::iterator i = e.polynom.begin(); i != e.polynom.end(); i++) {
       os << (i->first.first) << "," << (i->first.second) << "=" << (i->second) << ";";
     }
+  }
+  if (gv_multipoly_file_flag) {
+    os << "\t[" << e.multipoly << "]";
   }
   return os;
 }
@@ -2594,11 +2714,12 @@ int outputPareto(list<seedproperties> & l, char * filename) {
  */
 
 void build_default_subsetseed_matching_matrix() {
-  // build matrix
+  for (unsigned u = 0; u < gv_subsetseed_matching_matrix.size(); u++)
+    gv_subsetseed_matching_matrix[u].clear();
   gv_subsetseed_matching_matrix.clear();
+
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size, 0);
-    gv_subsetseed_matching_matrix.push_back(*v);
+    gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
   }
 
   // fill it in
@@ -2621,12 +2742,12 @@ void build_default_subsetseed_matching_matrix() {
  */
 
 void build_default_vectorizedsubsetseed_scoring_matrix() {
-
-  // build matrix
+  for (unsigned u = 0; u < gv_vectorizedsubsetseed_scoring_matrix.size(); u++)
+    gv_vectorizedsubsetseed_scoring_matrix[u].clear();
   gv_vectorizedsubsetseed_scoring_matrix.clear();
+
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    std::vector<int> * v = new std::vector<int>(gv_seed_alphabet_size,-1);
-    gv_vectorizedsubsetseed_scoring_matrix.push_back(*v);
+    gv_vectorizedsubsetseed_scoring_matrix.push_back(vector<int>(gv_seed_alphabet_size,-1));
   }
 
   // fill it in
@@ -2645,8 +2766,10 @@ void build_default_vectorizedsubsetseed_scoring_matrix() {
  */
 
 void build_default_probabilities()  {
+  gv_bsens.clear();
   gv_bsens    = std::vector<double>(gv_align_alphabet_size, 0);
   gv_bsens_k  = 0;
+  gv_bsel.clear();
   gv_bsel     = std::vector<double>(gv_align_alphabet_size, 0);
   gv_bsel_k   = 0;
 
@@ -2871,7 +2994,7 @@ int main(int argc, char * argv[]) {
   }
 
   // build the lossless automaton
-  automaton<int> a_lossless;
+  automaton<void> a_lossless;
   double    lossless_set_sens = 1.0;
   if (gv_lossless_flag) {
     a_lossless.Automaton_Lossless(gv_lossless_costs_vector, gv_lossless_cost_threshold);
@@ -2898,8 +3021,9 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_homogeneous = 1.00;
-  automaton<int> * a_homogeneous = new automaton<int>();
+  automaton<void> * a_homogeneous = NULL;
   if (gv_homogeneous_flag) {
+    a_homogeneous = new automaton<void>();
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Homogeneous automaton : {";
                                            for (int a = 0; a < gv_align_alphabet_size; a++) {
                                              if  (a>0)  cerr << ",";
@@ -2911,12 +3035,12 @@ int main(int argc, char * argv[]) {
     a_homogeneous->Automaton_Homogeneous(gv_homogeneous_scores, gv_alignment_length);
     VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - size : " << (a_homogeneous->size())););
     if (gv_minimize_flag) {
-      automaton<int> * na = a_homogeneous->Hopcroft();
+      automaton<void> * na = a_homogeneous->Hopcroft();
       delete a_homogeneous;
       a_homogeneous = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("   - reduced size : " << (a_homogeneous->size())););
     }
-    automaton<double> * a_product_homogeneous_sens = a_homogeneous->product(a_sens, PRODUCT_BUTNOT_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+    automaton<double> * a_product_homogeneous_sens = a_homogeneous->product(a_sens, PRODUCT_BUTNOT_FINAL_LOOP, gv_alignment_length);
 
     if (gv_lossless_flag) {
       pr_div_homogeneous = a_product_homogeneous_sens->PrLossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
@@ -2935,7 +3059,7 @@ int main(int argc, char * argv[]) {
   //
 
   double pr_div_excluded = 0.00;
-  automaton<int> * a_excluded = NULL;
+  automaton<void> * a_excluded = NULL;
   if (gv_xseeds.size()) {
 
     VERB_FILTER(VERBOSITY_MODERATE, INFO__("* Excluded automaton : ";
@@ -2948,12 +3072,12 @@ int main(int argc, char * argv[]) {
     // a) build the excluded seed automaton
     for (unsigned i = 0; i < gv_xseeds.size(); i++){
 
-      automaton<int> * a_se = new automaton<int>();
+      automaton<void> * a_se = new automaton<void>();
       VERB_FILTER(VERBOSITY_MODERATE, INFO__(" = seed : " << (*gv_xseeds[i])););
       SEEDAUTOMATON(a_se, gv_xseeds[i],  gv_xseeds[i]->cycled() || gv_xseeds_multihit_flag );
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - size : " << (a_se->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_se->Hopcroft();
+        automaton<void> * na = a_se->Hopcroft();
         delete a_se;
         a_se = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced size : " << (a_se->size())););
@@ -2963,15 +3087,15 @@ int main(int argc, char * argv[]) {
 
       // excluded seed cycle
       if (gv_xseeds[i]->cycled()) {
-        automaton<int> * na = a_se;
-        automaton<int> * a_cycle = new automaton<int>();
+        automaton<void> * na = a_se;
+        automaton<void> * a_cycle = new automaton<void>();
         a_cycle->Automaton_Cycle(gv_xseeds[i]->maxpos(), gv_xseeds[i]->pos(), gv_xseeds[i]->nbpos());
-        a_se = (a_se)->product(*a_cycle, gv_xseeds_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+        a_se = (a_se)->product(*a_cycle, gv_xseeds_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, gv_alignment_length);
         delete a_cycle;
         delete na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - cycled size : " << (a_se->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_se->Hopcroft();
+          automaton<void> * na = a_se->Hopcroft();
           delete a_se;
           a_se = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - reduced cycled size : " << (a_se->size())););
@@ -2980,11 +3104,11 @@ int main(int argc, char * argv[]) {
 
       // excluded automaton
       if (i > 0) {
-        automaton<int> * a_excluded_temp = a_excluded;
-        a_excluded = a_excluded->product(*a_se,  gv_xseeds_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+        automaton<void> * a_excluded_temp = a_excluded;
+        a_excluded = a_excluded->product(*a_se,  gv_xseeds_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, gv_alignment_length);
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = excluded product size : " << (a_excluded->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_excluded->Hopcroft();
+          automaton<void> * na = a_excluded->Hopcroft();
           delete a_excluded;
           a_excluded = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced excluded product size : " << (a_excluded->size())););
@@ -3000,12 +3124,12 @@ int main(int argc, char * argv[]) {
 
     // excluded automaton multihit
     if (gv_xseeds_multihit_flag) {
-      automaton<int> * a_excluded_temp = a_excluded;
+      automaton<void> * a_excluded_temp = a_excluded;
       a_excluded = a_excluded->mhit(gv_xseeds_multihit_nb, gv_alignment_length);
       delete a_excluded_temp;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_excluded->Hopcroft();
+        automaton<void> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded size : " << (a_excluded->size())););
@@ -3017,12 +3141,12 @@ int main(int argc, char * argv[]) {
 
     // b) compute the foreground probability
     if (gv_homogeneous_flag) {
-      automaton<int> * na = a_excluded->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+      automaton<void> * na = a_excluded->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, gv_alignment_length);
       delete a_excluded;
       a_excluded = na;
       VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits excluded x homogeneous size : " << (a_excluded->size())););
       if (gv_minimize_flag) {
-        automaton<int> * na = a_excluded->Hopcroft();
+        automaton<void> * na = a_excluded->Hopcroft();
         delete a_excluded;
         a_excluded = na;
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits excluded x homogeneous size : " << (a_excluded->size())););
@@ -3030,7 +3154,7 @@ int main(int argc, char * argv[]) {
     }
 
 
-    automaton<double> * a_xpr_sens = a_excluded->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+    automaton<double> * a_xpr_sens = a_excluded->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
     if (gv_lossless_flag) {
       pr_div_excluded = a_xpr_sens->PrLossless(gv_alignment_length, gv_lossless_costs_vector, gv_lossless_cost_threshold);
     } else {
@@ -3061,7 +3185,7 @@ int main(int argc, char * argv[]) {
 
   bool   hillclimbing_flag      = false;
   std::vector<double>      sel  = std::vector<double>    (gv_seeds.size(),0.0);
-  std::vector<automaton<int> *> a_s  = std::vector<automaton<int>*>(gv_seeds.size(),NULL);
+  std::vector<automaton<void> *> a_s  = std::vector<automaton<void>*>(gv_seeds.size(),NULL);
   double hillclimbing_threshold = 1e-6;
 
   int    seed_to_hillclimbing      =                                   rand()%gv_seeds.size();
@@ -3076,7 +3200,7 @@ int main(int argc, char * argv[]) {
   double selp = 0.0;
 
 #ifdef KEEP_PRODUCT_MF
-  std::vector<automaton<int>*> a_s_product(gv_seeds.size(), NULL);
+  std::vector<automaton<void>*> a_s_product(gv_seeds.size(), NULL);
   std::vector<int>        a_s_product_seed(gv_seeds.size(), -1);
 #endif
 
@@ -3235,15 +3359,15 @@ int main(int argc, char * argv[]) {
               }
             }
 #endif
-            (a_s[i]) = new automaton<int>();
+            a_s[i] = new automaton<void>();
             SEEDAUTOMATON(a_s[i], gv_seeds[i], gv_seeds[i]->cycled() || gv_multihit_flag);
 
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton size : " << (a_s[i]->size())););
 
             if (gv_minimize_flag) {
-              automaton<int> * na = (a_s[i])->Hopcroft();
-              delete (a_s[i]);
-              (a_s[i]) = na;
+              automaton<void> * na = a_s[i]->Hopcroft();
+              delete a_s[i];
+              a_s[i] = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced size : " << (a_s[i]->size())););
             }
 
@@ -3251,7 +3375,7 @@ int main(int argc, char * argv[]) {
             if (gv_lossless_flag) {
               sel[i] = gv_seeds[i]->selectivityFromWeight();
             } else {
-              automaton<double> * a_pr_s_sel = (a_s[i])->product(a_sel, PRODUCT_UNION_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              automaton<double> * a_pr_s_sel = (a_s[i])->product(a_sel, PRODUCT_UNION_FINAL_LOOP, gv_alignment_length);
               sel[i]                 = a_pr_s_sel->Pr(gv_seeds[i]->span());
               delete a_pr_s_sel;
             }
@@ -3261,16 +3385,16 @@ int main(int argc, char * argv[]) {
 
             // cycle
             if (gv_seeds[i]->cycled()) {
-              automaton<int> * na = a_s[i];
-              automaton<int> * a_cycle = new automaton<int>();
+              automaton<void> * na = a_s[i];
+              automaton<void> * a_cycle = new automaton<void>();
               a_cycle->Automaton_Cycle(gv_seeds[i]->maxpos(), gv_seeds[i]->pos(), gv_seeds[i]->nbpos());
-              a_s[i] = (a_s[i])->product(*a_cycle, gv_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+              a_s[i] = (a_s[i])->product(*a_cycle, gv_multihit_flag?PRODUCT_INTERSECTION_NO_FINAL_LOOP:PRODUCT_INTERSECTION_FINAL_LOOP, gv_alignment_length);
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton cycled size : " << (a_s[i]->size())););
 
               delete a_cycle;
               delete na;
               if (gv_minimize_flag) {
-                automaton<int> * na = a_s[i]->Hopcroft();
+                automaton<void> * na = a_s[i]->Hopcroft();
                 delete a_s[i];
                 a_s[i] = na;
                 VERB_FILTER(VERBOSITY_ANNOYING, INFO__("  - automaton reduced cycled size : " << (a_s[i]->size())););
@@ -3288,13 +3412,13 @@ int main(int argc, char * argv[]) {
 
       // (2) compute sensitivity (and lossless property when needed ...)
       int lossless = 0;
-      automaton<int> * a_spr = NULL;
+      automaton<void> * a_spr = NULL;
 
       // FIXMECOV >>
       if (gv_covariance_flag) {
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           if (!a_s[i]) {
-            a_s[i] = new automaton<int>();
+            a_s[i] = new automaton<void>();
             a_s[i]->Automaton_SeedLinearMatching(*(gv_seeds[i]),gv_subsetseed_matching_matrix);
           }
         }
@@ -3306,7 +3430,7 @@ int main(int argc, char * argv[]) {
       if (gv_global_coverage_flag) {
 
         // (2.1) global coverage constraint
-        a_spr = new automaton<int>();
+        a_spr = new automaton<void>();
         a_spr->Automaton_SeedPrefixesMatching_CoverageDM(gv_seeds,
                                                          gv_global_coverage_cost,
                                                          gv_subsetseed_matching_matrix);
@@ -3318,7 +3442,7 @@ int main(int argc, char * argv[]) {
         // <<
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = automaton global coverage size : " << (a_spr->size())););
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr->Hopcroft();
+          automaton<void> * na = a_spr->Hopcroft();
           delete a_spr;
           a_spr = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - automaton reduced global coverage size : " << (a_spr->size())););
@@ -3365,7 +3489,7 @@ int main(int argc, char * argv[]) {
           }
           // seed not found : do the product and store it
           if (last_product_index >= 0) {
-            a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+            a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + multiseed [";
                                                    for (int s = 0; s <= last_product_index; s++) {
                                                      if (s)  cerr << " x "; cerr << (a_s_product_seed[s]+1);
@@ -3375,7 +3499,7 @@ int main(int argc, char * argv[]) {
                         );
 
             if (gv_minimize_flag) {
-              automaton<int> * na = a_spr->Hopcroft();
+              automaton<void> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" + reduced multiseed [";
@@ -3399,13 +3523,13 @@ int main(int argc, char * argv[]) {
 #else
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           if (i != 0) {
-            automaton<int> * a_spr_temp = a_spr;
-            a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+            automaton<void> * a_spr_temp = a_spr;
+            a_spr = a_spr->product(*(a_s[i]), gv_multihit_flag?PRODUCT_UNION_NO_FINAL_LOOP_ADD:PRODUCT_UNION_FINAL_LOOP, gv_alignment_length);
 
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
 
             if (gv_minimize_flag) {
-              automaton<int> * na = a_spr->Hopcroft();
+              automaton<void> * na = a_spr->Hopcroft();
               delete a_spr;
               a_spr = na;
               VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced multiseed 1.." << (i) << " x " << (i+1) << " product size : " << (a_spr->size())););
@@ -3425,7 +3549,7 @@ int main(int argc, char * argv[]) {
       //<<
 
       // multihit (xor) global_coverage
-      automaton<int> * a_spr_mhits_or_gcov_res = a_spr;
+      automaton<void> * a_spr_mhits_or_gcov_res = a_spr;
       if (gv_multihit_flag || gv_global_coverage_flag) {
 
         a_spr_mhits_or_gcov_res = a_spr->mhit(gv_multihit_flag?gv_multihit_nb:gv_global_coverage_nb, gv_alignment_length);
@@ -3433,7 +3557,7 @@ int main(int argc, char * argv[]) {
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_mhits_or_gcov_res->Hopcroft();
+          automaton<void> * na = a_spr_mhits_or_gcov_res->Hopcroft();
           delete a_spr_mhits_or_gcov_res;
           a_spr_mhits_or_gcov_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mhits/gcov size : " << (a_spr_mhits_or_gcov_res->size())););
@@ -3441,14 +3565,14 @@ int main(int argc, char * argv[]) {
       }
 
       // homogeneous
-      automaton<int> * a_spr_h_res = a_spr_mhits_or_gcov_res;
+      automaton<void> * a_spr_h_res = a_spr_mhits_or_gcov_res;
       if (gv_homogeneous_flag) {
-        a_spr_h_res = a_spr_mhits_or_gcov_res->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+        a_spr_h_res = a_spr_mhits_or_gcov_res->product(*a_homogeneous, PRODUCT_INTERSECTION_FINAL_LOOP, gv_alignment_length);
 
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = homogeneous product size : " << (a_spr_h_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_h_res->Hopcroft();
+          automaton<void> * na = a_spr_h_res->Hopcroft();
           delete a_spr_h_res;
           a_spr_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced homogeneous product size : " << (a_spr_h_res->size())););
@@ -3456,22 +3580,22 @@ int main(int argc, char * argv[]) {
       }
 
       // excluded seeds
-      automaton<int> * a_spr_mx_h_res = a_spr_h_res;
+      automaton<void> * a_spr_mx_h_res = a_spr_h_res;
       if (gv_xseeds.size()) {
-        a_spr_mx_h_res = a_spr_h_res->product(*a_excluded, PRODUCT_BUTNOT_NO_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, gv_alignment_length);
+        a_spr_mx_h_res = a_spr_h_res->product(*a_excluded, PRODUCT_BUTNOT_NO_FINAL_LOOP, gv_alignment_length);
 
         VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" = mx product size : " << (a_spr_mx_h_res->size())););
 
         if (gv_minimize_flag) {
-          automaton<int> * na = a_spr_mx_h_res->Hopcroft();
+          automaton<void> * na = a_spr_mx_h_res->Hopcroft();
           delete a_spr_mx_h_res;
           a_spr_mx_h_res = na;
           VERB_FILTER(VERBOSITY_ANNOYING, INFO__(" - reduced mx product size : " << (a_spr_mx_h_res->size())););
         }
       }
 
-      std::vector< pair<pair<int,int>,BIGINT> > * polynom = NULL;
-
+      std::vector< pair<pair<int,int>,BIGINT> > *  polynom   = NULL;
+      polynomial<BIGINT > * multipoly = NULL;
       //FIXMECOV>>
       if (gv_covariance_flag) goto gv_covariance_flag_1;
       //<<
@@ -3584,10 +3708,10 @@ int main(int argc, char * argv[]) {
 #ifndef LOSSLESS_PROB
             if (gv_hillclimbing_flag) {
 #endif
-              automaton<int> * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              automaton<void> * a_spr_mx_h_res_loss = a_spr_mx_h_res->product(a_lossless, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
               // @note{NOTE : both "reject" and "final" states are final so "final" should not be use to mesure probs}
               if (gv_minimize_flag) {
-                automaton<int> * na = a_spr_mx_h_res_loss->Hopcroft();
+                automaton<void> * na = a_spr_mx_h_res_loss->Hopcroft();
                 delete a_spr_mx_h_res_loss;
                 a_spr_mx_h_res_loss = na;
               }
@@ -3655,67 +3779,34 @@ int main(int argc, char * argv[]) {
             matrix<double> * m_pr_sens = a_spr_mx_h_res->matrix_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             VERB_FILTER(VERBOSITY_ANNOYING, INFO__("= prob matrix product size : " << (m_pr_sens->size())););
 
+            // Multinomial evaluation can be enabled in that case
+            if (gv_multipoly_file_flag) {
+              /*
+              // test 1 on polynomials
+              automaton<polynomial<BIGINT > > * pr = a_spr_mx_h_res->product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
+              polynomial<BIGINT > pol1  = pr->Pr(gv_alignment_length,true);
+              cout << endl << "(a) [" << pol1 << "]" << endl;
+              polynomial<BIGINT > inv_pol1  = pr->Pr(gv_alignment_length,false);
+              cout << endl << "(a) {" << inv_pol1 << "}" << endl;
+              cout << endl << "(a) <" << (pol1 + inv_pol1) << ">" << endl;
+              delete pr;
 
+              // test 2 on matrices
+              matrix<polynomial<BIGINT > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<BIGINT > pol2 = m_pr->Pr(gv_alignment_length,true);
+              cout << endl << "(b) [" << pol2 << "]" << endl;
+              polynomial<BIGINT > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
+              cout << endl << "(b) {" << inv_pol2 << "}" << endl;
+              cout << endl << "(b) <" << (pol2 + inv_pol2) << ">" << endl;
+              delete m_pr;
+              */
+              // implemented on matrices
+              matrix<polynomial<BIGINT > > * m_pr = a_spr_mx_h_res->matrix_product(*gv_multipoly_bsens_automaton, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+              polynomial<BIGINT > mpol = m_pr->Pr(gv_alignment_length,true);
+              multipoly = new polynomial<BIGINT >(mpol);
+              delete m_pr;
+            }
 
-            /*>>*/
-/*
-            vector<string> vn;
-            vn.push_back(string("x"));
-            vn.push_back(string("y"));
-            vn.push_back(string("xp"));
-            vn.push_back(string("yp"));
-
-            polynomial<infint<long long> >::setvars(vn);
-
-            automaton<polynomial<infint<long long> > > at;
-            std::stringstream ss;
-            //
-            ss << "4" << endl
-
-               << "\t0\t1" << endl
-               << "\t\t0\t1" << endl
-               << "\t\t\t0\t 1" << endl
-               << "\t\t1\t1" << endl
-               << "\t\t\t1\t 1" << endl
-
-               << "\t1\t0" << endl
-               << "\t\t0\t1" << endl
-               << "\t\t\t2\t xp" << endl
-               << "\t\t1\t1" << endl
-               << "\t\t\t3\t yp" << endl
-
-               << "\t2\t0" << endl
-               << "\t\t0\t1" << endl
-               << "\t\t\t2\t xp" << endl
-               << "\t\t1\t1" << endl
-               << "\t\t\t3\t x" << endl
-
-               << "\t3\t0" << endl
-               << "\t\t0\t1" << endl
-               << "\t\t\t2\t y" << endl
-               << "\t\t1\t1" << endl
-               << "\t\t\t3\t yp" << endl;
-
-
-            ss >> at;
-            // test 1
-            automaton<polynomial<infint<long long> > > * pr = a_spr_mx_h_res->product(at, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, gv_alignment_length);
-            polynomial<infint<long long> > pol1  = pr->Pr(gv_alignment_length,true);
-            cout << endl << "[" << pol1 << "]" << endl;
-            //polynomial<infint<long long> > inv_pol1  = pr->Pr(gv_alignment_length,false);
-            //cout << endl << "{" << inv_pol1 << "}" << endl;
-            //cout << endl << "<" << (pol1 + inv_pol1) << ">" << endl;
-
-            // test 2
-            matrix<polynomial<infint<long long> > > * m_pr = a_spr_mx_h_res->matrix_product(at, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
-            polynomial<infint<long long> > pol2 = m_pr->Pr(gv_alignment_length,true);
-            cout << endl << "[" << pol2 << "]" << endl;
-            polynomial<infint<long long> > inv_pol2  = m_pr->Pr(gv_alignment_length,false);
-            cout << endl << "{" << inv_pol2 << "}" << endl;
-            cout << endl << "<" << (pol2 + inv_pol2) << ">" << endl;
-
-*/
-            /*<<*/
             sens                       = m_pr_sens->Pr(gv_alignment_length, true);
             delete m_pr_sens;
           }
@@ -3755,23 +3846,23 @@ int main(int argc, char * argv[]) {
         double covariance = 0.0;
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           int span_i = gv_seeds[i]->span();
-          automaton<double> * a_x_v_i = a_s[i]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_i);
+          automaton<double> * a_x_v_i = a_s[i]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, span_i);
           double x_v_i        = a_x_v_i->Pr(span_i);
           delete a_x_v_i;
           for (unsigned j = i; j < gv_seeds.size(); j++) {
             int span_j = gv_seeds[j]->span();
-            automaton<double> * a_x_v_j = a_s[j]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, span_j);
+            automaton<double> * a_x_v_j = a_s[j]->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, span_j);
             double x_v_j        = a_x_v_j->Pr(span_j);
             delete a_x_v_j;
             for (int shift = -span_j+1; shift <= span_i-1; shift++) {
               int len = MAX(span_i - MIN(shift,0) , span_j + MAX(shift,0));
-              automaton<int> * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, PRODUCT_NONE_IS_PROBABILIST, len, NULL, shift);
+              automaton<void> * p = a_s[i]->product(*(a_s[j]),PRODUCT_INTERSECTION_FINAL_LOOP, len, NULL, shift);
               if (gv_minimize_flag) {
-                automaton<int> * na = p->Hopcroft();
+                automaton<void> * na = p->Hopcroft();
                 delete p;
                 p = na;
               }
-              automaton<double> * a_x_cov = p->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, PRODUCT_OTHER_IS_PROBABILIST, len);
+              automaton<double> * a_x_cov = p->product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, len);
               double x_cov        = a_x_cov->Pr(len);
               covariance += x_cov - x_v_i*x_v_j;
               //cout << "i:" << i << ",j:"<< j << ",shift:" << shift << ":" << (x_cov) << endl;
@@ -3801,11 +3892,15 @@ int main(int argc, char * argv[]) {
           outs << ",";
         outs << (gv_seeds[i])->str();
       }
-      seedproperties e = seedproperties(selp, sens, distance, outs.str(), lossless, polynom);
+      seedproperties e = seedproperties(selp, sens, distance, outs.str(), lossless, polynom, multipoly);
 
       if (gv_correlation_flag || gv_polynomial_output_flag || gv_polynomial_dominant_selection_flag) {
         polynom->clear();
         delete polynom;
+      }
+
+      if (gv_multipoly_file_flag) {
+        delete multipoly;
       }
 
       //
@@ -3929,7 +4024,7 @@ int main(int argc, char * argv[]) {
 
               // delete automaton associated with the modified seed
               if (a_s[seed_to_hillclimbing]) {
-                delete (a_s[seed_to_hillclimbing]);
+                delete a_s[seed_to_hillclimbing];
                 a_s[seed_to_hillclimbing] = NULL;
               }
               if (seed_to_hillclimbing == last_seed_to_hillclimbing) {
@@ -3942,7 +4037,7 @@ int main(int argc, char * argv[]) {
 
             // delete automaton associated with the modified seed
             if (a_s[seed_to_hillclimbing]) {
-              delete (a_s[seed_to_hillclimbing]);
+              delete a_s[seed_to_hillclimbing];
               a_s[seed_to_hillclimbing] = NULL;
             }
 
@@ -3998,7 +4093,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[i]) {
-            delete (a_s[i]);
+            delete a_s[i];
             a_s[i] = NULL;
           }
 
@@ -4026,7 +4121,7 @@ int main(int argc, char * argv[]) {
 
           // delete automaton associated with the modified seed
           if (a_s[j]) {
-            delete (a_s[j]);
+            delete a_s[j];
             a_s[j] = NULL;
           }
 
@@ -4039,12 +4134,12 @@ int main(int argc, char * argv[]) {
 
         // delete automaton associated with the modified seed (a_s[j]->next == 1)
         if (j < gv_seeds.size() && a_s[j]) {
-          delete (a_s[j]);
+          delete a_s[j];
           a_s[j] = NULL;
         }
 
         for (unsigned i = 0; i < j; i++) { // reset the span of previous j-th seeds to min
-          delete (gv_seeds[i]);
+          delete gv_seeds[i];
           gv_seeds[i] = new seed();
           if (gv_cycles_flag)
             gv_seeds[i]->setCyclePos(gv_cycles_pos_list[i], gv_cycles[i]);
@@ -4064,6 +4159,38 @@ int main(int argc, char * argv[]) {
   }// while (1)
  end_loop:;
 
+  // deleting several global allocated structures
+  if (gv_homogeneous_flag)
+    delete a_homogeneous;
+
+  if (gv_xseeds.size()) {
+    delete a_excluded;
+    for (unsigned i = 0; i < gv_xseeds.size(); i++)
+      delete gv_xseeds[i];
+  }
+
+  for (unsigned i = 0; i < gv_seeds.size(); i++) {
+    delete gv_seeds[i];
+    if (a_s[i])
+      delete a_s[i];
+  }
+
+  if (gv_bsens_automaton)
+    delete gv_bsens_automaton;
+
+  if (gv_multipoly_file_flag)
+    delete gv_multipoly_bsens_automaton;
+
+  if (gv_bsymbols_array)
+    free(gv_bsymbols_array);
+
+#ifdef KEEP_PRODUCT_MF
+  for (unsigned v = 0; v < gv_seeds.size(); v++)
+    if (v > 0 && a_s_product[v])
+      delete a_s_product[v];
+#endif
+
+
   //
   // (10) Display pareto set and area
   //
@@ -4080,6 +4207,12 @@ int main(int argc, char * argv[]) {
     list_and_areaPareto(l);
   else
     outputPareto(l, gv_output_filename);
+
+  // cleaning filename memory
+  for (int i = 0; i < gv_nb_input_filenames; i++)
+    free(gv_input_filenames[i]);
+  if (gv_output_filename)
+    free(gv_output_filename);
   return 0;
 }
 

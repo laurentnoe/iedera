@@ -3883,8 +3883,8 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++0x is needed" >&5
-$as_echo_n "checking for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++0x is needed... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++11 is needed" >&5
+$as_echo_n "checking for type traits <tr1/type_traits> or <type_trait>, for std or std:tr1, and if compiler option -std=c++11 is needed... " >&6; }
   acx_type_traits=no
 
 # (1) =========================== no compiler option ===========================
@@ -3897,7 +3897,7 @@ $as_echo_n "checking for type traits <tr1/type_traits> or <type_trait>, for std 
 int
 main ()
 {
-typedef std::is_arithmetic<double> isArithmeticT;
+typedef std::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -3927,7 +3927,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::tr1::is_arithmetic<double> isArithmeticT;
+typedef std::tr1::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -3957,7 +3957,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::is_arithmetic<double> isArithmeticT;
+typedef std::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -3987,7 +3987,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::tr1::is_arithmetic<double> isArithmeticT;
+typedef std::tr1::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -4013,7 +4013,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4021,7 +4021,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::is_arithmetic<double> isArithmeticT;
+typedef std::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -4050,7 +4050,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4058,7 +4058,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::tr1::is_arithmetic<double> isArithmeticT;
+typedef std::tr1::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -4087,7 +4087,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4095,7 +4095,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::is_arithmetic<double> isArithmeticT;
+typedef std::is_void<double> isVoidT;
 
   ;
   return 0;
@@ -4124,7 +4124,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
   if test "$acx_type_traits" = no; then
     ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    CXXFLAGS="$CXXFLAGS -std=c++11"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4132,7 +4132,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 int
 main ()
 {
-typedef std::tr1::is_arithmetic<double> isArithmeticT;
+typedef std::tr1::is_void<double> isVoidT;
 
   ;
   return 0;

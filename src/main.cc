@@ -2304,7 +2304,7 @@ public:
  *   @return the comparison value (e1 < e2)
  */
 bool operator<(const seedproperties & e1, const seedproperties & e2) {
-  return (e1.sel < e2.sel) || ((e1.sel == e2.sel) && (!(e1.lossless) && e2.lossless)) || ((e1.sel == e2.sel) && (e1.lossless == e2.lossless) && (e1.sens < e2.sens)) ;
+  return (e1.sel < e2.sel) || ((e1.sel == e2.sel) && (!(e1.lossless) && e2.lossless)) || ((e1.sel == e2.sel) && (e1.lossless == e2.lossless) && (e1.sens < e2.sens)) || ((e1.sel == e2.sel) && (e1.lossless == e2.lossless) && (e1.sens == e2.sens) && ((e1.str.compare(e2.str)) < 0));
 }
 
 
@@ -2569,7 +2569,7 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
       // "e" has approximately the same selectivity : (i->sel - 1e-13 <= e.sel && i->sel + 1e+13)
       bool lossless = e.lossless && (!(i->lossless));
       double dist   = e.sens - i->sens;
-      if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 0))) {
+      if (!gv_polynomial_dominant_selection_flag && (lossless || (dist > 1e-6) || ((dist >= -1e-6) && ((e.str).compare(i->str) > 0)))) {
         // better lossy seed, or "first" new lossless seed : replace i by e
         l.insert(i, e);
         l.erase(i);

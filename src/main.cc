@@ -1710,7 +1710,7 @@ void SCANARG(int argc , char ** argv) {
       ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
 #ifndef USEINFINT
       _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Multivariate polynomial evaluation on <int64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
-#endif      
+#endif
       gv_multipoly_file_flag = true;
       PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  gv_multipoly_bsens_automaton);
     } else if (!strcmp(argv[i],"-c")||!strcmp(argv[i],"--cycles")) {
@@ -1853,7 +1853,7 @@ void SCANARG(int argc , char ** argv) {
       if (gv_homogeneous_flag) {
         gv_homogeneous_flag = false;
         gv_homogeneous_scores.clear();
-        _WARNING("\"-u\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-u\" option");
+        _WARNING("\"-u\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-u\" option");
       }
       gv_bsens.clear();
       gv_bsens = std::vector<double>(2); gv_bsens[0] = 0.30; gv_bsens[1] = 0.70;

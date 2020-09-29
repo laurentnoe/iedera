@@ -423,6 +423,9 @@ void USAGE() {
   cerr << "   5) Nucleic Spaced Seeds : (shortcuts : you may overload the weight -w and span -s after)" << endl;
   cerr << "      -transitive             : \"-A 3 -B 3 -f .15,.15,.70 -b 0.5,0.25,0.25 -BSymbols '-@#' -l 64 -w 9,9 -s 9,15\"" << endl;
   cerr << "      -spaced                 : \"-A 2 -B 2 -f .30,.70     -b 0.75,0.25     -BSymbols '-#'  -l 64 -w 9,9 -s 9,15\"" << endl;
+  cerr << "      -iupac                  : \"-A 16 -B 27 -f <TAM30,gc50,kappa1> -b ... -BSymbols 'ACGTRrYySsWwKkMmBbDdHhVvn@N'\""<< endl;
+  cerr << "                                \"-l 64 -w 4,6 -s 4,6\"" << endl;
+
   exit(-1);
 }
 /// display a 2d matrix (a vector of vectors of int)
@@ -1875,6 +1878,130 @@ void SCANARG(int argc , char ** argv) {
       gv_bsymbols_flag  = true;
       build_default_subsetseed_matching_matrix();
       build_default_vectorizedsubsetseed_scoring_matrix();
+      gv_alignment_length = 64;
+    } else if (!strcmp(argv[i],"-iupac")) {
+      // iupac 16x16 params
+      gv_align_alphabet_size = 16;
+      gv_seed_alphabet_size  = 27;
+      if (gv_signature_flag) {
+        gv_signature.clear();
+        gv_signature_flag = false;
+        _WARNING("\"-i\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-i\" option");
+      }
+      if (gv_xseeds.size()) {
+        for (unsigned v = 0; v < gv_xseeds.size(); v++)
+          delete gv_xseeds[v];
+        gv_xseeds.clear();
+        gv_xseeds_cycles.clear();
+        gv_xseeds_cycles_pos_nb.clear();
+        gv_xseeds_cycles_pos_list.clear();
+        _WARNING("\"-mx\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-mx\" option");
+      }
+      gv_xseeds_cycles_flag = false;
+      gv_xseeds_multihit_flag = false;
+      if (gv_motif_flag) {
+        gv_motif_flag = false;
+        for (unsigned v = 0; v < gv_seeds.size(); v++) {
+          delete gv_seeds[v];
+          gv_seeds[v] = NULL;
+        }
+        _WARNING("\"-m\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-m\" option");
+      }
+      if (gv_lossless_flag) {
+        gv_lossless_flag = false;
+        _WARNING("\"-L\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-L\" option");
+      }
+      if (gv_homogeneous_flag) {
+        gv_homogeneous_flag = false;
+        gv_homogeneous_scores.clear();
+        _WARNING("\"-u\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-u\" option");
+      }
+      gv_bsens.clear();
+      gv_bsens = std::vector<double>(16);
+      // Doing an add-hoc alignment matrix out of TAM matrices with pam=30,gc=50%,kappa=1.0
+      // * matrix filling (ACGT x ACGT order)
+      // * TAM matrix set with  PAM level at 30, gc percent at 50%, kappa=1.0 (no transition bias)
+      double gv_bsens_TAM_pam30_gc50_kappa1[16] = {0.188185008631682360,0.020604997122772542,0.020604997122772542,0.020604997122772542,
+                                                   0.020604997122772542,0.188185008631682360,0.020604997122772542,0.020604997122772542,
+                                                   0.020604997122772542,0.020604997122772542,0.188185008631682360,0.020604997122772542,
+                                                   0.020604997122772542,0.020604997122772542,0.020604997122772542,0.188185008631682360};
+      for (int a = 0; a < gv_align_alphabet_size; a++)
+        gv_bsens[a] = gv_bsens_TAM_pam30_gc50_kappa1[a];
+      gv_bsens_k = 0;
+      gv_bsel.clear();
+      gv_bsel  = std::vector<double>(16);
+      for (int a = 0; a < gv_align_alphabet_size; a++)
+        gv_bsel[a]  = 0.0625; // when gc=50%
+      gv_bsel_k = 0;
+      double gv_bsel_weight_gc50_tmp[27] = {1,1,1,1, // 'A','C','G','T' are only "x = x" matches in alignments, occuring with the best weight (set by default to 1)
+                                            0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,  // IUPAC symbols with 2 letters (e.g. S = {"G = G" or "C = C" matches},   and s =  {"G = G" or "C = C" OR "G = C" or "G = C" })
+                                            0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963, // IUPAC symbols with 3 letters
+                                            0.0, 0.25, 0.5,// 'n' is a jocker, '@' is the transition acception symbol, 'N' is the match symbol
+
+      };
+      gv_bsel_weight = std::vector<double>(27); for (int b = 0; b < gv_seed_alphabet_size; b++ ) gv_bsel_weight[b] = gv_bsel_weight_gc50_tmp[b];
+      gv_bsel_minprob = 0.0625;
+      gv_bsel_maxprob = 1.0;
+      gv_minspan = 4;
+      gv_maxspan = 6;
+      gv_minweight = 4; gv_maxweight = 6;
+      gv_weight_interval_flag = true;
+      gv_vectorized_flag = false;
+      if (gv_bsymbols_flag)
+        free(gv_bsymbols_array);
+      gv_bsymbols_array = strdup(string("ACGTRrYySsWwKkMmBbDdHhVvn@N").c_str());
+      gv_bsymbols_flag  = true;
+      // THERE IS NOT MATCHING SYMBOL HERE :
+      gv_matching_symbol_flag = false;
+      // >>
+      // Doing an add-hoc matching matrix, where "n" is the "#" symbol
+      // . matrix allocation
+      for (unsigned u = 0; u < gv_subsetseed_matching_matrix.size(); u++)
+        gv_subsetseed_matching_matrix[u].clear();
+      gv_subsetseed_matching_matrix.clear();
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+        gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
+      }
+      // . matrix filling (ACGT x ACGT order)
+      int subsetseed_matching_matrix_tmp_reversed[27][16] = {
+                                                    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 'A' (1)
+                                                    {0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0}, // 'C' (1)
+                                                    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0}, // 'G' (1)
+                                                    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}, // 'T' (1)
+                                                    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0}, //  iupac strict 'R' (2)
+                                                    {1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0}, //  iupac lazy   'r' (4)
+                                                    {0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1}, //  iupac strict 'Y' (2)
+                                                    {0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1}, //  iupac lazy   'y' (4)
+                                                    {0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, //  iupac strict 'S' (2)
+                                                    {0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0}, //  iupac lazy   's' (4)
+                                                    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}, //  iupac strict 'W' (2)
+                                                    {1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1}, //  iupac lazy   'w' (4)
+                                                    {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1}, //  iupac strict 'K' (2)
+                                                    {0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1}, //  iupac lazy   'k' (4)
+                                                    {1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0}, //  iupac strict 'M' (2)
+                                                    {1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0}, //  iupac lazy   'm' (4)
+                                                    {0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}, //  iupac strict 'B' (3)
+                                                    {0,0,0,0,0,1,1,1,0,1,1,1,0,1,1,1}, //  iupac lazy   'b' (3)
+                                                    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1}, //  iupac strict 'D' (3)
+                                                    {1,0,1,1,0,0,0,0,1,0,1,1,1,0,1,1}, //  iupac lazy   'd' (3)
+                                                    {1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1}, //  iupac strict 'H' (3)
+                                                    {1,1,0,1,1,1,0,1,0,0,0,0,1,1,0,1}, //  iupac lazy   'h' (3)
+                                                    {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, //  iupac strict 'V' (3)
+                                                    {1,1,1,0,1,1,1,0,1,1,1,0,0,0,0,0}, //  iupac lazy   'v' (3)
+                                                    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // 'n' (or '-')
+                                                    {1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1}, //     (   '@') transition accepting symbol
+                                                    {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}, // 'N' (or '#')
+
+      };
+
+      for (int a = 0; a < gv_align_alphabet_size; a++ )
+	for (int b = 0; b < gv_seed_alphabet_size; b++ )
+          gv_subsetseed_matching_matrix[a][b] = subsetseed_matching_matrix_tmp_reversed[b][a];
+      // <<
+
+
+
+      build_default_vectorizedsubsetseed_scoring_matrix(); // FIXME ?? NOT LEAVE IT
       gv_alignment_length = 64;
     } else _ERROR("PARSE","\"" << argv[i] << "\" is not a valid argument");
   }

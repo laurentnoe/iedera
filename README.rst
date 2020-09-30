@@ -173,15 +173,15 @@ First getting the alignment probabilities, out of the TAM92 model <https://pubme
 
 Then launching the optimization for a starting shape, and with the given probabilities
 
-    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 1000 -k -z 100 -f 0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161 -r 1000 -k -z 100
+    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 10000 -k -z 100 -f 0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161
 
     YNYRNNnnNN,RNYRNnnNNN	0.9999961853027	0.912921	0.087079
 
 Here :
 
-    *   N is a `mach symbol`  (equivalent to #)
-    *   n is a `dont care symbol`  (equivalent to -)
-    *   R and Y (uppercase) are respectively Purine and Pyrimine Matches (e.g.  R is A-A or T-T matches but not A-T or T-A; use downcase symbols to allow all) 
+*   N is a `mach symbol`  (equivalent to #)
+*   n is a `dont care symbol`  (equivalent to -)
+*   R and Y (uppercase) are respectively Purine and Pyrimine Matches (e.g.  R is A-A or T-T matches but not A-T or T-A; use downcase symbols to allow all) 
 
 Input/Ouput and reoptimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

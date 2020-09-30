@@ -178,9 +178,10 @@ Then launching the optimization for a starting shape, and with the given probabi
     YNYRNNnnNN,RNYRNnnNNN	0.9999961853027	0.912921	0.087079
 
 Here :
-- N is a `mach symbol`  (equivalent to #)
-- n is a `dont care symbol`  (equivalent to -)
-- R and Y (uppercase) are respectively Purine and Pyrimine Matches (e.g.  R is A-A or T-T matches but not A-T or T-A; use downcase symbols to allow all) 
+
+    *   N is a `mach symbol`  (equivalent to #)
+    *   n is a `dont care symbol`  (equivalent to -)
+    *   R and Y (uppercase) are respectively Purine and Pyrimine Matches (e.g.  R is A-A or T-T matches but not A-T or T-A; use downcase symbols to allow all) 
 
 Input/Ouput and reoptimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

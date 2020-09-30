@@ -162,6 +162,26 @@ A second example for lossless seeds (from Kucherov,Noe&Roytberg) on the previous
   iedera -spaced -l 25 -L 1,0 -X 2 -n 2 -s 20,21 -w 14,14  -r 100..some.zeros..00 -k
 
 
+IUPAC seeds
+~~~~~~~~~~~
+
+IUPAC filtered seeds could challenge minimizer based techniques <https://www.biorxiv.org/content/10.1101/2020.07.24.220616v2>, so we have extended the iedera tool to support such seeds
+ 
+First getting the alignment probabilities, out of the TAM92 model <https://pubmed.ncbi.nlm.nih.gov/1630306/> :
+ 
+  ./tam92.py -p 20 -k 1 --gc 50
+
+Then launching the optimization for a starting shape, and with the given probabilities
+
+    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 1000 -k -z 100 -f 0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161 -r 1000 -k -z 100
+
+    YNYRNNnnNN,RNYRNnnNNN	0.9999961853027	0.912921	0.087079
+
+Here :
+- N is a `mach symbol`  (equivalent to #)
+- n is a `dont care symbol`  (equivalent to -)
+- R and Y (uppercase) are respectively Purine and Pyrimine Matches (e.g.  R is A-A or T-T matches but not A-T or T-A; use downcase symbols to allow all) 
+
 Input/Ouput and reoptimization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -183,6 +203,10 @@ will probably find a *lossless set* of two seeds. Running this command-line mult
   iedera -spaced -l 64 -n 2 -w 11,11 -s 11,22 -r 10000 -k -e file_n2_w11_l64_lossy.txt -o file_n2_w11_l64_lossy.txt
 
 will also probably improve the sensitivity result.
+
+
+
+
 
 Polynomial form
 ---------------

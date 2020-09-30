@@ -354,6 +354,7 @@ void USAGE() {
   cerr << "      -i <int>,<int>,...      : signature id (number of '0','1',...'B-1' elements inside a subset seed)" << endl;
   cerr << "         * note    : the first number can be 0 to be adjusted on the fly depending of seed span." << endl;
   cerr << "         * example : for transitive seeds, -i 0,2,8 enumerate seeds with 8 \'#\', 2 \'@\', and any number of \'-\'." << endl;
+  cerr << "         * note     : -i shuffle set after -m <patterns> shuffles each seed independently without changing the weight" << endl;
   cerr << "      -j <dbl>                : difference of weight (given as a ratio) allowed between consecutive seeds." << endl;
   cerr << "         * note    : between 0.0 for miminal change and 1.0 for maximal change (default = " << gv_jive << ")" << endl;
   cerr << "      -r <int>                : random enumeration (default = " << gv_nbruns << " is complete enumeration)" << endl;
@@ -1465,8 +1466,10 @@ void SCANARG(int argc , char ** argv) {
       gv_global_coverage_cost = std::vector<int>(gv_seed_alphabet_size);
       for (int i = 0; i < gv_seed_alphabet_size; i++)
         gv_global_coverage_cost[i] = i;
-      if (gv_signature_flag) {
+      if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
         gv_signature_flag = false;
+        gv_signature.clear();
+        gv_signature_shuffle_from_m_pattern_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","seed alphabet size was changed \"after\" setting the \"-i\" option");
       }
       if (gv_bsymbols_flag) {
@@ -1623,8 +1626,30 @@ void SCANARG(int argc , char ** argv) {
       PARSEINT(i, argv, argc, gv_xseeds_multihit_nb, 1, 64);
       gv_xseeds_multihit_flag = true;
     } else if (!strcmp(argv[i],"-i")||!strcmp(argv[i],"--idsign")) {
-      gv_signature_flag = true;
-      PARSESIGNATURE(i, argv, argc, gv_signature);
+      if (argc > i+1) {
+        if (!strcmp(argv[i+1],"shuffle")) {
+          // FIXME WARNING IF OTHER was TRUE
+          if (!gv_motif_flag) {
+            _ERROR(" \"-i shuffle\" set BUT \"-m <pattern>\" pattern not set BEFORE","always provide the \"-i shuffle\" AFTER setting \"-m\"");
+          }
+          if (gv_signature_flag) {
+            _WARNING("\"-i " << gv_signature[0] << ",...\" OPTION DISABLED","\"-i shuffle\" option was set \"after\" setting the \"-i "<< gv_signature[0] << ",...\" option");
+            gv_signature_flag = false;
+            gv_signature.clear();
+          }
+          gv_signature_shuffle_from_m_pattern_flag = true;
+          i++;
+        } else {
+          gv_signature_flag = true;
+          PARSESIGNATURE(i, argv, argc, gv_signature);
+          if (gv_signature_shuffle_from_m_pattern_flag) {
+            _WARNING("\"-i shuffle\" OPTION DISABLED","\"-i "<< gv_signature[0] <<",...\" option was set \"after\" setting the \"-i shuffle\" option");
+            gv_signature_shuffle_from_m_pattern_flag = false;
+          }
+        }
+      } else {
+        _ERROR(" \"-i\" found without argument","always provide \"-m <pattern> -i shuffle\", or \"-i 1,1,1,...\" with the number of seed elements required");
+      }
     } else if (!strcmp(argv[i],"-x")||!strcmp(argv[i],"--symetric")) {
       PARSEFLAG(i, argv, argc, gv_symetric, true);
     } else if (!strcmp(argv[i],"-y")||!strcmp(argv[i],"--multihit")) {
@@ -1764,9 +1789,10 @@ void SCANARG(int argc , char ** argv) {
       // transitives params
       gv_align_alphabet_size = 3;
       gv_seed_alphabet_size  = 3;
-      if (gv_signature_flag) {
+      if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
         gv_signature.clear();
         gv_signature_flag = false;
+        gv_signature_shuffle_from_m_pattern_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-transitive\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
@@ -1825,9 +1851,10 @@ void SCANARG(int argc , char ** argv) {
       // spaced params
       gv_align_alphabet_size = 2;
       gv_seed_alphabet_size  = 2;
-      if (gv_signature_flag) {
+      if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
         gv_signature.clear();
         gv_signature_flag = false;
+        gv_signature_shuffle_from_m_pattern_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-spaced\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
@@ -1883,9 +1910,10 @@ void SCANARG(int argc , char ** argv) {
       // iupac 16x16 params
       gv_align_alphabet_size = 16;
       gv_seed_alphabet_size  = 27;
-      if (gv_signature_flag) {
+      if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
         gv_signature.clear();
         gv_signature_flag = false;
+        gv_signature_shuffle_from_m_pattern_flag = false;
         _WARNING("\"-i\" OPTION DISABLED","\"-iupac\" option was set \"after\" setting the \"-i\" option");
       }
       if (gv_xseeds.size()) {
@@ -1995,7 +2023,7 @@ void SCANARG(int argc , char ** argv) {
       };
 
       for (int a = 0; a < gv_align_alphabet_size; a++ )
-	for (int b = 0; b < gv_seed_alphabet_size; b++ )
+        for (int b = 0; b < gv_seed_alphabet_size; b++ )
           gv_subsetseed_matching_matrix[a][b] = subsetseed_matching_matrix_tmp_reversed[b][a];
       // <<
 

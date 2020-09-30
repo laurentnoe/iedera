@@ -120,7 +120,8 @@ extern int                    gv_nbruns;
 extern vector<int>            gv_signature;
 /// signature flag that enable the signature selection @see gv_signature
 extern bool                   gv_signature_flag;
-
+/// signature shuffle flag that enable only shuffle from the -m pattern and is not compatible with signature @see gv_signature_flag
+extern bool                   gv_signature_shuffle_from_m_pattern_flag;
 /// min seed span
 extern int                    gv_minspan;
 /// max seed span

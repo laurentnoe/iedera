@@ -43,6 +43,7 @@ int                    gv_seed_alphabet_size = 2;
 vector< double >       gv_bsel_weight;
 vector< int >          gv_signature;
 bool                   gv_signature_flag = false;
+bool                   gv_signature_shuffle_from_m_pattern_flag = false;
 double                 gv_bsel_minprob,gv_bsel_maxprob;
 int                    gv_minspan = 1, gv_maxspan = 16;
 double                 gv_minweight = -1e32, gv_maxweight = 1e32;

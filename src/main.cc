@@ -422,10 +422,10 @@ void USAGE() {
   cerr << "      -z <int>                : print statistics every \"z\" seeds (default = " << gv_pareto_select_runs << ", 0 to disable)" <<  endl;
   cerr << "                                                                               " << endl;
   cerr << "   5) Nucleic Spaced Seeds : (shortcuts : you may overload the weight -w and span -s after)" << endl;
-  cerr << "      -transitive             : \"-A 3 -B 3 -f .15,.15,.70 -b 0.5,0.25,0.25 -BSymbols '-@#' -l 64 -w 9,9 -s 9,15\"" << endl;
-  cerr << "      -spaced                 : \"-A 2 -B 2 -f .30,.70     -b 0.75,0.25     -BSymbols '-#'  -l 64 -w 9,9 -s 9,15\"" << endl;
+  cerr << "      -transitive             : \"-A 3 -B 3 -f .15,.15,.70 -b 0.5,0.25,0.25 -BSymbols '-@#' -l 64 -s 1,8\"" << endl;
+  cerr << "      -spaced                 : \"-A 2 -B 2 -f .30,.70     -b 0.75,0.25     -BSymbols '-#'  -l 64 -s 1,8\"" << endl;
   cerr << "      -iupac                  : \"-A 16 -B 27 -f <TAM30,gc50,kappa1> -b ... -BSymbols 'ACGTRrYySsWwKkMmBbDdHhVvn@N'\""<< endl;
-  cerr << "                                \"-l 64 -w 4,6 -s 4,6\"" << endl;
+  cerr << "                                \"-M {<iupac 16 x 27 specific matrix>} -l 64 -s 1,4\"" << endl;
 
   exit(-1);
 }
@@ -1841,10 +1841,10 @@ void SCANARG(int argc , char ** argv) {
       gv_bsel_weight = std::vector<double>(3); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 0.5; gv_bsel_weight[2] = 1.0;
       gv_bsel_minprob = 0.25;
       gv_bsel_maxprob = 1.0;
-      gv_minspan = 9;
-      gv_maxspan = 15;
-      gv_minweight = 9; gv_maxweight = 9;
-      gv_weight_interval_flag = true;
+      gv_minspan = 1;
+      gv_maxspan = 8;
+      gv_minweight = 1; gv_maxweight = 8;
+      gv_weight_interval_flag = false;
       gv_vectorized_flag = false;
       if (gv_bsymbols_flag)
         free(gv_bsymbols_array);
@@ -1900,10 +1900,10 @@ void SCANARG(int argc , char ** argv) {
       gv_bsel_weight = std::vector<double>(2); gv_bsel_weight[0] = 0.0; gv_bsel_weight[1] = 1.0;
       gv_bsel_minprob = 0.25;
       gv_bsel_maxprob = 1.0;
-      gv_minspan = 9;
-      gv_maxspan = 15;
-      gv_minweight = 9; gv_maxweight = 9;
-      gv_weight_interval_flag = true;
+      gv_minspan = 1;
+      gv_maxspan = 8;
+      gv_minweight = 1; gv_maxweight = 8;
+      gv_weight_interval_flag = false;
       gv_vectorized_flag = false;
       if (gv_bsymbols_flag)
         free(gv_bsymbols_array);
@@ -1976,10 +1976,10 @@ void SCANARG(int argc , char ** argv) {
       gv_bsel_weight = std::vector<double>(27); for (int b = 0; b < gv_seed_alphabet_size; b++ ) gv_bsel_weight[b] = gv_bsel_weight_gc50_tmp[b];
       gv_bsel_minprob = 0.0625;
       gv_bsel_maxprob = 1.0;
-      gv_minspan = 4;
-      gv_maxspan = 6;
-      gv_minweight = 4; gv_maxweight = 6;
-      gv_weight_interval_flag = true;
+      gv_minspan = 1;
+      gv_maxspan = 4;
+      gv_minweight = 1; gv_maxweight = 4;
+      gv_weight_interval_flag = false;
       gv_vectorized_flag = false;
       if (gv_bsymbols_flag)
         free(gv_bsymbols_array);

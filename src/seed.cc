@@ -272,7 +272,7 @@ int seed::next() {
 
  nextseed:
   /* B) seed move second */
-  if (gv_signature_flag) {
+  if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
   start_sign:
     /* 1) non trivial signature enumeration */
     for (int b = 1; b < gv_seed_alphabet_size; b++ ){
@@ -306,7 +306,12 @@ int seed::next() {
         return 1;
       }
     }
-
+    // end of the shuffle seed
+    if (gv_signature_shuffle_from_m_pattern_flag) {
+      //reorder elements b and <b after this swap position
+      reorder(0,gv_seed_alphabet_size-1);
+      return 0;
+    }
     // span changing
     if (_span < gv_maxspan) {
       _span ++;

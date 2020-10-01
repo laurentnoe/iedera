@@ -354,7 +354,7 @@ void USAGE() {
   cerr << "      -i <int>,<int>,...      : signature id (number of '0','1',...'B-1' elements inside a subset seed)" << endl;
   cerr << "         * note    : the first number can be 0 to be adjusted on the fly depending of seed span." << endl;
   cerr << "         * example : for transitive seeds, -i 0,2,8 enumerate seeds with 8 \'#\', 2 \'@\', and any number of \'-\'." << endl;
-  cerr << "         * note     : -i shuffle set after -m <patterns> shuffles each seed independently without changing the weight" << endl;
+  cerr << "         * note     : -i shuffle set after -m <patterns> shuffles each seed independently without changing the weight/span" << endl;
   cerr << "      -j <dbl>                : difference of weight (given as a ratio) allowed between consecutive seeds." << endl;
   cerr << "         * note    : between 0.0 for miminal change and 1.0 for maximal change (default = " << gv_jive << ")" << endl;
   cerr << "      -r <int>                : random enumeration (default = " << gv_nbruns << " is complete enumeration)" << endl;
@@ -1609,6 +1609,9 @@ void SCANARG(int argc , char ** argv) {
       if (gv_cycles_flag) {
         _ERROR("\"-m\" pattern and \"-c\" are not compatible together","you must provide the cycle positions on the shape (e.g  \" -m 100101001:1, 3, 5/6\") ");
       }
+      if (gv_signature_flag) {
+        _ERROR(" \"-i "<< gv_signature[0] <<",...\" and \"-m\" pattern options are not compatible together", "you must provide only one of them, or use \"-i shuffle\" after setting \"-m\"");
+      }
       unsigned gv_nbseeds = gv_seeds.size();
       PARSESEEDS(i, argv, argc);
       if (gv_nbseeds > 1 && gv_nbseeds != gv_seeds.size()) {
@@ -1633,22 +1636,25 @@ void SCANARG(int argc , char ** argv) {
             _ERROR(" \"-i shuffle\" set BUT \"-m <pattern>\" pattern not set BEFORE","always provide the \"-i shuffle\" AFTER setting \"-m\"");
           }
           if (gv_signature_flag) {
-            _WARNING("\"-i " << gv_signature[0] << ",...\" OPTION DISABLED","\"-i shuffle\" option was set \"after\" setting the \"-i "<< gv_signature[0] << ",...\" option");
+            _WARNING("\"-i <int>,<int>,...\" OPTION DISABLED","\"-i shuffle\" option was set \"after\" setting the \"-i <int>,<int>,...\" option");
             gv_signature_flag = false;
             gv_signature.clear();
           }
           gv_signature_shuffle_from_m_pattern_flag = true;
           i++;
         } else {
-          gv_signature_flag = true;
-          PARSESIGNATURE(i, argv, argc, gv_signature);
           if (gv_signature_shuffle_from_m_pattern_flag) {
-            _WARNING("\"-i shuffle\" OPTION DISABLED","\"-i "<< gv_signature[0] <<",...\" option was set \"after\" setting the \"-i shuffle\" option");
+            _WARNING("\"-i shuffle\" OPTION DISABLED","\"-i <int>,<int>,...\" option was set \"after\" setting the \"-i shuffle\" option");
             gv_signature_shuffle_from_m_pattern_flag = false;
           }
+          if (gv_motif_flag) {
+            _ERROR("\"-m\" pattern and \"-i <int>,<int>,...\" options are not compatible together", "you must provide only one of them, or use \"-i shuffle\" after setting -m");
+          }
+          gv_signature_flag = true;
+          PARSESIGNATURE(i, argv, argc, gv_signature);
         }
       } else {
-        _ERROR(" \"-i\" found without argument","always provide \"-m <pattern> -i shuffle\", or \"-i 1,1,1,...\" with the number of seed elements required");
+        _ERROR(" \"-i\" found without argument","always provide \"-m <pattern> -i shuffle\", or \"-i <int>,<int>,...\" with the number of seed elements required");
       }
     } else if (!strcmp(argv[i],"-x")||!strcmp(argv[i],"--symetric")) {
       PARSEFLAG(i, argv, argc, gv_symetric, true);
@@ -3382,6 +3388,16 @@ int main(int argc, char * argv[]) {
               goto new_seeds;
   }
 
+  if (gv_motif_flag && gv_nbruns == 0 && gv_signature_shuffle_from_m_pattern_flag) {
+    for (unsigned i = 0; i < gv_seeds.size(); i++) {
+      gv_seeds[i]->reorder(0,/*b*/gv_seed_alphabet_size-1);
+      while(!gv_seeds[i]->acceptable())
+        if (!gv_seeds[i]->next())
+          goto end_loop;
+    }
+  }
+
+
   while (1) {
 
     // for all seeds
@@ -4067,7 +4083,7 @@ int main(int argc, char * argv[]) {
 #ifdef SAMPLING_STRATEGY_MF
       max_sens = MAX(max_sens,sens);
 #endif
-      if (gv_motif_flag && gv_nbruns == 0) {
+      if (gv_motif_flag && gv_nbruns == 0 && !(gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag)) {
         goto end_loop;
       }
 
@@ -4267,7 +4283,7 @@ int main(int argc, char * argv[]) {
           }
         }
 
-      } else { // gv_nbruns > 0
+      } else { // gv_nbruns == 0
 
         // (9.2) : complete enumeration
         unsigned j = 0;
@@ -4294,10 +4310,17 @@ int main(int argc, char * argv[]) {
         }
 
         for (unsigned i = 0; i < j; i++) { // reset the span of previous j-th seeds to min
-          delete gv_seeds[i];
-          gv_seeds[i] = new seed();
-          if (gv_cycles_flag)
-            gv_seeds[i]->setCyclePos(gv_cycles_pos_list[i], gv_cycles[i]);
+          if (gv_signature_shuffle_from_m_pattern_flag || gv_signature_flag) {
+            gv_seeds[i]->reorder(0,/*b*/ gv_seed_alphabet_size-1);
+            while(!gv_seeds[i]->acceptable())
+              if (!gv_seeds[i]->next())
+                goto end_loop;
+          } else {
+            delete gv_seeds[i];
+            gv_seeds[i] = new seed();
+            if (gv_cycles_flag)
+              gv_seeds[i]->setCyclePos(gv_cycles_pos_list[i], gv_cycles[i]);
+          }
         }
       } // if (gv_nbruns > 0)
 

@@ -1,0 +1,5 @@
+#!/bin/sh
+# IUPAC tests
+./iedera_gcov -iupac -m "R" -l 1 || exit 99
+./iedera_gcov -iupac -m "RYYNNNN,RRYNNNN" -o _fileout_iupac_default || exit 99
+diff _fileout_iupac_default  _filemodel_iupac_default.txt || exit 99

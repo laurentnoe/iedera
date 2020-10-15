@@ -44,6 +44,9 @@ diff _fileout_l25_x2_n2_w14_ _filemodel_l25_x2_n2_w14.txt || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -l 32 -L 1,0 -X 5 -m "1111000100000000010001001111,111001001100000000101111,11110000100100110111,111010100011001111,11101101100101011,11110110101111" -o _fileout_l32_x5_n6_w11_ || exit 99
 diff _fileout_l32_x5_n6_w11_ _filemodel_l32_x5_n6_w11.txt || exit 99
 
+# mixing (3) and (4) : doesnt put [lossless] since exclusion activated but who care
+./iedera_gcov -spaced -BSymbols 01 -l 25 -L 1,0 -X 2 -m "11110101100111101011" -mx "101100111101011001111" || exit 99
+
 # (5) classical spaced seeds with cycle
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1/2" -mx "1111111111:1/2" || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -m "11111011111:1,2/2" -mx "1111111111:1,2/2" || exit 99

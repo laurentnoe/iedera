@@ -2,8 +2,14 @@
 # (1) transitive spaced seeds (any possible transition at any "@")
 ./iedera_gcov -transitive -w 9,9 -s 11,18 -r 10 -k -m "##@-#-@-#@-#@##" || exit 99
 
-# (2) transitive spaced seeds with modified vector to enable "only one" transition at one of the "four @" symbols (BlastZ like)
-./iedera_gcov -transitive -w 9,9 -s 11,18 -V -S "{{0,0,0},{0,0,1},{0,0,0}}" -T 3 -r 10 -k -m "#@#-@#-#--@@-###" || exit 99
+# (2.1) transitive spaced seeds with modified vector to enable "only one" transition at one of the "four @" symbols (BlastZ like)
+./iedera_gcov -transitive -w 9,9 -s 11,18 -V -S "{{0,0,0},{0,0,1},{0,0,0}}" -T 3 -m "#@#-@#-#--@@-###" || exit 99
+
+# (2.2) spaced seeds with modified vector to enable "one mutation" at one of the "four x" symbols
+./iedera_gcov -A 2 -B 3 -BSymbols "-x#" -f 0.3,0.7 -M "{{1,1},{1,1},{0,1}}" -s 12,20 -V -S "{{0,0},{0,1},{0,0}}" -T 3 -m "###-x-x#-x-x#-##" || exit 99
+
+# (2.3) mixing vetor seeds with lossless seeds (Burkhard & Karkkainen seed with a "at most two errors" obvious test)
+./iedera_gcov -A 2 -B 3 -BSymbols "-x#" -f 0.3,0.7 -M "{{1,1},{1,1},{0,1}}" -V -S "{{0,0},{0,1},{0,0}}" -T 5 -m "###x#xx###x#xx###x#" -L 1,0 -X 2 -l 25 || exit 99
 
 # (3.1) transitive spaced seesd enumeration (signature)
 ./iedera_gcov -transitive -w 4,4 -s 5,7 -i 0,2,3 -l 16 -z 1 || exit 99

@@ -20,10 +20,10 @@ script:
   - autoreconf && ./configure && automake && make && make check
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user cpp-coveralls; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CODECOV_TOKEN="67db6772-c679-450c-9d22-63bee0f59408"; fi
 
 after_success:
-  -  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [[ "$CC" == "gcc" ]]; then coveralls --gcov-options '\-lp'; fi; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [[ "$CC" == "gcc" ]]; then bash <(curl -s https://codecov.io/bash); fi; fi
 
 deploy:
   provider: releases

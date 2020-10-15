@@ -7,8 +7,8 @@
     :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
-.. image:: https://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
-    :target: https://coveralls.io/github/laurentnoe/iedera
+.. image:: https://codecov.io/gh/laurentnoe/iedera/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/laurentnoe/iedera
     :alt: Coverage
 
 .. image:: https://img.shields.io/website-up-down-green-red/http/bioinfo.cristal.univ-lille.fr.svg?style=flat-square&label=Website

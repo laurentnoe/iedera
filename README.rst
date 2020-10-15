@@ -1,14 +1,14 @@
 
-.. image:: https://img.shields.io/travis/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Unix
+.. image:: https://img.shields.io/travis/laurentnoe/iedera/iupac.svg?style=flat-square&label=Build%20Status%20Unix
     :target: https://travis-ci.org/laurentnoe/iedera/
     :alt: Build Status Unix
 
-.. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status%20Windows
+.. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/iupac.svg?style=flat-square&label=Build%20Status%20Windows
     :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status Windows
 
-.. image:: https://img.shields.io/coveralls/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
-    :target: https://coveralls.io/github/laurentnoe/iedera
+.. image:: https://codecov.io/gh/laurentnoe/iedera/branch/iupac/graph/badge.svg
+    :target: https://codecov.io/gh/laurentnoe/iedera
     :alt: Coverage
 
 .. image:: https://img.shields.io/website-up-down-green-red/http/bioinfo.cristal.univ-lille.fr.svg?style=flat-square&label=Website

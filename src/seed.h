@@ -15,7 +15,7 @@
  *  It is possible to add some constraints on the positions where the seed will be applied (by default, it is applied
  *  a any possible position it fits).
  *  If any, a table of cyclic positions (seed::_seedCyclePos_int) of given length (@ref seed::_seedNbCyclePos) is
- *  allocated and filled. Each value within this table must be in  the range [0.. @ref seed::_seedMaxCyclePos-1]
+ *  allocated and filled. Each value within this table must be in  the range [0.. @ref seed::_seedMaxCyclePos - 1]
  *
  *  @see  seed::cycled()
  *  @see  seed::pos()

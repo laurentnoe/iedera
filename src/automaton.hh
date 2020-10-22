@@ -174,23 +174,23 @@ protected :
   template<typename U> friend class state;
   /// automaton is a friend class to ease access
   template<typename U> friend class automaton;
-  /// print transition<U> information is friend
+  /// print transition\<U\> information is friend
   template<typename U> friend ostream& operator<<(ostream& os, const transition<U>& tr);
-  /// read transition<U> information is friend
+  /// read transition\<U\> information is friend
   template<typename U> friend istream& operator>>(istream& is, transition<U>& tr);
-  /// print state<U> information is friend
+  /// print state\<U\> information is friend
   template<typename U> friend ostream& operator<<(ostream& os, const state<U>& st);
-  /// read state<U> information is friend
+  /// read state\<U\> information is friend
   template<typename U> friend istream& operator>>(istream& is, state<U>& st);
-  /// print automaton<U> information is friend
+  /// print automaton\<U\> information is friend
   template<typename U> friend ostream& operator<<(ostream& os, const automaton<U>& au);
-  /// read automaton<U> information is friend
+  /// read automaton\<U\> information is friend
   template<typename U> friend istream& operator>>(istream& is, automaton<U>& au);
 };
 
-/** @brief output method for a transition<T> tr
+/** @brief output method for a transition\<T\> tr
  *  @param os is the outputstream to use
- *  @param tr is the transition<T> to output
+ *  @param tr is the transition\<T\> to output
  *  @return the outputstream used
  */
 template<typename T> inline ostream& operator<<(ostream& os, const transition<T>& tr) {
@@ -199,7 +199,7 @@ template<typename T> inline ostream& operator<<(ostream& os, const transition<T>
 }
 
 
-/** @brief input method for a transition<T> tr
+/** @brief input method for a transition\<T\> tr
  *  @param is is the outputstream to use
  *  @param tr is the transition<T> to output
  *  @return the inputstream used
@@ -233,7 +233,7 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
 }
 
 /**
- * @class transition<void>
+ * @class transition\<void\>
  * @brief transition to a given state (on a given letter)
  */
 template<> class transition<void> {
@@ -254,17 +254,17 @@ protected :
   friend class state<void>;
   /// automaton is a friend class to ease access
   friend class automaton<void>;
-  /// print transition<void> information is friend
+  /// print transition\<void\> information is friend
   friend ostream& operator<<(ostream& os, const transition<void>& tr);
-  /// read transition<void> information is friend
+  /// read transition\<void\> information is friend
   friend istream& operator>>(istream& is, transition<void>& tr);
-  /// print state<void> information is friend
+  /// print state\<void\> information is friend
   friend ostream& operator<<(ostream& os, const state<void>& st);
-  /// read state<void> information is friend
+  /// read state\<void\> information is friend
   friend istream& operator>>(istream& is, state<void>& st);
-  /// print automaton<void> information is friend
+  /// print automaton\<void\> information is friend
   friend ostream& operator<<(ostream& os, const automaton<void>& au);
-  /// read automaton<void> information is friend
+  /// read automaton\<void\> information is friend
   friend istream& operator>>(istream& is, automaton<void>& au);
 };
 
@@ -301,13 +301,13 @@ protected:
 
   /// automaton is a friend class to ease access
   template<typename U> friend class automaton;
-  /// print state<U> information is friend
+  /// print state\<U\> information is friend
   template<typename U> friend ostream& operator<<(ostream& os, const state<U>& st);
-  /// read state<U> information is friend
+  /// read state\<U\> information is friend
   template<typename U> friend istream& operator>>(istream& is, state<U>& st);
-  /// print automaton<U> information is friend
+  /// print automaton\<U\> information is friend
   template<typename U> friend ostream& operator<<(ostream& os, const automaton<U>& au);
-  /// read automaton<U> information is friend
+  /// read automaton\<U\> information is friend
   template<typename U> friend istream& operator>>(istream& is, automaton<U>& au);
 };
 

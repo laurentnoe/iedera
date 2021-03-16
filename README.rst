@@ -1,6 +1,6 @@
 
 .. image:: https://img.shields.io/travis/laurentnoe/iedera/iupac.svg?style=flat-square&label=Build%20Status%20Unix
-    :target: https://travis-ci.org/laurentnoe/iedera/
+    :target: https://travis-ci.com/laurentnoe/iedera/
     :alt: Build Status Unix
 
 .. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/iupac.svg?style=flat-square&label=Build%20Status%20Windows

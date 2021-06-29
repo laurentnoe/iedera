@@ -137,6 +137,10 @@ typedef enum ProductSetFinalType {
  */
 typedef int (*AddHoc_Final_Func)(int, int);
 
+/** @brief Define the binary word used for jokers (and their relatives) elements when matching of not in the seed.
+ */
+typedef long long int Seed_X_Word;
+
 
 /// final
 #define TRUE  1
@@ -276,7 +280,7 @@ protected :
 template<typename T> class state {
 public:
   /// Build an empty state (empty transition lists)
-  inline state(int final = 0): _final(final) { _next  =  vector<vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> > ());};
+  inline state(int final = 0): _final(final) { _next  =  vector< vector< transition<T> > >(gv_align_alphabet_size, vector<transition<T> > ());};
 
 
   /// Erase a state (clear transition lists first)
@@ -295,7 +299,7 @@ public:
 
 protected:
   /// forward  transitions list on letter A
-  vector<vector<transition<T> > >  _next;
+  vector< vector<transition<T> > >  _next;
   /// final state
   int _final;
 
@@ -343,7 +347,7 @@ template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
     _ERROR("state<T> operator>>","incorrect final value " << final);
   }
   st._final = final;
-  st._next = vector<vector<transition<T> > > (gv_align_alphabet_size);
+  st._next = vector< vector<transition<T> > > (gv_align_alphabet_size);
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
     // reading letter
@@ -413,7 +417,7 @@ public:
    *  @return 0
    */
   int Automaton_SeedLinearMatching(const seed & s,
-                                   const vector<vector<int> > & matchingmatrix);
+                                   const vector< vector<int> > & matchingmatrix);
 
 
   /** @class SeedPrefixesMatchingSet_old
@@ -425,14 +429,14 @@ public:
 
   public:
     /// set of prefixes matching
-    int X;
+    Seed_X_Word X;
     /// lenght of the last run of '1'
     short t;
     /// length of the maximal prefix in the set @f$ X @f$ : @f$ k = max(X) @f$
     short k;
     /** @brief build a SeedPrefixesMatchingSet_old
      */
-    SeedPrefixesMatchingSet_old(int X = 0, short t = 0, short k = 0) : X(X), t(t), k(k) {};
+    SeedPrefixesMatchingSet_old(Seed_X_Word X = 0, short t = 0, short k = 0) : X(X), t(t), k(k) {};
   };
 
 #define SEEDPREFIXESMATCHING_OLD_X(s)          (statesSeedPrefixesMatchingSet_old[(s)].X)
@@ -447,13 +451,13 @@ public:
    */
 
   int Automaton_SeedPrefixesMatching_old (const seed & s,
-                                          const vector<vector<int> > & matchingmatrix,
+                                          const vector< vector<int> > & matchingmatrix,
                                           const bool nomerge = false);
 
 
 
   /** @class SeedPrefixesMatchingSet
-   *  @brief simple "inner class" to keep states @f$ <X,t> @f$ and @f$ k @f$, together with @f$ Xp @f$ to keep previous track,
+   *  @brief simple "inner class" to keep states @f$ <X,t> @f$ and @f$ k @f$, together with @f$ Xp_i @f$ and @f$ RevMaxXp_i @f$ to keep previous index track,
    *         during SeedPrefixMatching method
    *  @see Automaton_SeedPrefixesMatching
    */
@@ -462,28 +466,28 @@ public:
 
   public:
     /// set of prefixes matching
-    int X;
+    Seed_X_Word X;
     /// lenght of the last run of '1'
     short t;
     /// length of the maximal prefix in the set @f$ X @f$ : @f$ k = max(X) @f$
     short k;
-    /// gives the state @f$< X' = X / max(X), t > @f$ (this state does exists and is created before @f$ <X,t> @f$)
-    int Xp;
-    /** @brief gives the last state @f$ <X'',t> @f$ created that verifies :
+    /// gives the index of the state @f$< X' = X / max(X), t > @f$ (this state does exists and is created before @f$ <X,t> @f$)
+    int Xp_i;
+    /** @brief gives the index of last state @f$ <X'',t> @f$ created that verifies :
      *   @li @f$ X''/max(X'') = X @f$
      *   @li @f$ max(X'') @f$ is greatest among all created @f$ X'' @f$ verifying the previous condition
      */
-    int RevMaxXp;
+    int RevMaxXp_i;
     /** @brief build a SeedPrefixesMatchingSet
      */
-    SeedPrefixesMatchingSet(int X = 0,short t = 0,short k = 0,int Xp = 0,int RevMaxXp = 0) : X(X), t(t), k(k), Xp(Xp), RevMaxXp(RevMaxXp) {};
+    SeedPrefixesMatchingSet(Seed_X_Word X = 0,short t = 0,short k = 0, int Xp_i = 0, int RevMaxXp_i = 0) : X(X), t(t), k(k), Xp_i(Xp_i), RevMaxXp_i(RevMaxXp_i) {};
   };
 
-#define SEEDPREFIXESMATCHING_X(s)          (statesSeedPrefixesMatchingSet[(s)].X)
-#define SEEDPREFIXESMATCHING_T(s)          (statesSeedPrefixesMatchingSet[(s)].t)
-#define SEEDPREFIXESMATCHING_K(s)          (statesSeedPrefixesMatchingSet[(s)].k)
-#define SEEDPREFIXESMATCHING_XP(s)         (statesSeedPrefixesMatchingSet[(s)].Xp)
-#define SEEDPREFIXESMATCHING_REVMAXXP(s)   (statesSeedPrefixesMatchingSet[(s)].RevMaxXp)
+#define SEEDPREFIXESMATCHING_X(s)            (statesSeedPrefixesMatchingSet[(s)].X)
+#define SEEDPREFIXESMATCHING_T(s)            (statesSeedPrefixesMatchingSet[(s)].t)
+#define SEEDPREFIXESMATCHING_K(s)            (statesSeedPrefixesMatchingSet[(s)].k)
+#define SEEDPREFIXESMATCHING_XP_I(s)         (statesSeedPrefixesMatchingSet[(s)].Xp_i)
+#define SEEDPREFIXESMATCHING_REVMAXXP_I(s)   (statesSeedPrefixesMatchingSet[(s)].RevMaxXp_i)
 
   /** @brief New linear algorithm for subset seed matching (CIAA 2007)
    *  @param s is the seed descriptor
@@ -493,7 +497,7 @@ public:
    */
 
   int Automaton_SeedPrefixesMatching (const seed & s,
-                                      const vector<vector<int> > & matchingmatrix,
+                                      const vector< vector<int> > & matchingmatrix,
                                       const bool nomerge = false);
 
 
@@ -508,7 +512,7 @@ public:
 
   public:
     /// set of prefixes matching for each seed
-    vector<int> X;
+    vector<Seed_X_Word> X;
     /// lenght of the last run of '1'
     short t;
     /// length of the maximal prefix in the set @f$ X @f$ : @f$ k = max(X) @f$
@@ -517,17 +521,17 @@ public:
      *  this vector can be "padded right" by run of '0' (uncovered),
      *  but "padded left" run of '0' must be removed.
      */
-    vector<int> p;
+    vector<Seed_X_Word> p;
 
     /// final state value (here can be 0 or any coverage value > 0)
     int final;
 
     /** @brief build a SeedPrefixesMatchingSet
      */
-    SeedPrefixesMatchingDMSet(vector<int> X,  vector<short> k, vector<int> p, short t, int final) : t(t), final(final) {
-      this->X = vector<int>(X);
+    SeedPrefixesMatchingDMSet(vector<Seed_X_Word> X,  vector<short> k, vector<Seed_X_Word> p, short t, int final) : t(t), final(final) {
+      this->X = vector<Seed_X_Word>(X);
       this->k = vector<short>(k);
-      this->p = vector<int>(p);
+      this->p = vector<Seed_X_Word>(p);
     };
 
     /** @brief clear a SeedPrefixesMatchingSet
@@ -622,7 +626,7 @@ public:
 
   int Automaton_SeedPrefixesMatching_CoverageDM (const vector<seed *> & s,
                                                  const vector<int> weight_seed_alphabet,
-                                                 const vector<vector<int> > & matchingmatrix);
+                                                 const vector< vector<int> > & matchingmatrix);
 
   /** @class SeedPrefixesMatchingCostSet
    *  @brief simple "inner class" to keep states @f$ <X,t> @f$ and  @f$ k + Cost @f$
@@ -634,31 +638,31 @@ public:
 
   public:
     /// set of prefixes matching
-    int X;
+    Seed_X_Word X;
     /// lenght of the last run of '1'
     short t;
     /// length of the maximal prefix in the set @f$ X @f$ : @f$ k = max(X) @f$
     short k;
-    /// gives the state @f$< X' = X / max(X), t > @f$ (this state does exists and is created before @f$ <X,t> @f$)
-    int Xp;
-    /** @brief gives the last state @f$ <X'',t> @f$ created that verifies :
+    /// gives the index of the state @f$< X' = X / max(X), t > @f$ (this state does exists and is created before @f$ <X,t> @f$)
+    int Xp_i;
+    /** @brief gives the index of last state @f$ <X'',t> @f$ created that verifies :
      *   @li @f$ X''/max(X'') = X @f$
      *   @li @f$ max(X'') @f$ is greatest among all created @f$ X'' @f$ verifying the previous condition
      */
-    int RevMaxXp;
+    int RevMaxXp_i;
     /// gives the Cost at this state
     int Cost;
     /** @brief build a SeedPrefixesMatchingCostSet
      */
-    SeedPrefixesMatchingCostSet(int X = 0, short t = 0, short k = 0, int Xp = 0, int RevMaxXp = 0, int Cost = 0) : X(X), t(t), k(k), Xp(Xp), RevMaxXp(RevMaxXp), Cost(Cost) {};
+    SeedPrefixesMatchingCostSet(Seed_X_Word X = 0, short t = 0, short k = 0, int Xp_i = 0, int RevMaxXp_i = 0, int Cost = 0) : X(X), t(t), k(k), Xp_i(Xp_i), RevMaxXp_i(RevMaxXp_i), Cost(Cost) {};
   };
 
-#define SEEDPREFIXESMATCHINGCOST_X(s)          (statesSeedPrefixesMatchingCostSet[(s)].X)
-#define SEEDPREFIXESMATCHINGCOST_T(s)          (statesSeedPrefixesMatchingCostSet[(s)].t)
-#define SEEDPREFIXESMATCHINGCOST_K(s)          (statesSeedPrefixesMatchingCostSet[(s)].k)
-#define SEEDPREFIXESMATCHINGCOST_XP(s)         (statesSeedPrefixesMatchingCostSet[(s)].Xp)
-#define SEEDPREFIXESMATCHINGCOST_REVMAXXP(s)   (statesSeedPrefixesMatchingCostSet[(s)].RevMaxXp)
-#define SEEDPREFIXESMATCHINGCOST_COST(s)       (statesSeedPrefixesMatchingCostSet[(s)].Cost)
+#define SEEDPREFIXESMATCHINGCOST_X(s)            (statesSeedPrefixesMatchingCostSet[(s)].X)
+#define SEEDPREFIXESMATCHINGCOST_T(s)            (statesSeedPrefixesMatchingCostSet[(s)].t)
+#define SEEDPREFIXESMATCHINGCOST_K(s)            (statesSeedPrefixesMatchingCostSet[(s)].k)
+#define SEEDPREFIXESMATCHINGCOST_XP_I(s)         (statesSeedPrefixesMatchingCostSet[(s)].Xp_i)
+#define SEEDPREFIXESMATCHINGCOST_REVMAXXP_I(s)   (statesSeedPrefixesMatchingCostSet[(s)].RevMaxXp_i)
+#define SEEDPREFIXESMATCHINGCOST_COST(s)         (statesSeedPrefixesMatchingCostSet[(s)].Cost)
 
   /** @brief Modified version that takes lossless costs into account
    *  @param s is the seed descriptor
@@ -671,7 +675,7 @@ public:
    */
 
   int Automaton_SeedPrefixesMatchingCost (const seed& s,
-                                          const vector<vector<int> > & matchingmatrix,
+                                          const vector< vector<int> > & matchingmatrix,
                                           const bool nomerge,
                                           const vector<int> & costs,
                                           const int cost_threshold);
@@ -708,7 +712,7 @@ public:
    */
 
   int Automaton_SeedBuhler (const seed & s,
-                            const vector<vector<int> > & matchingmatrix,
+                            const vector< vector<int> > & matchingmatrix,
                             const bool nomerge = false);
 
 
@@ -747,8 +751,8 @@ public:
    */
 
   int Automaton_SeedScore    (const seed & s,
-                              const vector<vector<int> > & matchingmatrix,
-                              const vector<vector<int> >  & scoringmatrix,
+                              const vector< vector<int> > & matchingmatrix,
+                              const vector< vector<int> >  & scoringmatrix,
                               const int scoringthreehold,
                               const bool nomerge = false);
 
@@ -794,8 +798,8 @@ public:
    */
 
   int Automaton_SeedScoreCost(const seed & s,
-                              const vector<vector<int> > & matchingmatrix,
-                              const vector<vector<int> > & scoringmatrix,
+                              const vector< vector<int> > & matchingmatrix,
+                              const vector< vector<int> > & scoringmatrix,
                               const int scoringthreehold,
                               const bool nomerge,
                               const vector<int> & costs,
@@ -2319,7 +2323,7 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
 }
 
 template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed & s,
-                                                                     const vector<vector<int> > & matchingmatrix)  {
+                                                                     const vector< vector<int> > & matchingmatrix)  {
 
   // Get the seed span
   int   motif_span = s.span();
@@ -2359,7 +2363,7 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const seed & s,
-                                                                       const vector<vector<int> > & matchingmatrix,
+                                                                       const vector< vector<int> > & matchingmatrix,
                                                                        const bool nomerge) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching == (nomerge:" << dec << nomerge << ")"););
@@ -2402,7 +2406,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 #ifdef BUILD
   {
-    int xset_size = 1 << xset_bitsize;
+    Seed_X_Word xset_size = (Seed_X_Word) 1 << xset_bitsize;
     cout << " xset_size :"     << xset_size << ",\t" <<
       " xset_bitsize : " << xset_bitsize << endl;
   }
@@ -2410,15 +2414,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
   // 1) Precompute E,F functions
-  vector<vector<int> > FX(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector<vector<int> > Fk(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector<vector<vector<int> > > EX(motif_span+(nomerge?1:0), vector<vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
-  vector<vector<vector<int> > > Ek(motif_span+(nomerge?1:0), vector<vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
+  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>        (gv_align_alphabet_size,0));
+  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >        ((xset_bitsize+1), vector<int>        (gv_align_alphabet_size,0)));
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
     for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
-      int r = 1 << (i-1);
+      Seed_X_Word r = 1 << (i-1);
       int b = motif[L[i]];
 
       for (int a = 0; a < gv_align_alphabet_size; a++){
@@ -2448,7 +2452,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
           assert(k>0);
           assert(k<=xset_bitsize);
 #endif
-          EX[t][k][a] = 1 << (i-1);
+          EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
         }
       }
@@ -2520,13 +2524,13 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    int Xstate_X    = SEEDPREFIXESMATCHING_X (Xstate_I);
-    int Xstate_T    = SEEDPREFIXESMATCHING_T (Xstate_I);
-    int Xstate_K    = SEEDPREFIXESMATCHING_K (Xstate_I);
+    Seed_X_Word Xstate_X = SEEDPREFIXESMATCHING_X (Xstate_I);
+    int Xstate_T         = SEEDPREFIXESMATCHING_T (Xstate_I);
+    int Xstate_K         = SEEDPREFIXESMATCHING_K (Xstate_I);
 
 #ifdef ASSERTB
     assert(Xstate_X >= 0);
-    assert(Xstate_X < (1 << xset_bitsize));
+    assert(Xstate_X < ((Seed_X_Word) 1 << xset_bitsize));
     assert(Xstate_T >= 0);
     assert(Xstate_T < motif_span + (nomerge?1:0));
     assert(Xstate_K >= 0);
@@ -2534,7 +2538,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 #endif
 
     // XPstate : defined as "Xstate" where the maximal matching prefix fails ...
-    int XPstate_I   = SEEDPREFIXESMATCHING_XP(Xstate_I);
+    int XPstate_I   = SEEDPREFIXESMATCHING_XP_I(Xstate_I);
 
 #ifdef ASSERTB
     assert(XPstate_I >= 0);
@@ -2559,13 +2563,13 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       assert(YPstate_I < (int)_states.size());
 #endif
 
-      int YPstate_T   = SEEDPREFIXESMATCHING_T(YPstate_I);
-      int YPstate_X   = SEEDPREFIXESMATCHING_X(YPstate_I);
-      int YPstate_K   = SEEDPREFIXESMATCHING_K(YPstate_I);
+      int YPstate_T          = SEEDPREFIXESMATCHING_T(YPstate_I);
+      Seed_X_Word YPstate_X  = SEEDPREFIXESMATCHING_X(YPstate_I);
+      int YPstate_K          = SEEDPREFIXESMATCHING_K(YPstate_I);
 
 #ifdef ASSERTB
       assert(YPstate_X >= 0);
-      assert(YPstate_X < (1 << xset_bitsize));
+      assert(YPstate_X < ((Seed_X_Word) 1 << xset_bitsize));
       assert(YPstate_T >= 0);
       assert(YPstate_T < motif_span + (nomerge?1:0));
       assert(YPstate_K >= 0);
@@ -2575,7 +2579,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       // YPRstate ...value is either -1 if undefined,
       // otherwise >= 0 to indicate the last state created that
       // verifies YPRstate / maximalprefixmatching{YPRstate} = YPstate.
-      int YPRstate_I  = SEEDPREFIXESMATCHING_REVMAXXP(YPstate_I);
+      int YPRstate_I  = SEEDPREFIXESMATCHING_REVMAXXP_I(YPstate_I);
 
 #ifdef ASSERTB
       assert(YPRstate_I >= (-1));
@@ -2585,10 +2589,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       // Ystate_I : next state according to letter "a"
       // by default values are given here
       // and will be processed
-      int Ystate_I    = Xstate_I;
-      int Ystate_X    = Xstate_X;
-      int Ystate_T    = Xstate_T;
-      int Ystate_K    = Xstate_K;
+      int Ystate_I         = Xstate_I;
+      Seed_X_Word Ystate_X = Xstate_X;
+      int Ystate_T         = Xstate_T;
+      int Ystate_K         = Xstate_K;
 
       // (a == match)
       if ( a == (gv_align_alphabet_size - (gv_matching_symbol_flag?1:0))) {
@@ -2636,7 +2640,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
             // NOMERGE : CHECK FINAL STATE
             if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-              assert(YPstate_X ==  (Ystate_X^(1 << (Ystate_K-1))));
+              assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
               goto Ex0;
             }
@@ -2688,7 +2692,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
           // NOMERGE : CHECK FINAL STATE
           if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-            assert(YPstate_X ==  (Ystate_X^(1 << (Ystate_K-1))));
+            assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
             Ystate_I = YPstate_I;
           } else {
@@ -2726,7 +2730,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
         if (Y_not_there) {
           // create it and push it inside the list of states which need update.
           Ystate_I = addNewState(final);
-          SEEDPREFIXESMATCHING_REVMAXXP(YPstate_I) = Ystate_I;
+          SEEDPREFIXESMATCHING_REVMAXXP_I(YPstate_I) = Ystate_I;
           statesSeedPrefixesMatchingSet.push_back(SeedPrefixesMatchingSet(Ystate_X,Ystate_T,Ystate_K,YPstate_I,0));
           statesNbRemaining.push(Ystate_I);
 
@@ -2758,7 +2762,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const seed & s,
-                                                                           const vector<vector<int> > & matchingmatrix,
+                                                                           const vector< vector<int> > & matchingmatrix,
                                                                            const bool nomerge) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching_old == (nomerge:" << dec << nomerge << ")"););
@@ -2786,8 +2790,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
   // Compute xset_bitsize and X
   vector<int> L(motif_span+1,0);
-  int xset_bitsize  = 0; // bitsize of the set
-  int xset_size     = 0; // size of the set
+  int xset_bitsize      = 0; // bitsize of the set
+  Seed_X_Word xset_size = 0; // size of the set
   L[0] = -1;
   for (int i = 0; i<motif_span; i++) {
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
@@ -2796,14 +2800,14 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(" L[" << xset_bitsize << "] : " <<  L[xset_bitsize] << endl;););
     }
   }
-  xset_size = 1 << xset_bitsize;
+  xset_size = (Seed_X_Word) 1 << xset_bitsize;
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(" xset_size : " << xset_size << ",\t" << " xset_bitsize : " << xset_bitsize << endl;););
 
   // Compute TCODE[t] to get an index by use of IndexNb = TCODE[t] + X coding system
   vector<int> TCODE(motif_span+1+(nomerge?1:0),0);
   TCODE[0] = 0;
-  for (int maxxsetsize = xset_size, l = xset_bitsize, t = 1; t <= motif_span+(nomerge?1:0); t++) {
+  for (Seed_X_Word maxxsetsize = xset_size, l = xset_bitsize, t = 1; t <= motif_span+(nomerge?1:0); t++) {
     if (L[l] == motif_span+(nomerge?1:0)-t) {
       maxxsetsize >>= 1;
       l--;
@@ -2813,15 +2817,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   }
 
   // 1) Precompute E,F functions
-  vector<vector<int> > FX(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector<vector<int> > Fk(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector<vector<vector<int> > > EX(motif_span+(nomerge?1:0), vector<vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
-  vector<vector<vector<int> > > Ek(motif_span+(nomerge?1:0), vector<vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
+  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>(gv_align_alphabet_size,0));
+  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
 
   // F[t][a]
-  for (int t = 0; t<motif_span+(nomerge?1:0); t++) {
+  for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
     for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
-      int r = 1 << (i-1);
+      Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
       for (int a = 0; a < gv_align_alphabet_size; a++){
@@ -2851,7 +2855,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
           assert(k>0);
           assert(k<=xset_bitsize);
 #endif
-          EX[t][k][a] = 1 << (i-1);
+          EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
         }
       }
@@ -2898,9 +2902,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
     assert(Xstate_I >= 0);
     assert(Xstate_I <  (int)_states.size());
 #endif
-    int Xstate_X = SEEDPREFIXESMATCHING_OLD_X(Xstate_I);
-    int Xstate_T = SEEDPREFIXESMATCHING_OLD_T(Xstate_I);
-    int Xstate_K = SEEDPREFIXESMATCHING_OLD_K(Xstate_I);
+    Seed_X_Word Xstate_X = SEEDPREFIXESMATCHING_OLD_X(Xstate_I);
+    int Xstate_T         = SEEDPREFIXESMATCHING_OLD_T(Xstate_I);
+    int Xstate_K         = SEEDPREFIXESMATCHING_OLD_K(Xstate_I);
 
     VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$pop  I:" << Xstate_I << " < X:" << Xstate_X << ", t:" << Xstate_T << ", k:" << Xstate_K << " >"));
 
@@ -2916,10 +2920,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 
 
-    int XPstate_Ix = 0, XPstate_I = 0, XPstate_X = 0;
+    int XPstate_Ix = 0, XPstate_I = 0; Seed_X_Word XPstate_X = 0;
 
     if (Xstate_K > 0) {
-      XPstate_X   = Xstate_X ^ (1 << (Xstate_K-1));    // get X'
+      XPstate_X   = Xstate_X ^ ((Seed_X_Word) 1 << (Xstate_K-1));    // get X'
       XPstate_Ix  = TCODE[Xstate_T] + XPstate_X;   // get (X',t) index
       XPstate_I   = statesNbIndex[XPstate_Ix];
     }
@@ -2929,9 +2933,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
       // next state according to letter "a"
-      int Ystate_X = Xstate_X;
-      int Ystate_T = Xstate_T;
-      int Ystate_K = Xstate_K;
+      Seed_X_Word Ystate_X = Xstate_X;
+      int Ystate_T         = Xstate_T;
+      int Ystate_K         = Xstate_K;
 
       if ( a == (gv_align_alphabet_size - (gv_matching_symbol_flag?1:0))) {
         Ystate_T++;
@@ -2941,10 +2945,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 #ifdef ASSERTB
           assert(DETERMINISTIC(XPstate_I,a));
 #endif
-          int YPstate_I = _states[XPstate_I]._next[a].begin()->_state;
+          int YPstate_I         = _states[XPstate_I]._next[a].begin()->_state;
           // YP result
-          int YPstate_X = SEEDPREFIXESMATCHING_OLD_X(YPstate_I);
-          int YPstate_K = SEEDPREFIXESMATCHING_OLD_K(YPstate_I);
+          Seed_X_Word YPstate_X = SEEDPREFIXESMATCHING_OLD_X(YPstate_I);
+          int YPstate_K         = SEEDPREFIXESMATCHING_OLD_K(YPstate_I);
           //  Y result
 #ifdef ASSERTB
           assert(Xstate_T >= 0);
@@ -2987,7 +2991,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
         if (nomerge){ // final states are not merged and  their transitions are consided as "normal states" :
           // the only difference is their maximal prefix matching that cannot be extended more that "span"
           if (Ystate_K > 0)
-            Ystate_X ^= 1 << (Ystate_K-1);
+            Ystate_X ^= (Seed_X_Word) 1 << (Ystate_K-1);
           else
             Ystate_T--;
           Ystate_Ix = TCODE[Ystate_T] + Ystate_X;
@@ -3056,10 +3060,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
  *  already be counted before) it can be erased.
  */
 #define NORMALIZE_COVERAGEDM() {                                        \
-    int _P_size = Ystate_P.size();                                      \
-    vector<int> P_reachable(_P_size,0);                                 \
+    Seed_X_Word _P_size = Ystate_P.size();                              \
+    vector<Seed_X_Word> P_reachable(_P_size,0);                         \
     for (int x = 0; x < nb_motifs; x++) {                               \
-    /* (1.a) lower "t" part */                                          \
+      /* (1.a) lower "t" part */                                        \
       int _t_max_ = MIN(Ystate_T, motifs_span[x]);                      \
       for (int _t_ = 1; _t_ <= _t_max_; _t_++) {                        \
         for (int _u_ = MAX(0, _t_ - _P_size) ; _u_ < _t_; _u_++) {      \
@@ -3074,7 +3078,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
              &&                                                         \
              (L[x][_k_+1] + Ystate_T <= motifs_span[x]);                \
            _k_++) {                                                     \
-        if (Ystate_X[x] & (1 << _k_)) {                                 \
+        if (Ystate_X[x] & ((Seed_X_Word) 1 << _k_)) {                   \
           int _r_ = L[x][_k_+1] + Ystate_T + 1;                         \
           for (int _u_ = MAX(0, _r_ - _P_size); _u_ < _r_; _u_++) {     \
             P_reachable[_P_size - _r_ + _u_] =                          \
@@ -3112,40 +3116,40 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   by P =.0.....2..
  @endverbatim
  */
-#define NORMALIZE2_COVERAGEDM() {                                       \
-    int _P_size_ = Ystate_P.size();                                     \
-    /* (1) upped part without "t" ("t" part not needed here since non equivalent) */ \
-    for (int _u_1_ = 0; _u_1_ < _P_size_-Ystate_T; _u_1_++) {           \
-      if (Ystate_P[_u_1_]) {                                            \
-        for (int _u_2_ = _u_1_+1; _u_2_ < _P_size_-Ystate_T; _u_2_++) { \
-          if (Ystate_P[_u_2_] < Ystate_P[_u_1_]) {                      \
-            /* do positions _u_1_ and _u_2_ have equivalent seed elements under each seed prefix? */ \
-            for (int x = 0; x < nb_motifs; x++) {                       \
-              for (int _k_ = 0; _k_ < Ystate_K[x] && (L[x][_k_+1] + Ystate_T <= motifs_span[x]); _k_++) { \
-                if (Ystate_X[x] & (1 << _k_)) {                         \
-                  /* length of the ongoing prefix */                    \
-                  int _r_ = L[x][_k_+1] + Ystate_T + 1;                 \
-                  /* motifs pos (if correct) */                         \
-                  int _i_1_ = _r_ - _P_size_ + _u_1_;                   \
-                  int _i_2_ = _r_ - _P_size_ + _u_2_;                   \
-                  /* motifs elements (jocker if outside) */             \
-                  int _s_1_ = ((_i_1_<0) || (_i_1_>=_r_)) ? 0 : motifs[x][_i_1_]; \
-                  int _s_2_ = ((_i_2_<0) || (_i_2_>=_r_)) ? 0 : motifs[x][_i_2_]; \
-                  if (weight_seed_alphabet[_s_1_] != weight_seed_alphabet[_s_2_]) { goto non_equiv; } \
-                }                                                       \
-              }                                                         \
-            }                                                           \
-            /* equiv : exchange _u_2_ and _u_1_ elements */             \
-            {                                                           \
-              int u = Ystate_P[_u_2_];                                  \
-              Ystate_P[_u_2_] = Ystate_P[_u_1_];                        \
-              Ystate_P[_u_1_] = u;                                      \
-            }                                                           \
-          non_equiv:;                                                   \
-          }                                                             \
-        }                                                               \
-      }                                                                 \
-    }                                                                   \
+#define NORMALIZE2_COVERAGEDM() {                                                                          \
+    int _P_size_ = Ystate_P.size();                                                                        \
+    /* (1) upped part without "t" ("t" part not needed here since non equivalent) */                       \
+    for (int _u_1_ = 0; _u_1_ < _P_size_-Ystate_T; _u_1_++) {                                              \
+      if (Ystate_P[_u_1_]) {                                                                               \
+        for (int _u_2_ = _u_1_+1; _u_2_ < _P_size_-Ystate_T; _u_2_++) {                                    \
+          if (Ystate_P[_u_2_] < Ystate_P[_u_1_]) {                                                         \
+            /* do positions _u_1_ and _u_2_ have equivalent seed elements under each seed prefix? */       \
+            for (int x = 0; x < nb_motifs; x++) {                                                          \
+              for (int _k_ = 0; _k_ < Ystate_K[x] && (L[x][_k_+1] + Ystate_T <= motifs_span[x]); _k_++) {  \
+                if (Ystate_X[x] & ((Seed_X_Word) 1 << _k_)) {                                              \
+                  /* length of the ongoing prefix */                                                       \
+                  int _r_ = L[x][_k_+1] + Ystate_T + 1;                                                    \
+                  /* motifs pos (if correct) */                                                            \
+                  int _i_1_ = _r_ - _P_size_ + _u_1_;                                                      \
+                  int _i_2_ = _r_ - _P_size_ + _u_2_;                                                      \
+                  /* motifs elements (jocker if outside) */                                                \
+                  int _s_1_ = ((_i_1_<0) || (_i_1_>=_r_)) ? 0 : motifs[x][_i_1_];                          \
+                  int _s_2_ = ((_i_2_<0) || (_i_2_>=_r_)) ? 0 : motifs[x][_i_2_];                          \
+                  if (weight_seed_alphabet[_s_1_] != weight_seed_alphabet[_s_2_]) { goto non_equiv; }      \
+                }                                                                                          \
+              }                                                                                            \
+            }                                                                                              \
+            /* equiv : exchange _u_2_ and _u_1_ elements */                                                \
+            {                                                                                              \
+              Seed_X_Word u = Ystate_P[_u_2_];                                                             \
+              Ystate_P[_u_2_] = Ystate_P[_u_1_];                                                           \
+              Ystate_P[_u_1_] = u;                                                                         \
+            }                                                                                              \
+          non_equiv:;                                                                                      \
+          }                                                                                                \
+        }                                                                                                  \
+      }                                                                                                    \
+    }                                                                                                      \
   }
 
 /** @brief Simplify the vector by removing residual zeros on the left (this is NOT SO optional)
@@ -3190,7 +3194,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM (const vector<seed *> & s,
                                                                                   const vector<int> weight_seed_alphabet,
-                                                                                  const vector<vector<int> > & matchingmatrix) {
+                                                                                  const vector< vector<int> > & matchingmatrix) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching_CoverageDM == "););
 
@@ -3234,7 +3238,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
 
   // Compute xset_bitsize and L for all seeds
-  vector<vector<int> > L(nb_motifs);
+  vector< vector<int> > L(nb_motifs);
   vector<int> xset_bitsize(nb_motifs,0); // bitsize of the set
   for (int x = 0; x < nb_motifs; x++) {
     L[x] = vector<int>(motifs_span[x]+1,0);
@@ -3253,7 +3257,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
     }
 #ifdef BUILD
     {
-      int xset_size = 1 << xset_bitsize[x];
+      Seed_X_Word xset_size = (Seed_X_Word) 1 << xset_bitsize[x];
       cerr << " xset_size : "     << xset_size << ",\t" <<
         " xset_bitsize : " << xset_bitsize[x] << endl;
     }
@@ -3261,20 +3265,20 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
   }
 
   // 1) Precompute E,F functions
-  vector<vector<vector<int> > > FX(nb_motifs);
-  vector<vector<vector<int> > > Fk(nb_motifs);
-  vector<vector<vector<vector<int> > > > EX(nb_motifs);
-  vector<vector<vector<vector<int> > > > Ek(nb_motifs);
+  vector< vector< vector<Seed_X_Word> > >           FX(nb_motifs);
+  vector< vector< vector<int> > >                   Fk(nb_motifs);
+  vector< vector< vector< vector<Seed_X_Word> > > > EX(nb_motifs);
+  vector< vector< vector< vector<int> > > >         Ek(nb_motifs);
 
 
   for (int x = 0; x < nb_motifs; x++) {
     // for the seed x=$0, gives the full value 'X' after a run of 1^t.a   ;   where t=$1 and a=$2
-    FX[x] = vector<vector<int> >(motifs_span[x]+1,vector<int>(gv_align_alphabet_size,0));
-    Fk[x] = vector<vector<int> >(motifs_span[x]+1,vector<int>(gv_align_alphabet_size,0));
+    FX[x] = vector< vector<Seed_X_Word> >(motifs_span[x]+1,vector<Seed_X_Word>(gv_align_alphabet_size,0));
+    Fk[x] = vector< vector<int> >        (motifs_span[x]+1,vector<int>        (gv_align_alphabet_size,0));
     // F[x][t][a]
     for (int t = 0; t < motifs_span[x]+1; t++) {
       for (int i = 1; i <= xset_bitsize[x] && L[x][i] <= t; i++) {
-        int r = 1 << (i-1);
+        Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
         int b = motifs[x][L[x][i]];
 
         for (int a = 0; a < gv_align_alphabet_size; a++){
@@ -3286,8 +3290,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       }
     }
     // for the seed x=$0, update the (non '#') matching state k of 'X' after a run 1^t.a   ;   where t=$1, k=$2, a=$3
-    EX[x] = vector<vector<vector<int> > >(motifs_span[x]+1, vector<vector<int> >((xset_bitsize[x]+1), vector<int>(gv_align_alphabet_size,0)));
-    Ek[x] = vector<vector<vector<int> > >(motifs_span[x]+1, vector<vector<int> >((xset_bitsize[x]+1), vector<int>(gv_align_alphabet_size,0)));
+    EX[x] = vector< vector< vector <Seed_X_Word> > >(motifs_span[x]+1, vector< vector<Seed_X_Word> >((xset_bitsize[x]+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+    Ek[x] = vector< vector< vector <int> > >        (motifs_span[x]+1, vector< vector<int> >        ((xset_bitsize[x]+1), vector<int>        (gv_align_alphabet_size,0)));
     // E[x][t][k][a]
     for (int i = 1; i <= xset_bitsize[x]; i++) {
       int L_i = L[x][i];
@@ -3305,7 +3309,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
             assert(k>0);
             assert(k<=xset_bitsize[x]);
 #endif
-            EX[x][t][k][a] = 1 << (i-1);
+            EX[x][t][k][a] = (Seed_X_Word) 1 << (i-1);
             Ek[x][t][k][a] = i;
           }
         }
@@ -3326,12 +3330,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
-  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<int>(nb_motifs,0),vector<short>(nb_motifs,0),vector<int>(),0,1));
+  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0),vector<short>(nb_motifs,0),vector<Seed_X_Word>(),0,1));
   selfLoop(Finalstate_I);
 
   // create a second state [1]  : it will be the initial one
   int Initstate_I   = addNewState();
-  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<int>(nb_motifs,0),vector<short>(nb_motifs,0),vector<int>(),0,0);
+  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0),vector<short>(nb_motifs,0),vector<Seed_X_Word>(),0,0);
   statesSeedPrefixesMatchingDMSet.push_back(s_i);
 
   // push it to the Stack and the Map
@@ -3349,15 +3353,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    vector<int>   Xstate_X = SEEDPREFIXESMATCHINGDM_X(Xstate_I);
-    short         Xstate_T = SEEDPREFIXESMATCHINGDM_T(Xstate_I);
-    vector<short> Xstate_K = SEEDPREFIXESMATCHINGDM_K(Xstate_I);
-    vector<int>   Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
-    int       Xstate_final = SEEDPREFIXESMATCHINGDM_FINAL(Xstate_I);
+    vector<Seed_X_Word>   Xstate_X = SEEDPREFIXESMATCHINGDM_X(Xstate_I);
+    short                 Xstate_T = SEEDPREFIXESMATCHINGDM_T(Xstate_I);
+    vector<short>         Xstate_K = SEEDPREFIXESMATCHINGDM_K(Xstate_I);
+    vector<Seed_X_Word>   Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
+    int               Xstate_final = SEEDPREFIXESMATCHINGDM_FINAL(Xstate_I);
 #ifdef ASSERTB
     for (int x = 0; x < nb_motifs; x++) {
       assert(Xstate_X[x] >= 0);
-      assert(Xstate_X[x] < (1 << xset_bitsize[x]));
+      assert(Xstate_X[x] < ((Seed_X_Word) 1 << xset_bitsize[x]));
       assert(Xstate_T >= 0);
       assert(Xstate_T <= max_motifs_span);
       assert(Xstate_K[x] >= 0);
@@ -3390,11 +3394,11 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
       // (B) try to compute Ystate_s (use a "copy" to get the correct size for all allocators + the size "t")
-      SeedPrefixesMatchingDMSet Ystate_s = SeedPrefixesMatchingDMSet(vector<int>(Xstate_X),vector<short>(Xstate_K),vector<int>(Xstate_P),Xstate_T,0);
-      vector<int>             & Ystate_X     = Ystate_s.X;
+      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X),vector<short>(Xstate_K),vector<Seed_X_Word>(Xstate_P),Xstate_T,0);
+      vector<Seed_X_Word>     & Ystate_X     = Ystate_s.X;
       short                   & Ystate_T     = Ystate_s.t;
       vector<short>           & Ystate_K     = Ystate_s.k;
-      vector<int>             & Ystate_P     = Ystate_s.p;
+      vector<Seed_X_Word>     & Ystate_P     = Ystate_s.p;
       int                     & Ystate_final = Ystate_s.final;
 
       if ( a_is_one ) { // (a == match)
@@ -3416,7 +3420,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
             // recompute the full set (local memory here)
             for (int i = 1 ; i <= Xstate_K[x] ; i++) {
               // compute for each maching prefix "i" followed by "1^t.a" ones
-              if ((Xstate_X[x]) & 1 << (i-1)) {
+              if ((Xstate_X[x]) & (Seed_X_Word) 1 << (i-1)) {
                 Ystate_X[x] =      Ystate_X[x] | EX[x][MIN(Xstate_T,motifs_span[x])][i][a];
                 Ystate_K[x] = MAX( Ystate_K[x] , Ek[x][MIN(Xstate_T,motifs_span[x])][i][a]);
 #ifdef BUILD
@@ -3424,7 +3428,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
                 cerr << "\t\t" << "Ystate_X[" << x << "]:"  << Ystate_X[x]  << ",  Ystate_K[" << x << "]:" << Ystate_K[x] << endl;
 #endif
 #ifdef ASSERTB
-                assert(Ystate_X[x] < (1 << xset_bitsize[x]));
+                assert(Ystate_X[x] < ((Seed_X_Word) 1 << xset_bitsize[x]));
                 assert(Ystate_K[x] <= xset_bitsize[x]);
 #endif
               }
@@ -3438,7 +3442,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
           cerr << "\t\t" << "Ystate_X[" << x << "]:" << Ystate_X[x] << ",  Ystate_K[" << x << "]:" << Ystate_K[x] << endl;
 #endif
 #ifdef ASSERTB
-          assert(Ystate_X[x] < (1 << xset_bitsize[x]));
+          assert(Ystate_X[x] < ((Seed_X_Word) 1 << xset_bitsize[x]));
           assert(Ystate_K[x] <= xset_bitsize[x]);
 #endif
         }
@@ -3487,9 +3491,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
             if (Ystate_K[x] > 0) {
               // remove the current maximal bit "1" in X, and find the previous "1" (if any)
               do {
-                Ystate_X[x] &= ~(1 << (Ystate_K[x]-1));
+                Ystate_X[x] &= ~((Seed_X_Word) 1 << (Ystate_K[x]-1));
                 Ystate_K[x]--;
-              } while ((Ystate_K[x] > 0) && !(Ystate_X[x] & (1 << (Ystate_K[x]-1))));
+              } while ((Ystate_K[x] > 0) && !(Ystate_X[x] & ((Seed_X_Word) 1 << (Ystate_K[x]-1))));
             }
           }
           // otherwise this is a "T too long" problem for this seed : its not a problem at the end
@@ -3565,7 +3569,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
         // create it and push it inside the list of states which need update.
         Ystate_I = addNewState(Ystate_final);
         statesNbIndex[Ystate_s] = Ystate_I;
-        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<int>(Ystate_X),vector<short>(Ystate_K),vector<int>(Ystate_P),Ystate_T,Ystate_final));
+        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X),vector<short>(Ystate_K),vector<Seed_X_Word>(Ystate_P),Ystate_T,Ystate_final));
         statesNbRemaining.push(Ystate_I);
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(
@@ -3611,7 +3615,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const seed& s,
-                                                                          const vector<vector<int> > & matchingmatrix,
+                                                                          const vector< vector<int> > & matchingmatrix,
                                                                           const bool nomerge,
                                                                           const vector<int> & costs,
                                                                           const int cost_threshold) {
@@ -3655,7 +3659,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 #ifdef BUILD
   {
-    int xset_size = 1 << xset_bitsize;
+    Seed_X_Word xset_size = (Seed_X_Word) 1 << xset_bitsize;
     cerr << " xset_size :"     << xset_size << ",\t" <<
       " xset_bitsize : " << xset_bitsize << endl;
   }
@@ -3663,15 +3667,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
   // 1) Precompute E,F functions
-  vector< vector<int> > FX(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector< vector<int> > Fk(motif_span+(nomerge?1:0),vector<int>(gv_align_alphabet_size,0));
-  vector< vector< vector<int> > > EX(motif_span+(nomerge?1:0), vector< vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
-  vector< vector< vector<int> > > Ek(motif_span+(nomerge?1:0), vector< vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
+  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>        (gv_align_alphabet_size,0));
+  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >        ((xset_bitsize+1), vector<int>        (gv_align_alphabet_size,0)));
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
     for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
-      int r = 1 << (i-1);
+      Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
       for (int a = 0; a < gv_align_alphabet_size; a++){
@@ -3701,7 +3705,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
           assert(k>0);
           assert(k<=xset_bitsize);
 #endif
-          EX[t][k][a] = 1 << (i-1);
+          EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
           //
         }
@@ -3781,14 +3785,14 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    int Xstate_X      = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
+    Seed_X_Word Xstate_X      = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
     int Xstate_T      = SEEDPREFIXESMATCHINGCOST_T (Xstate_I);
     int Xstate_K      = SEEDPREFIXESMATCHINGCOST_K (Xstate_I);
     int Xstate_cost   = SEEDPREFIXESMATCHINGCOST_COST (Xstate_I);
 
 #ifdef ASSERTB
     assert(Xstate_X >= 0);
-    assert(Xstate_X < (1 << xset_bitsize));
+    assert(Xstate_X < ((Seed_X_Word) 1 << xset_bitsize));
     assert(Xstate_T >= 0);
     assert(Xstate_T < motif_span + (nomerge?1:0));
     assert(Xstate_K >= 0);
@@ -3797,7 +3801,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 #endif
 
     // XPstate : defined as "Xstate" where the maximal matching prefix fails ...
-    int XPstate_I   = SEEDPREFIXESMATCHINGCOST_XP(Xstate_I);
+    int XPstate_I   = SEEDPREFIXESMATCHINGCOST_XP_I(Xstate_I);
 
 #ifdef ASSERTB
     assert(XPstate_I >= 0);
@@ -3827,12 +3831,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 #endif
 
         int YPstate_T   = SEEDPREFIXESMATCHINGCOST_T(YPstate_I);
-        int YPstate_X   = SEEDPREFIXESMATCHINGCOST_X(YPstate_I);
+        Seed_X_Word YPstate_X   = SEEDPREFIXESMATCHINGCOST_X(YPstate_I);
         int YPstate_K   = SEEDPREFIXESMATCHINGCOST_K(YPstate_I);
 
 #ifdef ASSERTB
         assert(YPstate_X >= 0);
-        assert(YPstate_X < (1 << xset_bitsize));
+        assert(YPstate_X < ((Seed_X_Word) 1 << xset_bitsize));
         assert(YPstate_T >= 0);
         assert(YPstate_T < motif_span + (nomerge?1:0));
         assert(YPstate_K >= 0);
@@ -3842,7 +3846,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
         // YPRstate ...value is either -1 if undefined,
         // otherwise >= 0 to indicate the last state created that
         // verifies YPRstate / maximalprefixmatching{YPRstate} = YPstate.
-        int YPRstate_I  = SEEDPREFIXESMATCHINGCOST_REVMAXXP(YPstate_I);
+        int YPRstate_I  = SEEDPREFIXESMATCHINGCOST_REVMAXXP_I(YPstate_I);
 
 #ifdef ASSERTB
         assert(YPRstate_I >= (-1));
@@ -3853,7 +3857,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
         // by default values are given here
         // and will be processed
         int Ystate_I    = Xstate_I;
-        int Ystate_X    = Xstate_X;
+        Seed_X_Word Ystate_X    = Xstate_X;
         int Ystate_T    = Xstate_T;
         int Ystate_K    = Xstate_K;
 
@@ -3903,7 +3907,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
               // NOMERGE : CHECK FINAL STATE
               if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-                assert(YPstate_X ==  (Ystate_X^(1 << (Ystate_K-1))));
+                assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
                 goto Ex0;
               }
@@ -3955,7 +3959,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
             // NOMERGE : CHECK FINAL STATE
             if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-              assert(YPstate_X ==  (Ystate_X^(1 << (Ystate_K-1))));
+              assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
               Ystate_I = YPstate_I;
             } else {
@@ -3995,7 +3999,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
           if (Y_not_there) {
             // create it and push it inside the list of states which need update.
             Ystate_I = addNewState(final);
-            SEEDPREFIXESMATCHINGCOST_REVMAXXP(YPstate_I) = Ystate_I;
+            SEEDPREFIXESMATCHINGCOST_REVMAXXP_I(YPstate_I) = Ystate_I;
             statesSeedPrefixesMatchingCostSet.push_back(SeedPrefixesMatchingCostSet(Ystate_X,Ystate_T,Ystate_K,YPstate_I,0,Ystate_cost));
             statesNbRemaining.push(Ystate_I);
 
@@ -4034,7 +4038,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
 template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
-                                                             const vector<vector<int> > & matchingmatrix,
+                                                             const vector< vector<int> > & matchingmatrix,
                                                              const bool nomerge) {
   // Get the seed span
   int   motif_span  = s.span();
@@ -4145,8 +4149,8 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
 
 
 template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
-                                                           const vector<vector<int> > & matchingmatrix,
-                                                           const vector<vector<int> >  & scoringmatrix,
+                                                           const vector< vector<int> > & matchingmatrix,
+                                                           const vector< vector<int> >  & scoringmatrix,
                                                            const int scoringthreehold,
                                                            const bool nomerge) {
   // Get the seed span
@@ -4287,8 +4291,8 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
 
 
 template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
-                                                               const vector<vector<int> > & matchingmatrix,
-                                                               const vector<vector<int> > & scoringmatrix,
+                                                               const vector< vector<int> > & matchingmatrix,
+                                                               const vector< vector<int> > & scoringmatrix,
                                                                const int scoringthreehold,
                                                                const bool nomerge,
                                                                const vector<int> & costs,
@@ -4703,12 +4707,12 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
 
   int nbStates = this->size();
 
-  vector<int>                   stclass(nbStates);  // class for a given state
-  vector<list<int> >            block(nbStates);    // list of states for a given class
-  vector<list<int>::iterator >  location(nbStates); // pointer to each stat inside the given list
-  vector<int>                   card(nbStates,0);   // cardinality of a given class
-  vector<vector<int> >          SET(nbStates,vector<int>(gv_align_alphabet_size,0)); // stack membership
-  vector<vector<vector<int> > > PREV(nbStates,vector< vector<int> >(gv_align_alphabet_size, vector<int>(0))); // previous state(s) on 'a'
+  vector<int>                     stclass(nbStates);  // class for a given state
+  vector< list<int> >             block(nbStates);    // list of states for a given class
+  vector< list<int>::iterator >   location(nbStates); // pointer to each stat inside the given list
+  vector<int>                     card(nbStates,0);   // cardinality of a given class
+  vector< vector<int> >           SET(nbStates,vector<int>(gv_align_alphabet_size,0)); // stack membership
+  vector< vector< vector<int> > > PREV(nbStates,vector< vector<int> >(gv_align_alphabet_size, vector<int>(0))); // previous state(s) on 'a'
 
   int nbClasses = 0;
 

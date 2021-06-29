@@ -398,7 +398,7 @@ public:
 
   /// destructor for all possibles automata build by this class
   ~automaton() {
-    for (int i = 0 ; i < (int)_states.size() ; i++){
+    for (int i = 0 ; i < (int)_states.size() ; i++) {
       _states[i].clear();
     }
     _states.clear();
@@ -1455,7 +1455,7 @@ public:
                 level_i++;
               }
 
-              if (level_i <= depth ){
+              if (level_i <= depth ) {
 #endif
                 // create a new state
                 stateNx = result->addNewState();
@@ -1658,7 +1658,7 @@ public:
                   level_i++;
                 }
 
-                if (level_i <= depth ){
+                if (level_i <= depth ) {
 #endif
                   // create a new state
                   stateNx = result->addNewRow(final_state);
@@ -2076,7 +2076,7 @@ public:
       double p = (double)rand()/(double)RAND_MAX;
       int q_new = 0,a = 0;
       double psum = 0;
-      for (a = 0; a < gv_align_alphabet_size; a++){
+      for (a = 0; a < gv_align_alphabet_size; a++) {
         for (typename vector<transition<T> >::const_iterator iter = _states[q]._next[a].begin(); iter != _states[q]._next[a].end(); iter++) {
           double pr = double(iter->_prob);
           q_new = iter->_state;
@@ -2266,7 +2266,7 @@ template<typename T> ostream& operator<<(ostream & os, const automaton<T> & au) 
 template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
 
   // clear previous automaton
-  for (int i = 0; i < (int) au._states.size(); i++){
+  for (int i = 0; i < (int) au._states.size(); i++) {
     au._states[i].clear();
   }
   au._states.clear();
@@ -2280,12 +2280,12 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
   }
 
   // add states first
-  for (int i = 0; i < size; i++){
+  for (int i = 0; i < size; i++) {
     au.addNewState();
   }
 
   // read each state
-  for (int i = 0; i < size; i++){
+  for (int i = 0; i < size; i++) {
     int state = 0;
     is >> state;
     if (state != i) {
@@ -2349,8 +2349,8 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
     if (i < motif_span - 1)
       Nextstate_I = addNewState();
 
-    for (int a = 0; a < gv_align_alphabet_size; a++){
-      if (MATCHES_AB(a,b)){
+    for (int a = 0; a < gv_align_alphabet_size; a++) {
+      if (MATCHES_AB(a,b)) {
         addNewTransition(a,Prevstate_I,Nextstate_I);
       } else {
         addNewTransition(a,Prevstate_I,RejectBagstate_I);
@@ -2384,7 +2384,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 #ifdef BUILD
   cout << " motif_span :" << motif_span << ", motif:";
-  for (int i = 0; i < motif_span; i++ )
+  for (int i = 0; i < motif_span; i++)
     cout << motif[i] << " ";
   cout << endl;
 #endif
@@ -2425,8 +2425,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       Seed_X_Word r = 1 << (i-1);
       int b = motif[L[i]];
 
-      for (int a = 0; a < gv_align_alphabet_size; a++){
-        if (MATCHES_AB(a,b)){
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+        if (MATCHES_AB(a,b)) {
           FX[t][a] = (t>0) ? (FX[t-1][a]) | r : r;
           Fk[t][a] = i;
         }
@@ -2828,8 +2828,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
       Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
-      for (int a = 0; a < gv_align_alphabet_size; a++){
-        if (MATCHES_AB(a,b)){
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+        if (MATCHES_AB(a,b)) {
           FX[t][a] = (t>0) ? (FX[t-1][a]) | r : r;
           Fk[t][a] = i;
         }
@@ -2988,7 +2988,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
       //Y : either final state (->0) or "after final state" thus a previous one
       if (Ystate_T + L[Ystate_K] >= motif_span - 1 + (nomerge?1:0)) {
-        if (nomerge){ // final states are not merged and  their transitions are consided as "normal states" :
+        if (nomerge) { // final states are not merged and  their transitions are consided as "normal states" :
           // the only difference is their maximal prefix matching that cannot be extended more that "span"
           if (Ystate_K > 0)
             Ystate_X ^= (Seed_X_Word) 1 << (Ystate_K-1);
@@ -3230,7 +3230,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 #ifdef BUILD
   for (int x = 0; x < nb_motifs; x++) {
     cerr << " motif_span :" << motifs_span[x] << ", motif:";
-    for (int i = 0; i < motifs_span[x]; i++ )
+    for (int i = 0; i < motifs_span[x]; i++)
       cerr << motifs[x][i] << " ";
     cerr << endl;
   }
@@ -3273,16 +3273,16 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   for (int x = 0; x < nb_motifs; x++) {
     // for the seed x=$0, gives the full value 'X' after a run of 1^t.a   ;   where t=$1 and a=$2
-    FX[x] = vector< vector<Seed_X_Word> >(motifs_span[x]+1,vector<Seed_X_Word>(gv_align_alphabet_size,0));
-    Fk[x] = vector< vector<int> >        (motifs_span[x]+1,vector<int>        (gv_align_alphabet_size,0));
+    FX[x] = vector< vector<Seed_X_Word> >(motifs_span[x]+1, vector<Seed_X_Word>(gv_align_alphabet_size,0));
+    Fk[x] = vector< vector<int> >        (motifs_span[x]+1, vector<int>        (gv_align_alphabet_size,0));
     // F[x][t][a]
     for (int t = 0; t < motifs_span[x]+1; t++) {
       for (int i = 1; i <= xset_bitsize[x] && L[x][i] <= t; i++) {
         Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
         int b = motifs[x][L[x][i]];
 
-        for (int a = 0; a < gv_align_alphabet_size; a++){
-          if (MATCHES_AB(a,b)){
+        for (int a = 0; a < gv_align_alphabet_size; a++) {
+          if (MATCHES_AB(a,b)) {
             FX[x][t][a] = (t>0) ? (FX[x][t-1][a]) | r : r;
             Fk[x][t][a] = i;
           }
@@ -3330,12 +3330,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
-  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0),vector<short>(nb_motifs,0),vector<Seed_X_Word>(),0,1));
+  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<Seed_X_Word>(),0,1));
   selfLoop(Finalstate_I);
 
   // create a second state [1]  : it will be the initial one
   int Initstate_I   = addNewState();
-  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0),vector<short>(nb_motifs,0),vector<Seed_X_Word>(),0,0);
+  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<Seed_X_Word>(),0,0);
   statesSeedPrefixesMatchingDMSet.push_back(s_i);
 
   // push it to the Stack and the Map
@@ -3394,7 +3394,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
       // (B) try to compute Ystate_s (use a "copy" to get the correct size for all allocators + the size "t")
-      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X),vector<short>(Xstate_K),vector<Seed_X_Word>(Xstate_P),Xstate_T,0);
+      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X), vector<short>(Xstate_K), vector<Seed_X_Word>(Xstate_P),Xstate_T,0);
       vector<Seed_X_Word>     & Ystate_X     = Ystate_s.X;
       short                   & Ystate_T     = Ystate_s.t;
       vector<short>           & Ystate_K     = Ystate_s.k;
@@ -3569,7 +3569,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
         // create it and push it inside the list of states which need update.
         Ystate_I = addNewState(Ystate_final);
         statesNbIndex[Ystate_s] = Ystate_I;
-        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X),vector<short>(Ystate_K),vector<Seed_X_Word>(Ystate_P),Ystate_T,Ystate_final));
+        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X), vector<short>(Ystate_K), vector<Seed_X_Word>(Ystate_P),Ystate_T,Ystate_final));
         statesNbRemaining.push(Ystate_I);
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(
@@ -3637,7 +3637,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 #ifdef BUILD
   cerr << " motif_span :" << motif_span << ", motif:";
-  for (int i = 0; i < motif_span; i++ )
+  for (int i = 0; i < motif_span; i++)
     cerr << motif[i] << " ";
   cerr << endl;
 #endif
@@ -3678,8 +3678,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
       Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
-      for (int a = 0; a < gv_align_alphabet_size; a++){
-        if (MATCHES_AB(a,b)){
+      for (int a = 0; a < gv_align_alphabet_size; a++) {
+        if (MATCHES_AB(a,b)) {
           FX[t][a] = (t>0) ? (FX[t-1][a]) | r : r;
           Fk[t][a] = i;
         }
@@ -4076,9 +4076,9 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
     int b = motif[i];
 
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      if (MATCHES_AB(a,b)){
+      if (MATCHES_AB(a,b)) {
         int StateX   = 0;
-        if (i < motif_span - 1 || nomerge){
+        if (i < motif_span - 1 || nomerge) {
           StateX = addNewState(final); // add new state
           statesSeedBuhlerSet.push_back(SeedBuhlerSet(0,0,i+1));
           statesNbRemaining.push(StateX);
@@ -4095,7 +4095,7 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
   // init first states
   int  r  = 1;
   SEEDBUHLER_FAIL(r) = r;
-  for (int a = 0; a < SEEDBUHLER_REST(r); a++){
+  for (int a = 0; a < SEEDBUHLER_REST(r); a++) {
     addNewTransition(a,r,SEEDBUHLER_FAIL(r));
 #ifdef ASSERTB
     assert(DETERMINISTIC(r,a));
@@ -4115,8 +4115,8 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
   SEEDBUHLER_REST(0) = 0;
 
   // intermediate states:  BORDER function from Aho-Corasick*/
-  for (int r = 2; r < size(); r++){
-    for (int a = 0; a < SEEDBUHLER_REST(r); a++){
+  for (int r = 2; r < size(); r++) {
+    for (int a = 0; a < SEEDBUHLER_REST(r); a++) {
 #ifdef ASSERTB
       assert(DETERMINISTIC(SEEDBUHLER_FAIL(r),a));
 #endif
@@ -4127,7 +4127,7 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
 #endif
     }
 
-    for (int a = SEEDBUHLER_REST(r); a < gv_align_alphabet_size; a++){
+    for (int a = SEEDBUHLER_REST(r); a < gv_align_alphabet_size; a++) {
 #ifdef ASSERTB
       assert(DETERMINISTIC(r,a));
 #endif
@@ -4172,12 +4172,12 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
   sbs[0] = 0;
 
   // for all suffixes length
-  for (int i = 1; i < motif_span; i++){
+  for (int i = 1; i < motif_span; i++) {
     int b  = motif[motif_span - i];
     int bs = -INT_INFINITY;
     // FIXME : this part can be precomputed out of the function
-    for (int a = 0; a < gv_align_alphabet_size; a++ ) {
-      if (MATCHES_AB(a,b)){
+    for (int a = 0; a < gv_align_alphabet_size; a++) {
+      if (MATCHES_AB(a,b)) {
         bs = MAX(bs,SCORES_AB(a,b));
       }
     }
@@ -4215,8 +4215,8 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
 
     int b = motif[i];
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      if (MATCHES_AB(a,b)){
-        if (SEEDSCORE_SCORE(stateN) + SCORES_AB(a,b) + sbs[motif_span - (i+1)] >= scoringthreehold){
+      if (MATCHES_AB(a,b)) {
+        if (SEEDSCORE_SCORE(stateN) + SCORES_AB(a,b) + sbs[motif_span - (i+1)] >= scoringthreehold) {
           int StateX = 0;
           if ((!nomerge &&  i < motif_span - 1) || (nomerge && i < motif_span)) {
             StateX = addNewState(final);
@@ -4241,7 +4241,7 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
   // init first states
   int  r  = 1;
   SEEDSCORE_FAIL(r) = r;
-  for (int a = 0; a < gv_align_alphabet_size; a++ ) {
+  for (int a = 0; a < gv_align_alphabet_size; a++) {
     if (!hasTransition(a,r)) {
       addNewTransition(a,r,SEEDSCORE_FAIL(r));
     } else {
@@ -4258,8 +4258,8 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
 
 
   // intermediate states:  BORDER function from Aho-Corasick*/
-  for (int r = 2; r < size(); r++){
-    for (int a = 0; a < gv_align_alphabet_size; a++){
+  for (int r = 2; r < size(); r++) {
+    for (int a = 0; a < gv_align_alphabet_size; a++) {
       if (!hasTransition(a,r)) {
 #ifdef ASSERTB
         assert(DETERMINISTIC(SEEDSCORE_FAIL(r),a));
@@ -4317,12 +4317,12 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
   sbs[0] = 0;
 
   // for all suffixes length
-  for (int i = 1; i < motif_span; i++){
+  for (int i = 1; i < motif_span; i++) {
     int b  = motif[motif_span - i];
     int bs = -INT_INFINITY;
     // FIXME : this part can be precomputed out of the function
-    for (int a = 0; a < gv_align_alphabet_size; a++ ) {
-      if (MATCHES_AB(a,b)){
+    for (int a = 0; a < gv_align_alphabet_size; a++) {
+      if (MATCHES_AB(a,b)) {
         bs = MAX(bs,SCORES_AB(a,b));
       }
     }
@@ -4368,11 +4368,11 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
 
     for (int a = 0; a < gv_align_alphabet_size; a++) {
       int cost  = SEEDSCORECOST_COST(stateN) + costs[a];
-      if (MATCHES_AB(a,b)){
+      if (MATCHES_AB(a,b)) {
         if (cost > cost_threshold) {
           addNewTransition(a,stateN,RejectBagstate_I);
         } else {
-          if (SEEDSCORECOST_SCORE(stateN) + SCORES_AB(a,b) + sbs[motif_span - (i+1)] >= scoringthreehold){
+          if (SEEDSCORECOST_SCORE(stateN) + SCORES_AB(a,b) + sbs[motif_span - (i+1)] >= scoringthreehold) {
             int StateX = Finalstate_I;
             if ((!nomerge &&  i < motif_span - 1) || (nomerge && i < motif_span)) {
               StateX = addNewState(final);
@@ -4398,7 +4398,7 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
   // init first states
   int  r  = 1;
   SEEDSCORECOST_FAIL(r) = r;
-  for (int a = 0; a < gv_align_alphabet_size; a++ ) {
+  for (int a = 0; a < gv_align_alphabet_size; a++) {
     if (!hasTransition(a,r)) {
       addNewTransition(a,r,SEEDSCORECOST_FAIL(r));
     } else {
@@ -4415,8 +4415,8 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
 
 
   // intermediate states:  BORDER function from Aho-Corasick*/
-  for (int r = 2; r < size(); r++){
-    for (int a = 0; a < gv_align_alphabet_size; a++){
+  for (int r = 2; r < size(); r++) {
+    for (int a = 0; a < gv_align_alphabet_size; a++) {
       if (!hasTransition(a,r)) {
 #ifdef ASSERTB
         assert(DETERMINISTIC(SEEDSCORECOST_FAIL(r),a));
@@ -4552,7 +4552,7 @@ template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> &
   }
 
   // set the vector statesOfScores[2][currentscore][lastmaxscore]
-  vector< vector< vector<int> > > statesOfScore = vector< vector< vector <int> > > ( 2, vector< vector <int>  > (Maxscore*(length-1)+1,vector<int>(0)));
+  vector< vector< vector<int> > > statesOfScore = vector< vector< vector <int> > > ( 2, vector< vector <int>  > (Maxscore*(length-1)+1, vector<int>(0)));
   for (int currentscore = 0;  currentscore < Maxscore*(length-1)+1;  currentscore++) {
     statesOfScore[0][currentscore] = vector<int>(Maxscore*(length-1)+1-currentscore,0);
     statesOfScore[1][currentscore] = vector<int>(Maxscore*(length-1)+1-currentscore,0);
@@ -4567,11 +4567,11 @@ template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> &
   // insert the first state in the table
   statesOfScore[0][0][0] = stateInit;
 
-  for (int l = 0; l < length; l++ ) {
+  for (int l = 0; l < length; l++) {
     vector< vector<int> > & statesFrom =  statesOfScore[l%2];
     vector< vector<int> > & statesTo   =  statesOfScore[(l+1)%2];
-    for (int currentscore = 0; currentscore <= Maxscore*l; currentscore++ ) {
-      for (int lastreachedscore = 0; lastreachedscore <= Maxscore*l - currentscore; lastreachedscore++ ) {
+    for (int currentscore = 0; currentscore <= Maxscore*l; currentscore++) {
+      for (int lastreachedscore = 0; lastreachedscore <= Maxscore*l - currentscore; lastreachedscore++) {
         int stateFrom = statesFrom[currentscore][lastreachedscore];
         if ( stateFrom > 0 ) {
           for (int a = 0; a < gv_align_alphabet_size; a++) {
@@ -4711,8 +4711,8 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
   vector< list<int> >             block(nbStates);    // list of states for a given class
   vector< list<int>::iterator >   location(nbStates); // pointer to each stat inside the given list
   vector<int>                     card(nbStates,0);   // cardinality of a given class
-  vector< vector<int> >           SET(nbStates,vector<int>(gv_align_alphabet_size,0)); // stack membership
-  vector< vector< vector<int> > > PREV(nbStates,vector< vector<int> >(gv_align_alphabet_size, vector<int>(0))); // previous state(s) on 'a'
+  vector< vector<int> >           SET(nbStates, vector<int>(gv_align_alphabet_size,0)); // stack membership
+  vector< vector< vector<int> > > PREV(nbStates, vector< vector<int> >(gv_align_alphabet_size, vector<int>(0))); // previous state(s) on 'a'
 
   int nbClasses = 0;
 
@@ -4757,7 +4757,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
       for (typename vector<transition<T> >::const_iterator
              iter  = _states[i]._next[a].begin();
            iter != _states[i]._next[a].end();
-           iter ++ ) {
+           iter ++) {
         PREV[iter->_state][a].push_back(i);
       }
   }
@@ -4803,14 +4803,14 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
     // for each state in (P)
     for (list<int>::iterator iter_Plist  = Plist.begin();
          iter_Plist != Plist.end();
-         iter_Plist ++ ) {
+         iter_Plist ++) {
 
       int Pstate = *iter_Plist;
 
       // for each predecessor *--a-->(P)
       for (vector<int>::iterator iter_Pstate_list_a_inv  = PREV[Pstate][a].begin();
            iter_Pstate_list_a_inv != PREV[Pstate][a].end();
-           iter_Pstate_list_a_inv ++ ) {
+           iter_Pstate_list_a_inv ++) {
 
         int Pstate_a_inv = *iter_Pstate_list_a_inv;
         int b = stclass[Pstate_a_inv];
@@ -4827,7 +4827,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
     // (2.b) foreach a-1(P) state
     for (list<int>::iterator i  = Plist_a_inv.begin();
          i != Plist_a_inv.end();
-         i++){
+         i++) {
       int Pstate_a_inv = *i;
       int b            = stclass[Pstate_a_inv];
       // if b is refined by a-1(P)
@@ -4988,14 +4988,14 @@ template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) co
   vector<T> v1(size(),Zero<T>());
 
   // Prev
-  vector< vector< vector<transition<T> > > > PREV(size(),vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(0)));
+  vector< vector< vector<transition<T> > > > PREV(size(), vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(0)));
   for (int i = 0; i < size(); i++) {
     for (int a = 0; a < gv_align_alphabet_size; a++)
       for (
            typename vector<transition<T> >::const_iterator
              iter  = _states[i]._next[a].begin();
            iter != _states[i]._next[a].end();
-           iter ++ ) {
+           iter ++) {
         PREV[iter->_state][a].push_back(transition<T>(i,iter->_prob));
       }
   }
@@ -5005,7 +5005,7 @@ template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) co
 
   // compute probability at step i provided probabilities at step i-1
   for (int k = 0; k < nbSteps; k++) {
-    if (k&1){
+    if (k&1) {
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
         T val = Zero<T>();
         for (int a = 0; a < gv_align_alphabet_size; a++) {
@@ -5065,13 +5065,13 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
   vector< vector<T> > v1 = vector< vector<T> > (size(), vector<T>(cost_threshold+2,Zero<T>()));
 
   // Prev
-  vector< vector< vector<transition<T> > > > PREV(size(),vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(Zero<T>())));
+  vector< vector< vector<transition<T> > > > PREV(size(), vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(Zero<T>())));
   for (int i = 0; i < size(); i++) {
     for (int a = 0; a < gv_align_alphabet_size; a++)
       for (typename vector<transition<T> >::const_iterator
              iter  = _states[i]._next[a].begin();
            iter != _states[i]._next[a].end();
-           iter ++ ) {
+           iter ++) {
         PREV[iter->_state][a].push_back(transition<T>(i,iter->_prob));
       }
   }
@@ -5081,7 +5081,7 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
 
   // compute probability at step i provided probabilities at step i-1
   for (int i= 0; i < nbSteps; i++) {
-    if (i&1){
+    if (i&1) {
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
         for (int k = 0;k<=cost_threshold;k++)
           v1[nbstate][k] = Zero<T>();

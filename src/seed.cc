@@ -248,6 +248,7 @@ void seed::reorder(int first_pos,int b) {
 /* Generate the next seed
  */
 int seed::next() {
+
   /* A) positions move first */
   if ( _seedCyclePos_int ) {
     int i = _seedNbCyclePos - 1;
@@ -271,8 +272,7 @@ int seed::next() {
 
  nextseed:
   /* B) seed move second */
-  if (gv_signature_flag) {
-
+  if (gv_signature_flag || gv_signature_shuffle_from_m_pattern_flag) {
   start_sign:
     /* 1) non trivial signature enumeration */
     for (int b = 1; b < gv_seed_alphabet_size; b++ ){
@@ -306,7 +306,12 @@ int seed::next() {
         return 1;
       }
     }
-
+    // end of the shuffle seed
+    if (gv_signature_shuffle_from_m_pattern_flag) {
+      //reorder elements b and <b after this swap position
+      reorder(0,gv_seed_alphabet_size-1);
+      return 0;
+    }
     // span changing
     if (_span < gv_maxspan) {
       _span ++;
@@ -360,7 +365,18 @@ int seed::next() {
 int seed::random(){
 
   /* A) select the seed shape */
-  if (gv_signature_flag) {
+  if (gv_signature_shuffle_from_m_pattern_flag) {
+  swap_shuffle:
+    for (int i = 0; i < _span; i++){
+      int j = rand()%_span;
+      int letter_tmp    = _seedMotif_int[i];
+      _seedMotif_int[i] = _seedMotif_int[j];
+      _seedMotif_int[j] = letter_tmp;
+    }
+    while(!acceptable())
+      goto swap_shuffle; /* FIXME : can loop infinitely if a bad signature is given on -m */
+
+  } else if (gv_signature_flag) {
 
     /* 1) signature random generation */
     // check signature

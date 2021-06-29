@@ -2171,7 +2171,7 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
       {
         int u;
         // normalize sets by their binomial weight
-        for (u = 0 ; u <= gv_alignment_length; u++) {
+        for (u = 0; u <= gv_alignment_length; u++) {
 #ifdef USEINFINT
           y_sum[u] = binomial_weight[gv_alignment_length][u] *  y[u];
           y2_sum[u] = binomial_weight[gv_alignment_length][u] * y2[u];
@@ -2190,7 +2190,7 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         }
 
         // overlap counts
-        for (u = gv_alignment_length; u > 0 ; u--) {
+        for (u = gv_alignment_length; u > 0; u--) {
           y_sum[u-1] =  y_sum[u-1] +  y_sum[u];
           y2_sum[u-1] = y2_sum[u-1] + y2_sum[u];
           p_sum[u-1] =  p_sum[u-1] +  p_sum[u];
@@ -2465,7 +2465,7 @@ public:
  *   @return the comparison value (e1 < e2)
  */
 bool operator<(const seedproperties & e1, const seedproperties & e2) {
-  return (e1.sel < e2.sel) || ((e1.sel == e2.sel) && (!(e1.lossless) && e2.lossless)) || ((e1.sel == e2.sel) && (e1.lossless == e2.lossless) && (e1.sens < e2.sens)) ;
+  return (e1.sel < e2.sel) || ((e1.sel == e2.sel) && (!(e1.lossless) && e2.lossless)) || ((e1.sel == e2.sel) && (e1.lossless == e2.lossless) && (e1.sens < e2.sens));
 }
 
 
@@ -3652,9 +3652,9 @@ int main(int argc, char * argv[]) {
           seed_index_start = (seed_to_hillclimbing + gv_seeds.size() - 1) % gv_seeds.size();
         else
           seed_index_start = gv_seeds.size()-1;
-        for (unsigned i = seed_index_start , j = 0 ; j < gv_seeds.size(); i += gv_seeds.size() - 1 , i %= gv_seeds.size(), j++) {
+        for (unsigned i = seed_index_start , j = 0; j < gv_seeds.size(); i += gv_seeds.size() - 1 , i %= gv_seeds.size(), j++) {
           // search the seed
-          for (int v = 0; v <= last_product_index ; v++) {
+          for (int v = 0; v <= last_product_index; v++) {
             if (a_s_product_seed[v] == (int) i)
               goto seed_found;
           }

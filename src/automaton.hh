@@ -398,7 +398,7 @@ public:
 
   /// destructor for all possibles automata build by this class
   ~automaton() {
-    for (int i = 0 ; i < (int)_states.size() ; i++) {
+    for (int i = 0; i < (int)_states.size(); i++) {
       _states[i].clear();
     }
     _states.clear();
@@ -556,7 +556,7 @@ public:
           return false;
 
       /* then compare "k" size first */
-      for (unsigned x = 0 ; x < lhs.k.size() ; x++) {
+      for (unsigned x = 0; x < lhs.k.size(); x++) {
         if (lhs.k[x] < rhs.k[x]) {
           return true;
         } else {
@@ -567,7 +567,7 @@ public:
       }
 
       /* then go to "X" details */
-      for (unsigned x = 0 ; x < lhs.k.size() ; x++) {
+      for (unsigned x = 0; x < lhs.k.size(); x++) {
         if (lhs.X[x] < rhs.X[x]) {
           return true;
         } else {
@@ -584,7 +584,7 @@ public:
           return false;
 
       /* then compare "P" elements */
-      for (unsigned i = 0 ; i < lhs.p.size() ; i++) {
+      for (unsigned i = 0; i < lhs.p.size(); i++) {
         if (lhs.p[i] < rhs.p[i]) {
           return true;
         } else {
@@ -3066,7 +3066,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
       /* (1.a) lower "t" part */                                        \
       int _t_max_ = MIN(Ystate_T, motifs_span[x]);                      \
       for (int _t_ = 1; _t_ <= _t_max_; _t_++) {                        \
-        for (int _u_ = MAX(0, _t_ - _P_size) ; _u_ < _t_; _u_++) {      \
+        for (int _u_ = MAX(0, _t_ - _P_size); _u_ < _t_; _u_++) {       \
           P_reachable[_P_size - _t_ + _u_] =                            \
             MAX(weight_seed_alphabet[motifs[x][_u_]],                   \
                 P_reachable[_P_size - _t_ + _u_]);                      \
@@ -3173,7 +3173,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
  */
 #define FINAL_COUNT_AND_SET_COVERAGEDM(Ystate_P,Ystate_final,x) {       \
     int _i_ = motifs_span[x]-1, _j_ = Ystate_P.size()-1;                \
-    for (; (_i_ >= 0) && (_j_ >= 0) ; _i_--, _j_--) {                   \
+    for (; (_i_ >= 0) && (_j_ >= 0); _i_--, _j_--) {                    \
       int _u_ = weight_seed_alphabet[motifs[x][_i_]] - Ystate_P[_j_];   \
       if (_u_ > 0) {                                                    \
         Ystate_final += _u_;                                            \
@@ -3418,7 +3418,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
           // (B.2.1) if prefixes from X_state already matches
           if (Xstate_K[x] > 0) {
             // recompute the full set (local memory here)
-            for (int i = 1 ; i <= Xstate_K[x] ; i++) {
+            for (int i = 1; i <= Xstate_K[x]; i++) {
               // compute for each maching prefix "i" followed by "1^t.a" ones
               if ((Xstate_X[x]) & (Seed_X_Word) 1 << (i-1)) {
                 Ystate_X[x] =      Ystate_X[x] | EX[x][MIN(Xstate_T,motifs_span[x])][i][a];

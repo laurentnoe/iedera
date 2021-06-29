@@ -27,7 +27,7 @@ deploy:
   api_key:
     - secure: "eS0Q2bRKM4SgtXvZSKYd7Kh8EASN4xg3Ne5/4XWvbYkJsHX7y/WdkmxsKlUfHhh4PnWSz/DmXHg6RWAtjajKs+fuHhbBo+3SKJ3NkrsaUMUgeP09QwX8CyOz4dr6ZzAHTtwdVHdMN/xRqkOn+brBg4S4IGYgOKc3WsDB1ED0Y8G4Htq9w1ItSgarx7NbSRMDzTebr40AGZuPxl4ghoryRCLYvNiq1c6AEuw69yvXJwHT+yOzbxu/ZA6u3y/gEP77d8M3cH/iswYkae0N7oKqqfmMN8xU3RVKemKhrfPI4AXdrjRnojNOAmfe4oDLguSCzzK4Qhp1TQ8ntulAzk+gkxWTgINc+pXibW9TzmdwG6nNv9F1+cbuqMtWLO6QDhr5s4wUsfDTX62S8qiysunfwg0CiqTnxmGj4a+sN1uVnDr0uk7jHeDN5Fxm3uv6r1q8YjNp5lPrJHblAgIsFpG/xUmR6WJLOXiFGySD5NrYRBE6K1Nrgwx5b/eYdEnAcguc1THTVm10UFr8kU7iCFCj94CbcfdA7L0EieHToeId1R55E8LnNxxa6dOs/cb7i8rBhJXSLNt6n2n27JjrD+GVsV1n9WZ1iSz14L3b4bAU7MYsNjceK+nloRt0NOhld4bDL6Eo18mDccsNv54wjl1eV5s8IRuvBEi6NAsd210Elc8="
   file_glob: true
-  skip_cleanup: true
+  cleanup: false
   draft: true
   prerelease: true
   file: "src/iedera"

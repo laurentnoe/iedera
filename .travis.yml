@@ -3,7 +3,7 @@ notifications:
 
 language: cpp
 
-matrix:
+jobs:
   include:
   - os: linux
     dist: trusty

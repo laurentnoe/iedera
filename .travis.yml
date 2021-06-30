@@ -1,39 +1,43 @@
 notifications:
   email: false
-
 language: cpp
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      compiler: gcc
-    - os: linux
-      dist: trusty
-      compiler: clang
-    - os: osx
-      osx_image: xcode12
-
+  - os: linux
+    dist: trusty
+    compiler: gcc
+  - os: linux
+    dist: trusty
+    compiler: clang
+  - os: osx
+    osx_image: xcode12
 script:
-  - autoreconf && ./configure && automake && make && make check
-
+- autoreconf && ./configure && automake && make && make check
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CODECOV_TOKEN="67db6772-c679-450c-9d22-63bee0f59408"; fi
-
+- openssl aes-256-cbc -K $encrypted_da265dd071ca_key -iv $encrypted_da265dd071ca_iv
+  -in github_deploy_key.enc -out ../github_deploy_key -d
+- openssl aes-256-cbc  -K $encrypted_xxxxxxxxxxxx_key  -iv $encrypted_xxxxxxxxxxxx_iv  -in
+  github_deploy_key.enc  -out github_deploy_key  -d
+- chmod 600 github_deploy_key
+- eval $(ssh-agent -s)
+- ssh-add github_deploy_key
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CODECOV_TOKEN="67db6772-c679-450c-9d22-63bee0f59408";
+  fi
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [[ "$CC" == "gcc" ]]; then bash <(curl -s https://codecov.io/bash); fi; fi
-
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [[ "$CC" == "gcc" ]]; then bash <(curl
+  -s https://codecov.io/bash); fi; fi
 deploy:
   provider: releases
   api_key:
-    - secure: "eS0Q2bRKM4SgtXvZSKYd7Kh8EASN4xg3Ne5/4XWvbYkJsHX7y/WdkmxsKlUfHhh4PnWSz/DmXHg6RWAtjajKs+fuHhbBo+3SKJ3NkrsaUMUgeP09QwX8CyOz4dr6ZzAHTtwdVHdMN/xRqkOn+brBg4S4IGYgOKc3WsDB1ED0Y8G4Htq9w1ItSgarx7NbSRMDzTebr40AGZuPxl4ghoryRCLYvNiq1c6AEuw69yvXJwHT+yOzbxu/ZA6u3y/gEP77d8M3cH/iswYkae0N7oKqqfmMN8xU3RVKemKhrfPI4AXdrjRnojNOAmfe4oDLguSCzzK4Qhp1TQ8ntulAzk+gkxWTgINc+pXibW9TzmdwG6nNv9F1+cbuqMtWLO6QDhr5s4wUsfDTX62S8qiysunfwg0CiqTnxmGj4a+sN1uVnDr0uk7jHeDN5Fxm3uv6r1q8YjNp5lPrJHblAgIsFpG/xUmR6WJLOXiFGySD5NrYRBE6K1Nrgwx5b/eYdEnAcguc1THTVm10UFr8kU7iCFCj94CbcfdA7L0EieHToeId1R55E8LnNxxa6dOs/cb7i8rBhJXSLNt6n2n27JjrD+GVsV1n9WZ1iSz14L3b4bAU7MYsNjceK+nloRt0NOhld4bDL6Eo18mDccsNv54wjl1eV5s8IRuvBEi6NAsd210Elc8="
+  - secure: UfiKQNbYlhUlP7d/h/5D1/WSq8BYwjqYuKJnSSY2NSCG3pMHc9l/9TuEOCB+9DEkNxox1ZZlOM353IMTJqPIcuPDKgWMUiyUf3kocnxfv2DIHTsc4N4w3dfjVbrUrPG05mP5rv/iXdDGNiYg2TSJnE+Tvd918gMwCCiJjVBp6zFp78K+3lab+0OG9En48qySCc1D6CFmn+A4TlAUBC3iRuLv3MaaONGWURKVHuLwGaggQhtdGi4f0F+RYK+3SbyVx9+OG3K/C0j1hhvkxFkm8b9TcCrZgcL38FXUkyBCQo7EbybJMQzQIdR4DtOjWrou5Xi5vhlzNTsB9nsRKFv5vDowVbsHPVL47VMBApAssowBIuhE5uw/boUDgCVUd1l0hfjuGoExD2XjOOXCx7w1O61Mrf7r4EFw4e6YooWA7pSxKdNsFjmgvW2LL9YKKscObWOenbZraSZlr2NB9NKfvc42s7vNzC63j61VXqFXqA8XBRVraZ75tBnQM61M73FnpOO4ezQnNib5kK5Y52CxnP8yGfhAhXitRthfaUJiaER7bYsjpd/VP+/EozfxbmqCO/GPl1yybrBpAJAq0vL+okWjS0+7+GWNQ/4hRt22K2GYCo8tkqIgiR5yqy0DTRR+V1Ga+cRmsqOw6ppkShpqr8JNEqKhtIMRnQFr7l5YF4Q=
   file_glob: true
   cleanup: false
   skip_cleanup: true
   draft: true
   prerelease: true
-  file: "src/iedera"
+  file: src/iedera
   name: "${TRAVIS_TAG}"
-  body: "Mac OS X and Windows 64 binaries"
+  body: Mac OS X and Windows 64 binaries
   overwrite: true
   on:
     tags: true

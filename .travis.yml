@@ -27,11 +27,11 @@ after_success:
 
 deploy:
   provider: releases
+  edge: true
   token:
     secure: "m7Xa4F9FENzCFRPFx0ISD711gRUYucIIS4LapmDRlT0RcjXSa0wI3JNak+Xtp930RJwfWLvx1p2+VLEnnJS4KHwrKAEl3duObqfO8r4RdvGVOgDVCXkMRZEB5wVLXVGUFI7llgLgrD4vv3w9/U6JNyupUV6anN2oVrMA2itc86PDw0SoNUBOOu3b1PMpynxqphlIL3U/hPvP3SjSw6KlKOKUE3dFB9NHsX95uS8bGGT+A+yEFt5EGV2Adrwr2PDUpNSy6Pa3iF8SMpBuOH3qOTcqNqmPcI/wXW+ENL54JMV9pPqYEaNMooAF8FgI/LhR1kNkTz2QX5EwptF3JCfLc8NlSqza7JIgrItHQP6kxFmNTASrI26nN3MG5neWcD3wjYkO7chebpT8eKskvoqeluANi2xCNcRh8R4cWh8cw0DK0JgVQrLWmmhBBsX+eD+M1DoUt0AeSQ+WZBrL/Md0Tt+14Pm6hsGg38D7MIF8dYTNAe2TP4eoHVDV6v9TtU1my4id1TnPWKM7BdPCwjCVDCvHybtLv58AhM+r0IJNp3Jshy9Nl3kYK15sxBKnyPmtnfSa/t2cr7DtKCO9oy1akJadP24MJfxp0giqU3gTkyrGW5KxkBvU7UvlJ/6upqXtFUnPeosbsRU/GyOCvd1I2A5lbvkPhzkwQ3dApVZVl88="
   file_glob: true
   cleanup: false
-  skip_cleanup: true
   draft: true
   prerelease: true
   file: src/iedera

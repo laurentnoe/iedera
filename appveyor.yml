@@ -26,7 +26,7 @@ deploy:
   description: 'Mac OS X and Windows 64 binaries'
   release: ${APPVEYOR_REPO_TAG_NAME}
   auth_token:
-    secure: tHdOZd4WuISqvOGoP2UQQMH98teawtdSIZikUbanK4/06NzgINRT6LspbH1pdme3
+    secure: a+NmYFzXxPCFefjxKpbBxgRjCUJTVBpQkPOyWV3/qXgp5/CB533quFGZh3j+3XOT
   artifact: /iedera.exe/
   draft: true
   prerelease: true

@@ -1,2 +1,10 @@
 codecov:
   disable_default_path_fixes: false
+  range: 60..80
+  round: down
+  precision: 0
+  status:
+    project:
+      default:
+         target: auto
+	 threshold: 5%

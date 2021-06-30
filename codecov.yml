@@ -5,3 +5,8 @@ coverage:
   range: 60..80
   round: down
   precision: 0
+
+  status:
+    project: no
+    patch: yes
+    changes: no

@@ -11,7 +11,7 @@
     :target: https://codecov.io/gh/laurentnoe/iedera
     :alt: Coverage
 
-.. image:: https://img.shields.io/website-up-down-green-red/http/bioinfo.cristal.univ-lille.fr.svg?style=flat-square&label=Website
+.. image:: https://img.shields.io/website.svg?style=flat-square&label=Website&url=https%3A%2F%2Fbioinfo.cristal.univ-lille.fr
     :target: https://bioinfo.cristal.univ-lille.fr/yass/iedera.php
     :alt: Website
 

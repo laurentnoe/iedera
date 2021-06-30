@@ -36,7 +36,7 @@ deploy:
   prerelease: true
   file: src/iedera
   name: "${TRAVIS_TAG}"
-  body: Mac OS X and Windows 64 binaries
+  release_notes: Mac OS X and Windows 64 binaries
   overwrite: true
   on:
     tags: true

@@ -521,17 +521,17 @@ public:
      *  this vector can be "padded right" by run of '0' (uncovered),
      *  but "padded left" run of '0' must be removed.
      */
-    vector<Seed_X_Word> p;
+    vector<int> p;
 
     /// final state value (here can be 0 or any coverage value > 0)
     int final;
 
     /** @brief build a SeedPrefixesMatchingSet
      */
-    SeedPrefixesMatchingDMSet(vector<Seed_X_Word> X,  vector<short> k, vector<Seed_X_Word> p, short t, int final) : t(t), final(final) {
+    SeedPrefixesMatchingDMSet(vector<Seed_X_Word> X,  vector<short> k, vector<int> p, short t, int final) : t(t), final(final) {
       this->X = vector<Seed_X_Word>(X);
       this->k = vector<short>(k);
-      this->p = vector<Seed_X_Word>(p);
+      this->p = vector<int>(p);
     };
 
     /** @brief clear a SeedPrefixesMatchingSet
@@ -3060,8 +3060,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
  *  already be counted before) it can be erased.
  */
 #define NORMALIZE_COVERAGEDM() {                                        \
-    Seed_X_Word _P_size = Ystate_P.size();                              \
-    vector<Seed_X_Word> P_reachable(_P_size,0);                         \
+    int _P_size = Ystate_P.size();                                      \
+    vector<int> P_reachable(_P_size,0);                                 \
     for (int x = 0; x < nb_motifs; x++) {                               \
       /* (1.a) lower "t" part */                                        \
       int _t_max_ = MIN(Ystate_T, motifs_span[x]);                      \
@@ -3141,7 +3141,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
             }                                                                                              \
             /* equiv : exchange _u_2_ and _u_1_ elements */                                                \
             {                                                                                              \
-              Seed_X_Word u = Ystate_P[_u_2_];                                                             \
+              int u = Ystate_P[_u_2_];                                                                     \
               Ystate_P[_u_2_] = Ystate_P[_u_1_];                                                           \
               Ystate_P[_u_1_] = u;                                                                         \
             }                                                                                              \
@@ -3330,12 +3330,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
-  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<Seed_X_Word>(),0,1));
+  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<int>(),0,1));
   selfLoop(Finalstate_I);
 
   // create a second state [1]  : it will be the initial one
   int Initstate_I   = addNewState();
-  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<Seed_X_Word>(),0,0);
+  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<int>(),0,0);
   statesSeedPrefixesMatchingDMSet.push_back(s_i);
 
   // push it to the Stack and the Map
@@ -3356,7 +3356,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
     vector<Seed_X_Word>   Xstate_X = SEEDPREFIXESMATCHINGDM_X(Xstate_I);
     short                 Xstate_T = SEEDPREFIXESMATCHINGDM_T(Xstate_I);
     vector<short>         Xstate_K = SEEDPREFIXESMATCHINGDM_K(Xstate_I);
-    vector<Seed_X_Word>   Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
+    vector<int>           Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
     int               Xstate_final = SEEDPREFIXESMATCHINGDM_FINAL(Xstate_I);
 #ifdef ASSERTB
     for (int x = 0; x < nb_motifs; x++) {
@@ -3394,11 +3394,11 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
       // (B) try to compute Ystate_s (use a "copy" to get the correct size for all allocators + the size "t")
-      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X), vector<short>(Xstate_K), vector<Seed_X_Word>(Xstate_P),Xstate_T,0);
+      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X), vector<short>(Xstate_K), vector<int>(Xstate_P),Xstate_T,0);
       vector<Seed_X_Word>     & Ystate_X     = Ystate_s.X;
       short                   & Ystate_T     = Ystate_s.t;
       vector<short>           & Ystate_K     = Ystate_s.k;
-      vector<Seed_X_Word>     & Ystate_P     = Ystate_s.p;
+      vector<int>             & Ystate_P     = Ystate_s.p;
       int                     & Ystate_final = Ystate_s.final;
 
       if ( a_is_one ) { // (a == match)
@@ -3569,7 +3569,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
         // create it and push it inside the list of states which need update.
         Ystate_I = addNewState(Ystate_final);
         statesNbIndex[Ystate_s] = Ystate_I;
-        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X), vector<short>(Ystate_K), vector<Seed_X_Word>(Ystate_P),Ystate_T,Ystate_final));
+        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X), vector<short>(Ystate_K), vector<int>(Ystate_P),Ystate_T,Ystate_final));
         statesNbRemaining.push(Ystate_I);
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(
@@ -3785,8 +3785,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    Seed_X_Word Xstate_X      = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
-    int Xstate_T      = SEEDPREFIXESMATCHINGCOST_T (Xstate_I);
+    Seed_X_Word Xstate_X  = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
+    int Xstate_T          = SEEDPREFIXESMATCHINGCOST_T (Xstate_I);
     int Xstate_K      = SEEDPREFIXESMATCHINGCOST_K (Xstate_I);
     int Xstate_cost   = SEEDPREFIXESMATCHINGCOST_COST (Xstate_I);
 

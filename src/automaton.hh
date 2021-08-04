@@ -2397,6 +2397,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
   for (int i = 0; i < motif_span; i++) {
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
       xset_bitsize++;
+      if (xset_bitsize >= 8*sizeof(Seed_X_Word) - 1) {
+        _ERROR("SeedPrefixesMatching","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
+      }
       L[xset_bitsize] = i;
 #ifdef BUILD
       cout << " L[" << xset_bitsize << "] : " <<  L[xset_bitsize] << endl;
@@ -2796,6 +2799,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   for (int i = 0; i<motif_span; i++) {
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
       xset_bitsize++;
+      if (xset_bitsize >= 8*sizeof(Seed_X_Word) - 1) {
+        _ERROR("Automaton_SeedPrefixesMatching_old","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
+      }
       L[xset_bitsize] = i;
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(" L[" << xset_bitsize << "] : " <<  L[xset_bitsize] << endl;););
     }
@@ -3249,6 +3255,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
     for (int i = 0; i < motifs_span[x]; i++) {
       if (motifs[x][i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
         xset_bitsize[x]++;
+        if (xset_bitsize[x] >= 8*sizeof(Seed_X_Word) - 1) {
+          _ERROR("Automaton_SeedPrefixesMatching_CoverageDM","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
+        }
         L[x][xset_bitsize[x]] = i;
 #ifdef BUILD
         cerr << " L[" << xset_bitsize[x] << "] : " << L[x][xset_bitsize[x]] << endl;
@@ -3650,6 +3659,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
   for (int i = 0; i < motif_span; i++) {
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
       xset_bitsize++;
+      if (xset_bitsize >= 8*sizeof(Seed_X_Word) - 1) {
+        _ERROR("Automaton_SeedPrefixesMatchingCost","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
+      }
       L[xset_bitsize] = i;
 #ifdef BUILD
       cerr << " L[" << xset_bitsize << "] : " << L[xset_bitsize] << endl;

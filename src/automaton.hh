@@ -2525,8 +2525,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 #endif
 
     Seed_X_Word Xstate_X = SEEDPREFIXESMATCHING_X (Xstate_I);
-    int Xstate_T         = SEEDPREFIXESMATCHING_T (Xstate_I);
-    int Xstate_K         = SEEDPREFIXESMATCHING_K (Xstate_I);
+    int         Xstate_T = SEEDPREFIXESMATCHING_T (Xstate_I);
+    int         Xstate_K = SEEDPREFIXESMATCHING_K (Xstate_I);
 
 #ifdef ASSERTB
     assert(Xstate_X >= 0);
@@ -2563,9 +2563,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       assert(YPstate_I < (int)_states.size());
 #endif
 
-      int YPstate_T          = SEEDPREFIXESMATCHING_T(YPstate_I);
+      int         YPstate_T  = SEEDPREFIXESMATCHING_T(YPstate_I);
       Seed_X_Word YPstate_X  = SEEDPREFIXESMATCHING_X(YPstate_I);
-      int YPstate_K          = SEEDPREFIXESMATCHING_K(YPstate_I);
+      int         YPstate_K  = SEEDPREFIXESMATCHING_K(YPstate_I);
 
 #ifdef ASSERTB
       assert(YPstate_X >= 0);
@@ -2589,10 +2589,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
       // Ystate_I : next state according to letter "a"
       // by default values are given here
       // and will be processed
-      int Ystate_I         = Xstate_I;
+      int         Ystate_I = Xstate_I;
       Seed_X_Word Ystate_X = Xstate_X;
-      int Ystate_T         = Xstate_T;
-      int Ystate_K         = Xstate_K;
+      int         Ystate_T = Xstate_T;
+      int         Ystate_K = Xstate_K;
 
       // (a == match)
       if ( a == (gv_align_alphabet_size - (gv_matching_symbol_flag?1:0))) {
@@ -2903,8 +2903,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
     assert(Xstate_I <  (int)_states.size());
 #endif
     Seed_X_Word Xstate_X = SEEDPREFIXESMATCHING_OLD_X(Xstate_I);
-    int Xstate_T         = SEEDPREFIXESMATCHING_OLD_T(Xstate_I);
-    int Xstate_K         = SEEDPREFIXESMATCHING_OLD_K(Xstate_I);
+    int         Xstate_T = SEEDPREFIXESMATCHING_OLD_T(Xstate_I);
+    int         Xstate_K = SEEDPREFIXESMATCHING_OLD_K(Xstate_I);
 
     VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("$pop  I:" << Xstate_I << " < X:" << Xstate_X << ", t:" << Xstate_T << ", k:" << Xstate_K << " >"));
 
@@ -2934,8 +2934,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
       // next state according to letter "a"
       Seed_X_Word Ystate_X = Xstate_X;
-      int Ystate_T         = Xstate_T;
-      int Ystate_K         = Xstate_K;
+      int         Ystate_T = Xstate_T;
+      int         Ystate_K = Xstate_K;
 
       if ( a == (gv_align_alphabet_size - (gv_matching_symbol_flag?1:0))) {
         Ystate_T++;
@@ -2945,10 +2945,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 #ifdef ASSERTB
           assert(DETERMINISTIC(XPstate_I,a));
 #endif
-          int YPstate_I         = _states[XPstate_I]._next[a].begin()->_state;
+          int         YPstate_I = _states[XPstate_I]._next[a].begin()->_state;
           // YP result
           Seed_X_Word YPstate_X = SEEDPREFIXESMATCHING_OLD_X(YPstate_I);
-          int YPstate_K         = SEEDPREFIXESMATCHING_OLD_K(YPstate_I);
+          int         YPstate_K = SEEDPREFIXESMATCHING_OLD_K(YPstate_I);
           //  Y result
 #ifdef ASSERTB
           assert(Xstate_T >= 0);
@@ -3785,10 +3785,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    Seed_X_Word Xstate_X  = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
-    int Xstate_T          = SEEDPREFIXESMATCHINGCOST_T (Xstate_I);
-    int Xstate_K      = SEEDPREFIXESMATCHINGCOST_K (Xstate_I);
-    int Xstate_cost   = SEEDPREFIXESMATCHINGCOST_COST (Xstate_I);
+    Seed_X_Word Xstate_X    = SEEDPREFIXESMATCHINGCOST_X (Xstate_I);
+    int         Xstate_T    = SEEDPREFIXESMATCHINGCOST_T (Xstate_I);
+    int         Xstate_K    = SEEDPREFIXESMATCHINGCOST_K (Xstate_I);
+    int         Xstate_cost = SEEDPREFIXESMATCHINGCOST_COST (Xstate_I);
 
 #ifdef ASSERTB
     assert(Xstate_X >= 0);
@@ -3830,9 +3830,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
         assert(YPstate_I < (int)_states.size());
 #endif
 
-        int YPstate_T   = SEEDPREFIXESMATCHINGCOST_T(YPstate_I);
-        Seed_X_Word YPstate_X   = SEEDPREFIXESMATCHINGCOST_X(YPstate_I);
-        int YPstate_K   = SEEDPREFIXESMATCHINGCOST_K(YPstate_I);
+        int         YPstate_T = SEEDPREFIXESMATCHINGCOST_T(YPstate_I);
+        Seed_X_Word YPstate_X = SEEDPREFIXESMATCHINGCOST_X(YPstate_I);
+        int         YPstate_K = SEEDPREFIXESMATCHINGCOST_K(YPstate_I);
 
 #ifdef ASSERTB
         assert(YPstate_X >= 0);
@@ -3856,10 +3856,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
         // Ystate_I : next state according to letter "a"
         // by default values are given here
         // and will be processed
-        int Ystate_I    = Xstate_I;
-        Seed_X_Word Ystate_X    = Xstate_X;
-        int Ystate_T    = Xstate_T;
-        int Ystate_K    = Xstate_K;
+        int         Ystate_I = Xstate_I;
+        Seed_X_Word Ystate_X = Xstate_X;
+        int         Ystate_T = Xstate_T;
+        int         Ystate_K = Xstate_K;
 
         // (a == match)
         if ( a == (gv_align_alphabet_size - (gv_matching_symbol_flag?1:0))) {

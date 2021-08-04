@@ -2424,7 +2424,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
-    for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
+    for (int i = 1; i <= xset_bitsize && L[i] <= t; i++) {
       Seed_X_Word r = 1 << (i-1);
       int b = motif[L[i]];
 
@@ -2439,7 +2439,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
   // E[t][a]
-  for (int i = 1; i<=xset_bitsize; i++) {
+  for (int i = 1; i <= xset_bitsize; i++) {
     int L_i = L[i];
     int b   = motif[L_i];
 
@@ -2450,10 +2450,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
         for (int k = 1; k < i; k++) {
           int t = L[i] - L[k] - 1;
 #ifdef ASSERTB
-          assert(t>=0);
-          assert(t<motif_span);
-          assert(k>0);
-          assert(k<=xset_bitsize);
+          assert(t >= 0);
+          assert(t < motif_span);
+          assert(k > 0);
+          assert(k <= xset_bitsize);
 #endif
           EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
@@ -2695,7 +2695,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
           // NOMERGE : CHECK FINAL STATE
           if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-            assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
+            assert(YPstate_X == (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
             Ystate_I = YPstate_I;
           } else {
@@ -2796,7 +2796,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   int xset_bitsize      = 0; // bitsize of the set
   Seed_X_Word xset_size = 0; // size of the set
   L[0] = -1;
-  for (int i = 0; i<motif_span; i++) {
+  for (int i = 0; i < motif_span; i++) {
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
       xset_bitsize++;
       if (xset_bitsize >= 8*sizeof(Seed_X_Word) - 1) {
@@ -2830,7 +2830,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
-    for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
+    for (int i = 1; i <= xset_bitsize && L[i] <= t; i++) {
       Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
@@ -2845,7 +2845,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 
   // E[t][a]
-  for (int i = 1; i<=xset_bitsize; i++) {
+  for (int i = 1; i <= xset_bitsize; i++) {
     int L_i = L[i];
     int b   = motif[L_i];
 
@@ -2856,10 +2856,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
         for (int k = 1; k < i; k++) {
           int t = L[i] - L[k] - 1;
 #ifdef ASSERTB
-          assert(t>=0);
-          assert(t<motif_span);
-          assert(k>0);
-          assert(k<=xset_bitsize);
+          assert(t >= 0);
+          assert(t < motif_span);
+          assert(k > 0);
+          assert(k <= xset_bitsize);
 #endif
           EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
@@ -3313,10 +3313,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
           for (int k = 1; k < i; k++) {
             int t = L[x][i] - L[x][k] - 1;
 #ifdef ASSERTB
-            assert(t>=0);
-            assert(t<motifs_span[x]);
-            assert(k>0);
-            assert(k<=xset_bitsize[x]);
+            assert(t >= 0);
+            assert(t < motifs_span[x]);
+            assert(k > 0);
+            assert(k <= xset_bitsize[x]);
 #endif
             EX[x][t][k][a] = (Seed_X_Word) 1 << (i-1);
             Ek[x][t][k][a] = i;
@@ -3686,7 +3686,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
-    for (int i = 1; i<= xset_bitsize && L[i] <= t; i++) {
+    for (int i = 1; i <= xset_bitsize && L[i] <= t; i++) {
       Seed_X_Word r = (Seed_X_Word) 1 << (i-1);
       int b = motif[L[i]];
 
@@ -3701,7 +3701,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
   // E[t][a]
-  for (int i = 1; i<=xset_bitsize; i++) {
+  for (int i = 1; i <= xset_bitsize; i++) {
     int L_i = L[i];
     int b   = motif[L_i];
 
@@ -3712,10 +3712,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
         for (int k = 1; k < i; k++) {
           int t = L[i] - L[k] - 1;
 #ifdef ASSERTB
-          assert(t>=0);
-          assert(t<motif_span);
-          assert(k>0);
-          assert(k<=xset_bitsize);
+          assert(t >= 0);
+          assert(t < motif_span);
+          assert(k > 0);
+          assert(k <= xset_bitsize);
 #endif
           EX[t][k][a] = (Seed_X_Word) 1 << (i-1);
           Ek[t][k][a] = i;
@@ -3919,7 +3919,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
               // NOMERGE : CHECK FINAL STATE
               if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-                assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
+                assert(YPstate_X == (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
                 goto Ex0;
               }
@@ -3971,7 +3971,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
             // NOMERGE : CHECK FINAL STATE
             if (nomerge && L[Ystate_K] >= motif_span) {
 #ifdef ASSERTB
-              assert(YPstate_X ==  (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
+              assert(YPstate_X == (Ystate_X^((Seed_X_Word) 1 << (Ystate_K-1))));
 #endif
               Ystate_I = YPstate_I;
             } else {
@@ -4943,7 +4943,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
   }
 
   if (gv_subalignment_flag && (_init_states.size() > 0)) {
-    for (int i = 0;i<(int)_init_states.size();i++)
+    for (int i = 0; i < (int)_init_states.size(); i++)
       result->_init_states.push_back(REVERSESTATE(stclass[_init_states[i]],stclass[1],1));
   }
 
@@ -5092,14 +5092,14 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
   v1[1][0] = One<T>();
 
   // compute probability at step i provided probabilities at step i-1
-  for (int i= 0; i < nbSteps; i++) {
+  for (int i = 0; i < nbSteps; i++) {
     if (i&1) {
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
-        for (int k = 0;k<=cost_threshold;k++)
+        for (int k = 0; k <= cost_threshold; k++)
           v1[nbstate][k] = Zero<T>();
-        for (int kp = 0;kp<=cost_threshold+1;kp++) {
-          for (int a = 0; a<gv_align_alphabet_size; a++) {
-            int k  = kp + costs[a];
+        for (int kp = 0; kp <= cost_threshold+1; kp++) {
+          for (int a = 0; a < gv_align_alphabet_size; a++) {
+            int k = kp + costs[a];
             for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
               v1[nbstate][MIN(k,cost_threshold+1)] = v1[nbstate][MIN(k,cost_threshold+1)] + ((iter->_prob) * v0[(iter->_state)][kp]);
           }
@@ -5107,11 +5107,11 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
       }
     } else {
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
-        for (int k=0;k<=cost_threshold;k++)
+        for (int k = 0; k <= cost_threshold; k++)
           v0[nbstate][k] = Zero<T>();
-        for (int kp=0;kp<=cost_threshold+1;kp++) {
-          for (int a = 0; a<gv_align_alphabet_size; a++) {
-            int k  = kp + costs[a];
+        for (int kp = 0; kp <= cost_threshold + 1; kp++) {
+          for (int a = 0; a < gv_align_alphabet_size; a++) {
+            int k = kp + costs[a];
             for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
               v0[nbstate][MIN(k,cost_threshold+1)] = v0[nbstate][MIN(k,cost_threshold+1)] + ((iter->_prob) * v1[(iter->_state)][kp]);
           }
@@ -5125,7 +5125,7 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
   T  PrNonFinalLessThanThreshold = Zero<T>();
   T  PrFullLessThanThreshold     = Zero<T>();
   if (nbSteps & 1) {
-    for (int i=0;i<(int)size();i++) {
+    for (int i = 0; i < (int)size(); i++) {
       for (int k = 0; k <= cost_threshold; k++)
         PrFullLessThanThreshold = PrFullLessThanThreshold + v0[i][k];
       if(_states[i]._final)
@@ -5136,7 +5136,7 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
           PrNonFinalLessThanThreshold = PrNonFinalLessThanThreshold + v0[i][k];
     }
   } else {
-    for (int i=0;i<(int)size();i++) {
+    for (int i = 0; i < (int)size(); i++) {
       for (int k = 0; k <= cost_threshold; k++)
         PrFullLessThanThreshold = PrFullLessThanThreshold + v1[i][k];
       if(_states[i]._final)

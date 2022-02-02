@@ -2276,7 +2276,7 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
   is >> size;
   if (size <= 0) {
     cerr << "> when reading automaton size" << endl;
-    _ERROR("automton<T> operator>>","incorrect size " << size);
+    _ERROR("automaton<T> operator>>","incorrect size " << size);
   }
 
   // add states first
@@ -2290,7 +2290,7 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
     is >> state;
     if (state != i) {
       cerr << "> when reading automaton state " << state << endl;
-      _ERROR(" operator>>","incorrect state number " << state  << " (expected " << i << " as a logical order)");
+      _ERROR("automaton<T> operator>>","incorrect state number " << state  << " (expected " << i << " as a logical order)");
     }
     is >> au._states[i];
 
@@ -2300,7 +2300,7 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
         int st = au._states[i]._next[a][j]._state;
         if (st < 0 || st >= size) {
           cerr << "> when reading automaton state " << i << endl;
-          _ERROR("operator>>","incorrect transition on letter " << a << " (" << (j+1) << "st/nd transition on this letter) to state " << st << " (not in [0.."<<(size-1)<<"])");
+          _ERROR("automaton<T> operator>>","incorrect transition on letter " << a << " (" << (j+1) << "st/nd transition on this letter) to state " << st << " (not in [0.."<<(size-1)<<"])");
         }
       }
     }
@@ -2374,12 +2374,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 #ifdef ASSERTB
   if (motif_span <= 0) {
-    _ERROR("SeedPrefixesMatching","null or negative span");
+    _ERROR("Automaton_SeedPrefixesMatching","null or negative span");
   }
 
   for (int i = 0; i < motif_span; i++)
     if ( motif[i] < 0 || motif[i] >= gv_seed_alphabet_size)
-      _ERROR("SeedPrefixesMatching","incorrect seed element");
+      _ERROR("Automaton_SeedPrefixesMatching","incorrect seed element");
 #endif
 
 #ifdef BUILD
@@ -2398,7 +2398,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
     if (motif[i] < (gv_seed_alphabet_size - (gv_matching_symbol_flag?1:0))) {
       xset_bitsize++;
       if (xset_bitsize >= 8*(int)sizeof(Seed_X_Word) - 1) {
-        _ERROR("SeedPrefixesMatching","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
+        _ERROR("Automaton_SeedPrefixesMatching","number of \"jokers\" (non-matching) elements inside the seed is exceeding the maximal capacity of \"" << (8*sizeof(Seed_X_Word) - 1) << "\" elements");
       }
       L[xset_bitsize] = i;
 #ifdef BUILD
@@ -2776,12 +2776,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 #ifdef ASSERTB
   if (motif_span <= 0) {
-    _ERROR("SeedPrefixesMatching_old","null or negative span");
+    _ERROR("Automaton_SeedPrefixesMatching_old","null or negative span");
   }
 
   for (int i = 0; i < motif_span; i++)
     if ( motif[i] < 0 || motif[i] >= gv_seed_alphabet_size)
-      _ERROR("SeedPrefixesMatching_old","incorrect seed element");
+      _ERROR("Automaton_SeedPrefixesMatching_old","incorrect seed element");
 #endif
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(
@@ -3106,7 +3106,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 /** @brief Do a "second" Normalization step (optional, but reduces the number of states)
  *
- * it check if the coverage value at some position (before the "t" run, because no need
+ * it checks if the coverage value at some position (before the "t" run, because no need
  * to look inside it), can be "pushed right" to shorten the coverage string
  @verbatim
          v     v
@@ -3222,12 +3222,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 #ifdef ASSERTB
   for (int x = 0; x < nb_motifs; x++) {
     if (motifs_span[x] <= 0) {
-      _ERROR("SeedPrefixesMatching","null or negative span");
+      _ERROR("Automaton_SeedPrefixesMatching_CoverageDM","null or negative span");
     }
 
     for (int i = 0; i < motifs_span[x]; i++) {
       if ( motifs[x][i] < 0 || motifs[x][i] >= gv_seed_alphabet_size) {
-        _ERROR("SeedPrefixesMatching","incorrect seed element");
+        _ERROR("Automaton_SeedPrefixesMatching_CoverageDM","incorrect seed element");
       }
     }
   }
@@ -3636,12 +3636,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 #ifdef ASSERTB
   if (motif_span <= 0) {
-    _ERROR("SeedPrefixesMatchingCost","null or negative span");
+    _ERROR("Automaton_SeedPrefixesMatchingCost","null or negative span");
   }
 
   for (int i = 0; i < motif_span; i ++)
     if ( motif[i] < 0 || motif[i] >= gv_seed_alphabet_size)
-      _ERROR("SeedPrefixesMatchingCost","incorrect seed element");
+      _ERROR("Automaton_SeedPrefixesMatchingCost","incorrect seed element");
 #endif
 
 #ifdef BUILD

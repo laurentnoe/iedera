@@ -1315,15 +1315,11 @@ template<typename T> inline std::istream& operator>>(std::istream &s, infint<T> 
 {//PROFILED_SCOPE
   std::string str;
   char c = ' ';
-  bool n = s.get(c);
-  if (n && c == '-') {
+  if (s.get(c) && c == '-') {
     str.push_back(c);
-    n = s.get(c);
   }
-
-  while (n && (c >= '0') && (c <= '9')){
+  while (s.get(c) && (c >= '0') && (c <= '9')){
     str.push_back(c);
-    n = s.get(c);
   }
   s.unget();
   v.fromString(str);

@@ -260,7 +260,6 @@ bool gv_covariance_flag            = false;
 // @{
 /// flag that activate the output of the "Mak Benson 2009" coefficients (number of alignments with @f$ x @f$ mismatches that are not detected, or detected, or with coverage/multihit value ...). Note that it can be used with "Chung Park 2010" definition of integral hits, but you need to replace the  @f$ p^{l-x} \cdot (1-p)^{x} @f$ factor preceeding each coefficient for each mismatch rate of @f$ \frac{x}{l} @f$, by its integral  @f$ \int_{p_a}^{p_b} p^{l-x} \cdot (1-p)^{x} dp = \Big[ p^{l-x+1} \sum_{j=0}^{x} {x \choose j} \frac{(-p)^j}{l-x+j} \Big]_{p_a}^{p_b} @f$. Fast and precise computation can be obtained with a fast power of the coefficients of the initial polynomial @f$ p^n (1-p)^x @f$ to avoid some small p "vs" big binomial problem.
 
-bool gv_polynomial_output_flag = false;
 /// flag that activate the selection of dominant seeds as in "Mak Benson 2009", which is also true for "Chung Park 2010"
 /// (and not the selection according to their sensitivity only: its a more general form that may select more seeds)
 bool gv_polynomial_dominant_selection_flag = false;
@@ -1733,7 +1732,6 @@ void SCANARG(int argc , char ** argv) {
         gv_global_coverage_cost[i] = i;
     } else if (!strcmp(argv[i],"-p")||!strcmp(argv[i],"--polynomial-dominance")) {
       ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
-      gv_polynomial_output_flag = true;
       gv_polynomial_dominant_selection_flag = true;
 #ifndef USEINFINT
       if (gv_polynomial_dominant_selection_flag) {
@@ -2496,7 +2494,7 @@ std::ostream& operator<<(std::ostream& os, seedproperties& e){
   else
     os << e.sens;
   os <<  "\t" << e.dist;
-  if (gv_polynomial_output_flag) {
+  if (gv_polynomial_dominant_selection_flag) {
     os << "\t";
     for (vector< pair<pair<int,int>,BIGINT> >::iterator i = e.polynom.begin(); i != e.polynom.end(); i++) {
       os << (i->first.first) << "," << (i->first.second) << "=" << (i->second) << ";";
@@ -2527,7 +2525,7 @@ int display (list<seedproperties> & l) {
        << "\t" << "2nd column : selectivity"
        << "\t" << "3rd column : " << (gv_correlation_flag?"correlation":"sensitivity")
        << "\t" << "4th column : distance to (1, 1)";
-  if (gv_polynomial_output_flag) {
+  if (gv_polynomial_dominant_selection_flag) {
     cerr << "\t" << "5th column : nbmatches,property:count;... ";
   }
 
@@ -3019,7 +3017,7 @@ void termin_handler( int signal ) {
   }
 
   // final output
-  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_output_flag?"\tpol":"")););
+  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
   if (!gv_output_filename)
     list_and_areaPareto(l);
   else
@@ -3772,7 +3770,7 @@ int main(int argc, char * argv[]) {
       //<<
 
       // precompute the polynom when needed (for correlation computation, or for mere polynomial output)
-      if (gv_correlation_flag || gv_polynomial_output_flag || gv_polynomial_dominant_selection_flag) {
+      if (gv_correlation_flag || gv_polynomial_dominant_selection_flag) {
 
         if (gv_alignment_length > N_binomial_weight) {
           cerr << "gv_alignment_length=" << gv_alignment_length << " > N_binomial_weight=" << N_binomial_weight << endl;
@@ -4065,7 +4063,7 @@ int main(int argc, char * argv[]) {
       }
       seedproperties e = seedproperties(selp, sens, distance, outs.str(), lossless, polynom, multipoly);
 
-      if (gv_correlation_flag || gv_polynomial_output_flag || gv_polynomial_dominant_selection_flag) {
+      if (gv_correlation_flag || gv_polynomial_dominant_selection_flag) {
         polynom->clear();
         delete polynom;
       }
@@ -4380,7 +4378,7 @@ int main(int argc, char * argv[]) {
   }
 
   // final output
-  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_output_flag?"\tpol":"")););
+  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
   if (!gv_output_filename)
     list_and_areaPareto(l);
   else

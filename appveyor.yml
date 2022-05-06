@@ -35,11 +35,9 @@ build_script:
        } else {
            bash -c "autoreconf && ./configure && make && strip src/iedera"
            if ($isLinux) {
-               bash -c "mv -f src/iedera src/iedera-Linux64.bin"
+               bash -c "cp -f src/iedera src/iedera-Linux64.bin"
                bash -c "make check"
-               bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
-               bash -c "chmod +x codecov"
-               bash -c "./codecov"
+               bash <(curl -s https://codecov.io/bash)
            } else {
                bash -c "mv -f src/iedera src/iedera-MacOS64.bin"
            }

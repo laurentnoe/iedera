@@ -1314,7 +1314,17 @@ template<typename T> inline void infint<T>::multiplyByDigit(typename infint_elem
 template<typename T> inline std::istream& operator>>(std::istream &s, infint<T> &v)
 {//PROFILED_SCOPE
   std::string str;
-  s >> str;
+  char c;
+  s.get(c);
+  if (c == '-') {
+    str.push_back(c);
+    s.get(c);
+  }
+  while ((c >= '0') && (c <= '9')){
+    str.push_back(c);
+    s.get(c);
+  }
+  s.unget();
   v.fromString(str);
   return s;
 }

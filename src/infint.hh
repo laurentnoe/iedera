@@ -1314,15 +1314,16 @@ template<typename T> inline void infint<T>::multiplyByDigit(typename infint_elem
 template<typename T> inline std::istream& operator>>(std::istream &s, infint<T> &v)
 {//PROFILED_SCOPE
   std::string str;
-  char c;
-  s.get(c);
-  if (c == '-') {
+  char c = ' ';
+  bool n = s.get(c);
+  if (n && c == '-') {
     str.push_back(c);
-    s.get(c);
+    n = s.get(c);
   }
-  while ((c >= '0') && (c <= '9')){
+
+  while (n && (c >= '0') && (c <= '9')){
     str.push_back(c);
-    s.get(c);
+    n = s.get(c);
   }
   s.unget();
   v.fromString(str);

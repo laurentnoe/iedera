@@ -291,6 +291,91 @@ int      gv_pareto_select_runs = 1000;
 
 
 
+/** @name correlation coefficients computations
+ *  @brief binomial coefficients and associated weight used by correlation coefficients computations
+ */
+// @{
+
+/// binomial coefficients, must be pre-computed for correlations algorithms
+std::vector< std::vector<BIGINT> > binomials;
+
+/// binomials computed with the Pascal Triangle (overflow are checked and stop the program)
+void generate_binomials(int N) {
+  binomials = std::vector< std::vector<BIGINT> > (N+1,  std::vector<BIGINT>(N+1,0) );
+  int k, n;
+  for (k = 1; k <= N; k++) binomials[0][k] = 0;
+  for (n = 0; n <= N; n++) binomials[n][0] = 1;
+  for (n = 1; n <= N; n++) {
+    for (k = 1; k <= N; k++) {
+      binomials[n][k] = binomials[n-1][k-1] + binomials[n-1][k];
+      if (binomials[n][k] < 0) {
+        _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)"," generate_binomials DOES OVERFLOW ...");
+      }
+    }
+  }
+}
+
+/// tools used to reduce size of binomials weight : greatest common divisor of all of them
+BIGINT gcd(BIGINT a, BIGINT b) {
+  if (a < b) {
+    BIGINT t = b; b = a; a = t;
+  }
+  while (b > 0) {
+    BIGINT t = b; b = a % b; a = t;
+  }
+  return a;
+}
+
+/// tools used to reduce size of binomials weight : lowest common multiple of all of them
+BIGINT lcm(BIGINT a, BIGINT b) {
+  return a/gcd(a,b) * b;
+}
+
+
+/// binomial weight (inverted values of binomials coeeficients), must be pre-computed for correlations algorithms
+#ifdef USEINFINT
+std::vector< std::vector<BIGINT> > binomial_weights;
+#else
+std::vector< std::vector<double> > binomial_weights;
+#endif
+
+/// binomial weight flag, must be set to false when already computed
+bool gp_binomial_weights_not_computed_flag = true;
+
+void generate_binomials_weights(int N) {
+#ifdef USEINFINT
+  binomial_weights = std::vector< std::vector<BIGINT> > (N+1,  std::vector<BIGINT>(N+1,0) );
+#else
+  binomial_weights = std::vector< std::vector<double> > (N+1,  std::vector<double>(N+1,0) );
+#endif
+
+  generate_binomials(N);
+
+  /*
+   * lcm { binomial(k,0) ; binomial(k,1) ; ... ; binomial(k,k) } = lcm {1;2;...;k;k+1} / (k+1)
+   * "An identity involving the least common multiple of binomial coefficients and its application" Bakir FARHI
+   */
+  BIGINT lcmc = 1;
+  for (long long k_plus_1 = 1; k_plus_1 <= N+1 ; k_plus_1++) {
+    lcmc = lcm(lcmc,k_plus_1);
+    if (lcmc < 0) {
+      _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)"," generate_binomials_weights DOES OVERFLOW ...");
+    }
+
+    BIGINT lcmc_div_k_plus_1 = lcmc / (BIGINT) k_plus_1;
+    long long k = k_plus_1 - 1;
+    for (long long i = 0; i <= k ; i++) {
+      BIGINT lcmc_div_k_plus_1_div_binomial_k_i = lcmc_div_k_plus_1/(binomials[k][i]);
+#ifdef USEINFINT
+      binomial_weights[k][i] =         lcmc_div_k_plus_1_div_binomial_k_i;
+#else
+      binomial_weights[k][i] = (double)lcmc_div_k_plus_1_div_binomial_k_i;
+#endif
+    }
+  }
+}
+// @}
+
 
 
 
@@ -1679,11 +1764,7 @@ void SCANARG(int argc , char ** argv) {
       }
 #ifndef USEINFINT
       if (gv_correlation_flag) {
-#ifdef __SIZEOF_INT128__
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
-#else
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
-#endif
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <long long> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT or see inside \"macro.hh\") but it will be much slower");
       }
 #endif
       gv_multihit_flag = true;
@@ -1719,11 +1800,7 @@ void SCANARG(int argc , char ** argv) {
       }
 #ifndef USEINFINT
       if (gv_correlation_flag) {
-#ifdef __SIZEOF_INT128__
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <uint128> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
-#else
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>)","these specific functions : Pearson/Spearman correlation count on <uint64> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
-#endif
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Pearson/Spearman correlation count on <long long> and computation on <double> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT or see inside \"macro.hh\") but it will be much slower");
       }
 #endif
       gv_global_coverage_flag = true;
@@ -1735,13 +1812,13 @@ void SCANARG(int argc , char ** argv) {
       gv_polynomial_dominant_selection_flag = true;
 #ifndef USEINFINT
       if (gv_polynomial_dominant_selection_flag) {
-        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","Polynomial coefficients count on <uint64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+        _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Polynomial coefficients count on <long long> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT or see inside \"macro.hh\") but it will be much slower");
       }
 #endif
     } else if (!strcmp(argv[i],"-pF")||!strcmp(argv[i],"--multipolynomial-file")) {
       ///@todo{FIXME : check several parameters incompatible with dominant selection and output}
 #ifndef USEINFINT
-      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions : Multivariate polynomial evaluation on <int64> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower");
+      _WARNING("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","these specific functions :  Multivariate polynomial evaluation on <long long> may overflow ...\n you can compile this program with USEINFINT defined (-DUSEINFINT or see inside \"macro.hh\") but it will be much slower");
 #endif
       gv_multipoly_file_flag = true;
       PARSEMULTIPOLYAUTOMATONFILE(i, argv, argc,  gv_multipoly_bsens_automaton);
@@ -2067,9 +2144,8 @@ void computeWeight() {
 }
 
 
-#include "binomial_weight.h"
 /// number of classes for the (from "0" to max percent of identity = gv_alignment_length)
-#define CLASSES (N_binomial_weight+1)
+#define CLASSES (gv_alignment_length+1)
 /// minimal percent of identity from which to compute the correlation coefficient
 #define MIN_PVAL (gv_multihit_flag?gv_multihit_nb:(gv_global_coverage_flag?gv_global_coverage_nb:0))
 
@@ -2084,57 +2160,35 @@ void computeWeight() {
  * @return the correlation computed accordingly
  */
 double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int correlation_enum) {
+
   int min_p = MIN_PVAL;
   if (min_p >= gv_alignment_length) {
     _WARNING("\"-y/-g <int>\" OPTION set to alignment length - 1","(was too large before)");
     min_p = gv_alignment_length-1;
   }
 
+  if (gp_binomial_weights_not_computed_flag) {
+    generate_binomials_weights(CLASSES);
+    gp_binomial_weights_not_computed_flag = false;
+  }
 
   switch (correlation_enum) {
 
   case CORRELATION_FUNCTIONS_ENUM_PEARSON :
     {
-#ifdef USEINFINT
-      BIGINT  y [CLASSES] = {0};
-      BIGINT  p [CLASSES] = {0};
-      BIGINT  y2[CLASSES] = {0};
-      BIGINT  p2[CLASSES] = {0};
-      BIGINT  yp[CLASSES] = {0};
-      BIGINT  n [CLASSES] = {0};
-#else
-#ifdef __SIZEOF_INT128__
-      __uint128_t  y [CLASSES] = {0};
-      __uint128_t  p [CLASSES] = {0};
-      __uint128_t  y2[CLASSES] = {0};
-      __uint128_t  p2[CLASSES] = {0};
-      __uint128_t  yp[CLASSES] = {0};
-      __uint128_t  n [CLASSES] = {0};
-#else
-      double       y [CLASSES] = {0};
-      double       p [CLASSES] = {0};
-      double       y2[CLASSES] = {0};
-      double       p2[CLASSES] = {0};
-      double       yp[CLASSES] = {0};
-      double       n [CLASSES] = {0};
-#endif
-#endif
+      vector<BIGINT> y  = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> p  = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> y2 = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> p2 = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> yp = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> n  = vector<BIGINT>(CLASSES,0);
 
-#ifdef USEINFINT
-      BIGINT   y_sum[CLASSES] = {0};
-      BIGINT   p_sum[CLASSES] = {0};
-      BIGINT  y2_sum[CLASSES] = {0};
-      BIGINT  p2_sum[CLASSES] = {0};
-      BIGINT  yp_sum[CLASSES] = {0};
-      BIGINT   n_sum[CLASSES] = {0};
-#else
-      double   y_sum[CLASSES] = {0};
-      double   p_sum[CLASSES] = {0};
-      double  y2_sum[CLASSES] = {0};
-      double  p2_sum[CLASSES] = {0};
-      double  yp_sum[CLASSES] = {0};
-      double   n_sum[CLASSES] = {0};
-#endif
+      vector<BIGINT>  y_sum = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT>  p_sum = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> y2_sum = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> p2_sum = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> yp_sum = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT>  n_sum = vector<BIGINT>(CLASSES,0);
 
       // fill initial tables
       for (unsigned i = 0; i < polynom->size(); i++) {
@@ -2145,24 +2199,17 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         BIGINT y_count_number = number * y_count;
         BIGINT p_count_number = number * p_count;
 #else
-#ifdef __SIZEOF_INT128__
-#warning "undefined USEINFINT (no infinite precision integer) : very specific functions as Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <uint128> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
-        __uint128_t number         = (*polynom)[i].second;
-        __uint128_t y_count_number = number * y_count;
-        __uint128_t p_count_number = number * p_count;
-#else
-#warning "undefined USEINFINT (no infinite precision integer) AND undefined __SIZEOF_INT128__ (no <uint128>) : very specific functions as Pearson/Spearman correlation (or Polynomial coefficient) count on <uint64> and computation on <double> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
+#warning "undefined USEINFINT (no infinite precision integer) : very specific functions as Pearson/Spearman correlation (or Polynomial coefficient) count on <long long> and computation on <double> may overflow ... you can compile this program with USEINFINT defined (-DUSEINFINT) but it will be much slower"
         double number         = (*polynom)[i].second;
         double y_count_number = number * y_count;
         double p_count_number = number * p_count;
 #endif
-#endif
-        y[p_count] =  y[p_count] + y_count_number;
+         y[p_count] =  y[p_count] + y_count_number;
         y2[p_count] = y2[p_count] + y_count_number * y_count;
-        p[p_count] =  p[p_count] + p_count_number;
+         p[p_count] =  p[p_count] + p_count_number;
         p2[p_count] = p2[p_count] + p_count_number * p_count;
         yp[p_count] = yp[p_count] + y_count_number * p_count;
-        n[p_count] =  n[p_count] + number;
+         n[p_count] =  n[p_count] + number;
       }
 
       // "p"/gv_alignment_length partial sums to full sums >>
@@ -2171,30 +2218,30 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         // normalize sets by their binomial weight
         for (u = 0; u <= gv_alignment_length; u++) {
 #ifdef USEINFINT
-          y_sum[u] = binomial_weight[gv_alignment_length][u] *  y[u];
-          y2_sum[u] = binomial_weight[gv_alignment_length][u] * y2[u];
-          p_sum[u] = binomial_weight[gv_alignment_length][u] *  p[u];
-          p2_sum[u] = binomial_weight[gv_alignment_length][u] * p2[u];
-          yp_sum[u] = binomial_weight[gv_alignment_length][u] * yp[u];
-          n_sum[u] = binomial_weight[gv_alignment_length][u] *  n[u];
+           y_sum[u] = binomial_weights[gv_alignment_length][u] *  y[u];
+          y2_sum[u] = binomial_weights[gv_alignment_length][u] * y2[u];
+           p_sum[u] = binomial_weights[gv_alignment_length][u] *  p[u];
+          p2_sum[u] = binomial_weights[gv_alignment_length][u] * p2[u];
+          yp_sum[u] = binomial_weights[gv_alignment_length][u] * yp[u];
+           n_sum[u] = binomial_weights[gv_alignment_length][u] *  n[u];
 #else
-          y_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  y[u];
-          y2_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) y2[u];
-          p_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  p[u];
-          p2_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) p2[u];
-          yp_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double) yp[u];
-          n_sum[u] = (double) binomial_weight[gv_alignment_length][u] * (double)  n[u];
+           y_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double)  y[u];
+          y2_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double) y2[u];
+           p_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double)  p[u];
+          p2_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double) p2[u];
+          yp_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double) yp[u];
+           n_sum[u] = (double) binomial_weights[gv_alignment_length][u] * (double)  n[u];
 #endif
         }
 
         // overlap counts
         for (u = gv_alignment_length; u > 0; u--) {
-          y_sum[u-1] =  y_sum[u-1] +  y_sum[u];
+           y_sum[u-1] =  y_sum[u-1] +  y_sum[u];
           y2_sum[u-1] = y2_sum[u-1] + y2_sum[u];
-          p_sum[u-1] =  p_sum[u-1] +  p_sum[u];
+           p_sum[u-1] =  p_sum[u-1] +  p_sum[u];
           p2_sum[u-1] = p2_sum[u-1] + p2_sum[u];
           yp_sum[u-1] = yp_sum[u-1] + yp_sum[u];
-          n_sum[u-1] =  n_sum[u-1] +  n_sum[u];
+           n_sum[u-1] =  n_sum[u-1] +  n_sum[u];
         }
       }
       // << "p"/gv_alignment_length
@@ -2226,13 +2273,14 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
   case CORRELATION_FUNCTIONS_ENUM_SPEARMAN :
     {
       // sum the number to sort in two arrays
+
 #ifdef USEINFINT
-      BIGINT y [CLASSES] = {0};
-      BIGINT p [CLASSES] = {0};
+      vector<BIGINT> y  = vector<BIGINT>(CLASSES,0);
+      vector<BIGINT> p  = vector<BIGINT>(CLASSES,0);
       BIGINT full_sum = 0;
 #else
-      double y [CLASSES] = {0.0};
-      double p [CLASSES] = {0.0};
+      vector<double> y = vector<double>(CLASSES,0);
+      vector<double> p = vector<double>(CLASSES,0);
       double full_sum = 0.0;
 #endif
       for (unsigned i = 0; i < polynom->size(); i++) {
@@ -2241,13 +2289,13 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
         BIGINT number = (*polynom)[i].second;
         if (p_count >= min_p) {
 #ifdef USEINFINT
-          p[p_count] += binomial_weight[gv_alignment_length][p_count] * number;
-          y[y_count] += binomial_weight[gv_alignment_length][p_count] * number;
-          full_sum   += binomial_weight[gv_alignment_length][p_count] * number;
+          p[p_count] += binomial_weights[gv_alignment_length][p_count] * number;
+          y[y_count] += binomial_weights[gv_alignment_length][p_count] * number;
+          full_sum   += binomial_weights[gv_alignment_length][p_count] * number;
 #else
-          p[p_count] += (double) binomial_weight[gv_alignment_length][p_count] * number;
-          y[y_count] += (double) binomial_weight[gv_alignment_length][p_count] * number;
-          full_sum   += (double) binomial_weight[gv_alignment_length][p_count] * number;
+          p[p_count] += (double) binomial_weights[gv_alignment_length][p_count] * number;
+          y[y_count] += (double) binomial_weights[gv_alignment_length][p_count] * number;
+          full_sum   += (double) binomial_weights[gv_alignment_length][p_count] * number;
 #endif
         }
       }
@@ -2302,11 +2350,10 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
             rank_y += y[j];
           rank_y += y[y_count]/2;
 #ifdef USEINFINT
-          d_square +=         binomial_weight[gv_alignment_length][p_count]  * number * (rank_p - rank_y) * (rank_p - rank_y);
+          d_square +=         binomial_weights[gv_alignment_length][p_count]  * number * (rank_p - rank_y) * (rank_p - rank_y);
 #else
-          d_square += (double)binomial_weight[gv_alignment_length][p_count]  * number * (rank_p - rank_y) * (rank_p - rank_y);
+          d_square += (double)binomial_weights[gv_alignment_length][p_count]  * number * (rank_p - rank_y) * (rank_p - rank_y);
 #endif
-
         }
       }
 
@@ -3772,11 +3819,6 @@ int main(int argc, char * argv[]) {
       // precompute the polynom when needed (for correlation computation, or for mere polynomial output)
       if (gv_correlation_flag || gv_polynomial_dominant_selection_flag) {
 
-        if (gv_alignment_length > N_binomial_weight) {
-          cerr << "gv_alignment_length=" << gv_alignment_length << " > N_binomial_weight=" << N_binomial_weight << endl;
-          _ERROR("main","this binary has been compiled with a fixed value N_binomial_weight [*] that is smaller than the alignment length requested on command line : please use the \"lcm.cc\" program to increase and regenerate the \"binomial_weight.h\" file.");
-        }
-
         // use percentage of identity Automaton to count "CLASSES"
         automaton<BIGINT> a_sens_count_ones = automaton<BIGINT>();
         a_sens_count_ones.Automaton_CountAlphabetSymbols();
@@ -3790,11 +3832,15 @@ int main(int argc, char * argv[]) {
         // transfor as a polynom (64 bits numbers !! warning on overflow)
         polynom = new vector< pair<pair<int,int>,BIGINT> >(0);
         for (unsigned i = 0; i < v_ct_sens_dist->size(); i++) {
-          BIGINT number;
-          if ((number = (*v_ct_sens_dist)[i]) > 0) {
+          BIGINT number = (*v_ct_sens_dist)[i];
+          if (number > 0) {
             int p_count = (i % CLASSES), y_count = (i / CLASSES);
             polynom->push_back(pair<pair<int,int>,BIGINT>(pair<int,int>(p_count,y_count),(BIGINT)number));
             //cerr << "[" << i << "] -> (" << p_count << "," << y_count << ") : " << number << endl;
+          } else {
+            if (number < 0) {
+              _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","(gv_correlation_flag || gv_polynomial_dominant_selection_flag) p_count/y_count DOES OVERFLOW ...");
+            }
           }
         }
         delete m_ct_sens_dist;

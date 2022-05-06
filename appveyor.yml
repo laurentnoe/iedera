@@ -41,7 +41,7 @@ build_script:
        }
 
 artifacts:
-  - path: 'src\iedera-*'
+  - path: 'src\iedera-*64*'
     name: Releases
 
 deploy:

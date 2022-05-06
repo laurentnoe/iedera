@@ -39,7 +39,6 @@ using namespace std;
 #undef COMPUTE_CORRELATION_LN
 /// use the InfInt Header
 #define USEINFINT
-#undef USEINFINT
 
 /// dont use the matrix slicer (slower than the slicer version)
 #define NOSLICER

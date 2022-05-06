@@ -35,6 +35,7 @@ build_script:
            bash -c "autoreconf && ./configure && make && strip src/iedera"
            if ($isLinux) {
                bash -c "mv -f src/iedera src/iedera-Linux64.bin"
+               bash -c "make check"
            } else {
                bash -c "mv -f src/iedera src/iedera-MacOS64.bin"
            }

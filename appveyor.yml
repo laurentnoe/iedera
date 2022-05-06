@@ -21,6 +21,7 @@ matrix:
     - image: Visual Studio 2015
       BUILD_TYPE: other
 
+
 build_script:
   - ps: |
        if ($isWindows) {
@@ -36,9 +37,9 @@ build_script:
            if ($isLinux) {
                bash -c "mv -f src/iedera src/iedera-Linux64.bin"
                bash -c "make check"
-	       bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
-	       bash -c "chmod +x codecov"
-	       bash -c "./codecov"
+               bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
+               bash -c "chmod +x codecov"
+               bash -c "./codecov"
            } else {
                bash -c "mv -f src/iedera src/iedera-MacOS64.bin"
            }

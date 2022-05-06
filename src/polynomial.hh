@@ -160,6 +160,11 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
   while (i_l != l._coefs.end() && i_r != r._coefs.end()) {
     if (i_l->first.size() == i_r->first.size() && std::equal(i_l->first.begin(),i_l->first.end(),i_r->first.begin())) {
       C val = C(i_l->second) + C(i_r->second);
+#ifndef USEINFINT
+      if ( (i_l->second > 0) && (i_r->second > 0) && (val < 0) ) {
+        _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator+ DOES OVERFLOW ...");
+      }
+#endif
       if (val != C(0))
         result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
       i_l++;
@@ -266,11 +271,30 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
       // check already existance in result (log search)
       typename map<vector<int>, C>::iterator low = tmp_coefs.lower_bound(degree_vector);
       if (low != tmp_coefs.end()) {
-        if (low->first.size() == degree_vector.size() && std::equal(low->first.begin(),low->first.end(),degree_vector.begin()))
+        if (low->first.size() == degree_vector.size() && std::equal(low->first.begin(),low->first.end(),degree_vector.begin())) {
+#ifndef USEINFINT
+          if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+          }
+          if ( (low->second > 0) && ((i_l->second * i_r->second) > 0) && (low->second + (i_l->second * i_r->second) < 0) ) {
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+          }
+#endif
           low->second = low->second + (i_l->second * i_r->second);
-        else
+        } else {
+#ifndef USEINFINT
+          if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+          }
+#endif
           tmp_coefs.insert(low, pair<vector<int>,C >(vector<int>(degree_vector), (i_l->second * i_r->second)));
+        }
       } else {
+#ifndef USEINFINT
+        if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
+          _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+        }
+#endif
         tmp_coefs.insert(pair<vector<int>, C >(vector<int>(degree_vector), (i_l->second * i_r->second)));
       }
     }

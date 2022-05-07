@@ -1,6 +1,12 @@
 codecov:
   disable_default_path_fixes: true
 
+fixes:
+  - "/home/appveyor/projects/iedera/*::iedera/"
+
+ignore:
+    - "/usr/"
+    
 coverage:
   range: 60..80
   round: down

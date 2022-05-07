@@ -27,13 +27,14 @@ build_script:
        if ($isWindows) {
            if ($env:BUILD_TYPE -eq 'mingw') {
               C:\msys64\usr\bin\bash -lc "autoreconf"
-              C:\msys64\usr\bin\bash -lc "./configure"
+              C:\msys64\usr\bin\bash -lc "./configure LDFLAGS='-static'"
+              C:\msys64\usr\bin\bash -lc "automake"
               C:\msys64\usr\bin\bash -lc "make"
               C:\msys64\usr\bin\bash -lc "strip src/iedera.exe"
               C:\msys64\usr\bin\bash -lc "mv -f src/iedera.exe src/iedera-Win64.exe"
            }
        } else {
-           bash -c "autoreconf && ./configure && make"
+           bash -c "autoreconf && ./configure LDFLAGS='-static' && automake && make"
            if ($isLinux) {
                bash -c "make check"
                bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
@@ -41,7 +42,7 @@ build_script:
                bash -c "./codecov -t b6cb7b5e-616c-4027-9ab5-58706b05cfd4"
                bash -c "strip src/iedera && mv -f src/iedera src/iedera-Linux64.bin"
            } else {
-               bash -c "mv -f src/iedera src/iedera-MacOS64.bin"
+               bash -c "strip src/iedera && mv -f src/iedera src/iedera-MacOS64.bin"
            }
        }
 

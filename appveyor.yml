@@ -38,7 +38,7 @@ build_script:
                bash -c "autoreconf && ./configure CXX=g++-9 && automake && make"
                bash -c "make check"
                bash -c "gcov-9 src/iedera_gcov-macro src/iedera_gcov-main  src/iedera_gcov-seed"
-               bash -c "curl -Os https://uploader.codecov.io/v0.1.5/linux/codecov"
+               bash -c "curl -Os https://uploader.codecov.io/lastest/linux/codecov"
                bash -c "chmod +x codecov"
                bash -c "./codecov -t b6cb7b5e-616c-4027-9ab5-58706b05cfd4"
                bash -c "strip src/iedera && mv -f src/iedera src/iedera-Linux64.bin"

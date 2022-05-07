@@ -156,4 +156,9 @@ Version 1.07
   are stored on transitions)
 - Adding the "-pF" polynomial computation : it will output polynomials according
    to a probabilistic model in several variables.
- 
+- Cleaning the binomials_weights : from a static table, it is now an integrated
+  code.
+_ Overflow checks on most critical operations : the binomial & multivariate code
+  have also been set with an overflow check for most common operators (+ and *)
+  BY DEFAULT : infint are used now : this is the most secure way to give correct
+  results.

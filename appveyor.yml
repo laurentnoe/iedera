@@ -54,10 +54,11 @@ artifacts:
 
 deploy:
   provider: GitHub
-  description: 'Mac OS X and Windows 64 binaries'
+  description: 'MacOSX x64, Windows x64 & Linux x64 binaries'
   release: ${APPVEYOR_REPO_TAG_NAME}
   auth_token:
     secure: a+NmYFzXxPCFefjxKpbBxgRjCUJTVBpQkPOyWV3/qXgp5/CB533quFGZh3j+3XOT
   draft: true
   prerelease: true
-
+  on:
+    APPVEYOR_REPO_TAG: true

@@ -37,9 +37,9 @@ build_script:
            if ($isLinux) {
                bash -c "autoreconf && ./configure && automake && make"
                bash -c "make check"
-               bash -c "g++ --version"
-               bash -c "gcov --version"
-               bash -c "gcov src/iedera_gcov-macro src/iedera_gcov-main  src/iedera_gcov-seed"
+               bash -c "g++-9* --version"
+               bash -c "gcov-9* --version"
+               bash -c "gcov-9 src/iedera_gcov-macro src/iedera_gcov-main  src/iedera_gcov-seed"
                bash -c "ls -R"
                bash -c "curl -Os https://uploader.codecov.io/v0.1.5/linux/codecov"
                bash -c "chmod +x codecov"

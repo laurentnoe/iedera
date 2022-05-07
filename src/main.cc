@@ -308,9 +308,11 @@ void generate_binomials(int N) {
   for (n = 1; n <= N; n++) {
     for (k = 1; k <= N; k++) {
       binomials[n][k] = binomials[n-1][k-1] + binomials[n-1][k];
+#ifndef USEINFINT
       if (binomials[n][k] < 0) {
         _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)"," generate_binomials DOES OVERFLOW ...");
       }
+#endif
     }
   }
 }
@@ -358,10 +360,11 @@ void generate_binomials_weights(int N) {
   BIGINT lcmc = 1;
   for (long long k_plus_1 = 1; k_plus_1 <= N+1 ; k_plus_1++) {
     lcmc = lcm(lcmc,k_plus_1);
+#ifndef USEINFINT
     if (lcmc < 0) {
       _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)"," generate_binomials_weights DOES OVERFLOW ...");
     }
-
+#endif
     BIGINT lcmc_div_k_plus_1 = lcmc / (BIGINT) k_plus_1;
     long long k = k_plus_1 - 1;
     for (long long i = 0; i <= k ; i++) {
@@ -3837,11 +3840,14 @@ int main(int argc, char * argv[]) {
             int p_count = (i % CLASSES), y_count = (i / CLASSES);
             polynom->push_back(pair<pair<int,int>,BIGINT>(pair<int,int>(p_count,y_count),(BIGINT)number));
             //cerr << "[" << i << "] -> (" << p_count << "," << y_count << ") : " << number << endl;
-          } else {
+          }
+#ifndef USEINFINT
+          else {
             if (number < 0) {
               _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","(gv_correlation_flag || gv_polynomial_dominant_selection_flag) p_count/y_count DOES OVERFLOW ...");
             }
           }
+#endif
         }
         delete m_ct_sens_dist;
         delete v_ct_sens_dist;

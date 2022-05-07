@@ -14,7 +14,7 @@ environment: # enable mingw build on windows image
 
 matrix:
   exclude: # no mingw build on unix
-    - image: Ubuntu
+    - image: Ubuntu2004
       BUILD_TYPE: mingw
     - image: MacOS
       BUILD_TYPE: mingw

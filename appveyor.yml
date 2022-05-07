@@ -34,7 +34,7 @@ build_script:
               C:\msys64\usr\bin\bash -lc "mv -f src/iedera.exe src/iedera-Win64.exe"
            }
        } else {
-           bash -c "autoreconf && ./configure LDFLAGS='-static' && automake && make"
+           bash -c "autoreconf && ./configure CXX='clang++' LDFLAGS='-static' && make"
            if ($isLinux) {
                bash -c "make check"
                bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"

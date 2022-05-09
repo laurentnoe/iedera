@@ -124,7 +124,8 @@ jobs:
 
       - run:
           name: Install Cygwin and required packages
-          command: .\setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P libssl-devel,git,gcc-core,make
+          shell: bash.exe
+          command: ./setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P libssl-devel,git,gcc-core,make
 
       - checkout
 

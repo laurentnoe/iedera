@@ -29,6 +29,15 @@
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -g 2 -m "11111011111" -mx "1111111111" -mxy 2 -ll 32 -llf avg -p || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -p -y SPEARMAN || exit 99
 ./iedera_gcov -spaced -BSymbols 01 -w 10,10 -s 10,11 -y 2 -m "11111011111" -p -y PEARSON  || exit 99
+./iedera_gcov -spaced -BSymbols -o -w 1,1 -s 1,1 -l 64 -g PEARSON  -o _fileout_l64_g_PEARSON_w1_  || exit 99
+diff _fileout_l64_g_PEARSON_w1_ _filemodel_l64_gy_correlation_w1.txt || exit 99
+./iedera_gcov -spaced -BSymbols -o -w 1,1 -s 1,1 -l 64 -g SPEARMAN -o _fileout_l64_g_SPEARMAN_w1_ || exit 99
+diff _fileout_l64_g_SPEARMAN_w1_ _filemodel_l64_gy_correlation_w1.txt || exit 99
+./iedera_gcov -spaced -BSymbols -o -w 1,1 -s 1,1 -l 64 -y PEARSON  -o _fileout_l64_y_PEARSON_w1_  || exit 99
+diff _fileout_l64_y_PEARSON_w1_ _filemodel_l64_gy_correlation_w1.txt || exit 99
+./iedera_gcov -spaced -BSymbols -o -w 1,1 -s 1,1 -l 64 -y SPEARMAN -o _fileout_l64_y_SPEARMAN_w1_ || exit 99
+diff _fileout_l64_y_SPEARMAN_w1_ _filemodel_l64_gy_correlation_w1.txt || exit 99
+
 
 # (4) classical spaced seeds with some lossless tests
 ./iedera_gcov -spaced -BSymbols 01 -l 25 -w 12,12 -s 15,15 -L 1,0 -X 2 -m "111111000111111" -r 10 -k || exit 99

@@ -125,7 +125,7 @@ jobs:
       - run:
           name: Install Cygwin and required packages
           shell: bash.exe
-          command: ./setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P git,gcc-core,make
+          command: ./setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P git,gcc-core,make,clang
 
       - run:
           name: Build

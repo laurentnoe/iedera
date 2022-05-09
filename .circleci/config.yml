@@ -133,9 +133,8 @@ jobs:
           #shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
           command: |
             CIRCLE_WORKING_DIRECTORY=$(eval "echo $CIRCLE_WORKING_DIRECTORY")
-            IEDERA_MAKE_PREFIX=$CIRCLE_WORKING_DIRECTORY/<< parameters.label >>
             cd $CIRCLE_WORKING_DIRECTORY
-            git clone << pipeline.parameters.src-repo-url >> -b << pipeline.parameters.branch-name >>
+            git clone https://github.com/laurentnoe/iedera.git
             cd iedera
             ./configure
             make

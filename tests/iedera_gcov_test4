@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # full enumeration of spaced seeds in verbose 4 mode without dominance selection
-./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,10 -b 0.75,0.25 -f 0.3,0.7    -v 4 -l 64 || exit 99
+./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,6 -b 0.75,0.25 -f 0.3,0.7    -v 4 -l 64 || exit 99
 # full enumeration of spaced seeds in verbose 4 mode with dominance selection
-./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,10 -b 0.75,0.25 -f 0.3,0.7 -p -v 4 -l 64 || exit 99
+./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,6 -b 0.75,0.25 -f 0.3,0.7 -p -v 4 -l 64 || exit 99
 # full enumeration of spaced seeds without dominance selection with excluded seed pattern (zero sens)
-./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,10 -b 0.75,0.25 -f 0.3,0.7 -p      -l 64 -mx "1010101,110011" -z 1 || exit 99
+./iedera_gcov -A 2 -B 2 -BSymbols 01 -w 5,5 -s 5,6 -b 0.75,0.25 -f 0.3,0.7 -p      -l 64 -mx "10111,11011" -z 1 || exit 99

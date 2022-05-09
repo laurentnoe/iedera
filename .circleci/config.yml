@@ -154,3 +154,4 @@ workflows:
       - build_debian
       - build_ubuntu
       - build_macos
+      - build_windows

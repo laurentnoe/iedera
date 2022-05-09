@@ -30,5 +30,4 @@ jobs:
       - run:
           name: Test
           command: |
-            make check
-            cat iedera_gcov_test5.log iedera_gcov_test5.trs
+            make check || cat iedera_gcov_test5.log iedera_gcov_test5.trs

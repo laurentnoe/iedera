@@ -41,10 +41,10 @@ jobs:
 #          path: /fails
 
 
-# (1) Ubuntu Docker
+# (2) Ubuntu Docker
   build_ubuntu:
     docker:
-      - image: cimg/base:2022.04
+      - image: cimg/base:stable
     steps:
       - run:
           name: Install dependencies
@@ -79,6 +79,32 @@ jobs:
 #          path: /fails
 
 
+# (3) Macos "non-docker"
+  build_macos:
+    macos:
+      xcode: 12.5.1
+
+    steps:
+      - checkout  # pull down code from your VCS
+      
+      - run:
+          name: Build
+          command: |
+            autoreconf
+            ./configure
+            make
+
+      - run:
+          name: Test
+          command: |
+            make check
+#      - run:
+#          command: |
+#            mkdir -p /fails
+#            find . -name "*.log" -exec cp \{\} /fails \;
+#          when: on_fail
+#      - store_artifacts:
+#          path: /fails
 
 
 workflows:
@@ -87,3 +113,4 @@ workflows:
     jobs:
       - build_debian
       - build_ubuntu
+      - build_macos

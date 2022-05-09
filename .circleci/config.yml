@@ -2,7 +2,9 @@
 version: 2
 
 jobs:
-  build:
+
+# (1) Debian Docker
+  build-debian:
     docker:
       - image: debian:buster
 
@@ -40,3 +42,10 @@ jobs:
 #          when: on_fail
 #      - store_artifacts:
 #          path: /fails
+
+
+
+workflows:
+  build-all:
+    jobs:
+      - build-debian

@@ -111,9 +111,10 @@ jobs:
 
   build_windows:
     machine:
-      image: windows-server-2019:stable
+      image: windows-server-2019-vs2019:stable
       shell: bash.exe
       resource_class: windows.medium
+
     steps:
       - run:
           name: Download Cygwin installer

@@ -2560,31 +2560,8 @@ std::ostream& operator<<(std::ostream& os, seedproperties& e){
 /**
  * @brief compute the euclidian distance of (sens, sel) to (1.0, 1.0)
  */
-
 double dist(double sel, double sens) {
   return sqrt((1.0 - sel)*(1.0 - sel) + (1.0 - sens)*(1.0 - sens));
-}
-
-
-/**
- * @brief display a list of seeds properties
- */
-
-int display (list<seedproperties> & l) {
-  cerr << "#" << "\t" << "1th column : seed motif"
-       << "\t" << "2nd column : selectivity"
-       << "\t" << "3rd column : " << (gv_correlation_flag?"correlation":"sensitivity")
-       << "\t" << "4th column : distance to (1, 1)";
-  if (gv_polynomial_dominant_selection_flag) {
-    cerr << "\t" << "5th column : nbmatches,property:count;... ";
-  }
-
-  l.sort();
-  for (list<seedproperties>::iterator i = l.begin(); i != l.end(); i++) {
-    if (i->str.length() > 0)
-      cout << (*i) << endl;
-  }
-  return 0;
 }
 
 
@@ -2596,7 +2573,6 @@ int display (list<seedproperties> & l) {
  * @param l is a (possibly unsorted) list of seedproperties
  * @return the area under the "pareto set"
  */
-
 double selectPareto(list<seedproperties> & l) {
 
   // (1) push border seedproperties and sort
@@ -2633,7 +2609,6 @@ double selectPareto(list<seedproperties> & l) {
       }
     }
   } // while
-
 
 
   // (3) compute covered area (set of rectangles)

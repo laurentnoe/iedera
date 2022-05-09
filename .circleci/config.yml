@@ -106,51 +106,10 @@ jobs:
 
 
 
-
-# FROM  https://github.com/circleci/circleci-docs/blob/master/jekyll/_cci2/sample-config.md
-
-  build_windows:
-    machine:
-      image: windows-server-2019-vs2019:stable
-      shell: bash.exe
-      resource_class: windows.medium
-
-    steps:
-      - run:
-          name: Download Cygwin installer
-          shell: bash.exe
-          command: |
-            curl -sSJOL https://cygwin.com/setup-x86_64.exe
-
-      - run:
-          name: Install Cygwin and required packages
-          shell: bash.exe
-          command: ./setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P git,gcc-g++
-
-      - run:
-          name: Build
-          shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
-          command: |
-            CIRCLE_WORKING_DIRECTORY=$(eval "echo $CIRCLE_WORKING_DIRECTORY")
-            cd $CIRCLE_WORKING_DIRECTORY
-            git clone https://github.com/laurentnoe/iedera.git
-            cd iedera
-            ./configure
-            make
-
-      - run:
-          name: Test
-          shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
-          command: |
-            make check
-
-
-
 workflows:
   version: 2
   build_all:
     jobs:
-      #- build_debian
-      #- build_ubuntu
-      #- build_macos
-      - build_windows
+      - build_debian
+      - build_ubuntu
+      - build_macos

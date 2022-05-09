@@ -4,7 +4,7 @@ version: 2
 jobs:
 
 # (1) Debian Docker
-  build-debian:
+  build_debian:
     docker:
       - image: debian:buster
 
@@ -46,6 +46,7 @@ jobs:
 
 
 workflows:
-  build-all:
+  version: 2
+  build_all:
     jobs:
-      - build-debian
+      - build_debian

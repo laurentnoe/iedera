@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - checkout  # pull down code from your VCS
-      
+
       - run:
           name: Build
           command: |
@@ -105,6 +105,49 @@ jobs:
 #          when: on_fail
 #      - store_artifacts:
 #          path: /fails
+
+
+
+
+
+# FROM  https://github.com/circleci/circleci-docs/blob/master/jekyll/_cci2/sample-config.md
+
+  build_windows:
+    machine:
+      image: windows-server-2019:stable
+      shell: bash.exe
+      resource_class: windows.medium
+    steps:
+      - run:
+          name: Download Cygwin installer
+          shell: bash.exe
+          command: |
+            curl -sSJOL https://cygwin.com/setup-x86_64.exe
+
+      - run:
+          name: Install Cygwin and required packages
+          command: .\setup-x86_64.exe -q -s https://mirrors.kernel.org/sourceware/cygwin/ -P libssl-devel,git,gcc-core,make
+
+      - checkout
+
+      - run:
+          name: Build
+          shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
+          command: |
+            CIRCLE_WORKING_DIRECTORY=$(eval "echo $CIRCLE_WORKING_DIRECTORY")
+            IEDERA_MAKE_PREFIX=$CIRCLE_WORKING_DIRECTORY/<< parameters.label >>
+            cd $CIRCLE_WORKING_DIRECTORY
+            git clone << pipeline.parameters.src-repo-url >> -b << pipeline.parameters.branch-name >>
+            cd iedera
+            ./configure
+            make
+
+      - run:
+          name: Test
+          shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
+          command: |
+            make check
+
 
 
 workflows:

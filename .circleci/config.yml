@@ -32,12 +32,11 @@ jobs:
       - run:
           name: Test
           command: |
-            ls -R
             make check
-      - run:
-          command: |
-            mkdir -p /fails
-            find . -name "*.log" -exec cp \{\} /fails \;
-          when: on_fail
-      - store_artifacts:
-          path: /fails
+#      - run:
+#          command: |
+#            mkdir -p /fails
+#            find . -name "*.log" -exec cp \{\} /fails \;
+#          when: on_fail
+#      - store_artifacts:
+#          path: /fails

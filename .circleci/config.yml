@@ -17,7 +17,8 @@ jobs:
                 build-essential \
                 cmake \
                 git \
-               diffutils
+                diffutils \
+                bc
 
       - checkout
 

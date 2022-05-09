@@ -24,7 +24,6 @@ jobs:
       - run:
           name: Build
           command: |
-            autoreconf
             ./configure
             make
 
@@ -62,7 +61,6 @@ jobs:
       - run:
           name: Build
           command: |
-            autoreconf
             ./configure
             make
 
@@ -90,7 +88,6 @@ jobs:
       - run:
           name: Build
           command: |
-            autoreconf
             ./configure
             make
 

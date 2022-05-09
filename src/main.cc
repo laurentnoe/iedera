@@ -2651,19 +2651,19 @@ double selectPareto(list<seedproperties> & l) {
  * @brief Compute the "pareto set" and "pareto set" area (set of rectangles)
  * @brief for the selectivity/sensitivity of a set of seeds
  * @brief [this definition is more suitable]
- *
+ * @param os is the outputstream
  * @param l is a (possibly unsorted) list of seedproperties
  * @return the area under the "pareto set"
  */
 
-double list_and_areaPareto(list<seedproperties> & l) {
+double list_and_areaPareto(list<seedproperties> & l, std::ostream& os) {
   // (1) select pareto set and compute area
   double area = selectPareto(l);
   VERB_FILTER(VERBOSITY_MODERATE, INFO__("pareto area : " << area););
   // (2) display seeds
   for ( list<seedproperties>::iterator i = l.begin(); i !=  l.end(); i++ ){
     if (i->str.length() > 0)
-      cout << (*i) << endl;
+      os << (*i) << endl;
   }
   return area;
 }
@@ -2816,16 +2816,11 @@ int inputPareto(list<seedproperties> & l, char * filename) {
  */
 
 int outputPareto(list<seedproperties> & l, char * filename) {
-  // select pareto
-  selectPareto(l);
   // write pareto
   ofstream out;
   out.open(filename, ifstream::out);
   if (out.good()) {
-    for (list<seedproperties>::iterator i = l.begin(); i != l.end(); i++ ){
-      if (i->str.length() > 0)
-        out << (*i) << endl;
-    }
+    list_and_areaPareto(l, out);
   } else {
     _ERROR("outputPareto"," unable to write into \"" << filename << "\"");
   }
@@ -2989,7 +2984,7 @@ void termin_handler( int signal ) {
   // final output
   VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
   if (!gv_output_filename)
-    list_and_areaPareto(l);
+    list_and_areaPareto(l, cout);
   else
     outputPareto(l, gv_output_filename);
   exit(0);
@@ -4352,7 +4347,7 @@ int main(int argc, char * argv[]) {
   // final output
   VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
   if (!gv_output_filename)
-    list_and_areaPareto(l);
+    list_and_areaPareto(l, cout);
   else
     outputPareto(l, gv_output_filename);
 

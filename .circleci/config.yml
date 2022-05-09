@@ -17,6 +17,7 @@ jobs:
                 build-essential \
                 cmake \
                 git \
+               diffutils
 
       - checkout
 
@@ -30,4 +31,12 @@ jobs:
       - run:
           name: Test
           command: |
-            make check || cat iedera_gcov_test5.log iedera_gcov_test5.trs
+            ls -R
+            make check
+      - run:
+          command: |
+            mkdir -p /fails
+            find . -name "*.log" -exec cp \{\} /fails \;
+          when: on_fail
+      - store_artifacts:
+          path: /fails

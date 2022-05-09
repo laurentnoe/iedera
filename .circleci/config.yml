@@ -129,7 +129,8 @@ jobs:
 
       - run:
           name: Build
-          shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
+          shell: bash.exe
+          #shell: C:\\cygwin64\\bin\\bash.exe --login -eo pipefail
           command: |
             CIRCLE_WORKING_DIRECTORY=$(eval "echo $CIRCLE_WORKING_DIRECTORY")
             IEDERA_MAKE_PREFIX=$CIRCLE_WORKING_DIRECTORY/<< parameters.label >>

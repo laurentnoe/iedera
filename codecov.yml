@@ -5,7 +5,8 @@ fixes:
   - "/home/appveyor/projects/iedera/*::iedera/"
 
 ignore:
-    - "/usr/"
+    - "usr"
+    - "include"
     
 coverage:
   range: 60..80

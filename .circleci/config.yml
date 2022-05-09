@@ -17,9 +17,45 @@ jobs:
                 autoconf \
                 automake \
                 build-essential \
-                cmake \
                 git \
-                diffutils \
+                bc
+
+      - checkout
+
+      - run:
+          name: Build
+          command: |
+            autoreconf
+            ./configure
+            make
+
+      - run:
+          name: Test
+          command: |
+            make check
+#      - run:
+#          command: |
+#            mkdir -p /fails
+#            find . -name "*.log" -exec cp \{\} /fails \;
+#          when: on_fail
+#      - store_artifacts:
+#          path: /fails
+
+
+# (1) Ubuntu Docker
+  build_ubuntu:
+    docker:
+      - image: cimg/base:2022.04
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update
+            apt-get install -y \
+                autoconf \
+                automake \
+                build-essential \
+                git \
                 bc
 
       - checkout
@@ -45,8 +81,10 @@ jobs:
 
 
 
+
 workflows:
   version: 2
   build_all:
     jobs:
       - build_debian
+      - build_ubuntu

@@ -62,6 +62,7 @@ jobs:
       - run:
           name: Build
           command: |
+            autoreconf
             ./configure
             make
 

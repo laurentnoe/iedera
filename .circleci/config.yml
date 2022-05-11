@@ -29,6 +29,15 @@ jobs:
           name: Test
           command: |
             make check
+      - run:
+          name : Artifacts
+          command: |
+            mkdir -p ~/binaries
+            cp src/iedera ~/binaries/iedera-Linux-x86-64-Intel-Debian.bin
+      - store_artifacts:
+          path: ~/binaries
+
+# REMINDER : Just after a test fail ... put this
 #      - run:
 #          command: |
 #            mkdir -p /fails
@@ -64,13 +73,13 @@ jobs:
           name: Test
           command: |
             make check
-#      - run:
-#          command: |
-#            mkdir -p /fails
-#            find . -name "*.log" -exec cp \{\} /fails \;
-#          when: on_fail
-#      - store_artifacts:
-#          path: /fails
+      - run:
+          name : Artifacts
+          command: |
+            mkdir -p ~/binaries
+            cp src/iedera ~/binaries/iedera-Linux-x86-64-Intel-Ubuntu.bin
+      - store_artifacts:
+          path: ~/binaries
 
 
 # (3) Macos "non-docker"
@@ -88,13 +97,13 @@ jobs:
           name: Test
           command: |
             make check
-#      - run:
-#          command: |
-#            mkdir -p /fails
-#            find . -name "*.log" -exec cp \{\} /fails \;
-#          when: on_fail
-#      - store_artifacts:
-#          path: /fails
+      - run:
+          name : Artifacts
+          command: |
+            mkdir -p ~/binaries
+            cp src/iedera ~/binaries/iedera-MacOS-x86-64-Intel.bin
+      - store_artifacts:
+          path: ~/binaries
 
 
 # From https://github.com/influxdata/flux/blob/master/.circleci/config.yml
@@ -115,6 +124,13 @@ jobs:
           command: |
             ./configure
             make || gmake
+      - run:
+          name : Artifacts
+          command: |
+            mkdir -p ~/binaries
+            cp src/iedera.exe ~/binaries/iedera-Win-x86-64-Intel.exe
+      - store_artifacts:
+          path: ~/binaries
 
 workflows:
   version: 2

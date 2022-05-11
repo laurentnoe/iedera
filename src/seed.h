@@ -300,7 +300,7 @@ class seed {
    *  @param cycle_pos is a vector of positions where the seed is allowed to match
    *  @param cycle_size is the maximal position where a position can be set
    */
-  void setCyclePos(vector<int> cycle_pos, int cycle_size);
+  void setCyclePos(std::vector<int> cycle_pos, int cycle_size);
 
   //@{
 
@@ -309,7 +309,7 @@ class seed {
    *  @param matchingmatrix is a boolean matrix that gives for alignment letter "a", and seed letter "b", the matching with "matrix[a][b]"
    *  @return the first position of a hit for the current (possibly positioned) subset seed, -1 otherwise
    */
-  int Hit(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix);
+  int Hit(const std::vector<int> & alignment, const std::vector< std::vector<int> > & matchingmatrix);
 
 
   /** @brief return the number of hits for the current (possibly positioned) subset seed
@@ -317,7 +317,7 @@ class seed {
    *  @param matchingmatrix is a boolean matrix that gives for alignment letter "a", and seed letter "b", the matching with "matrix[a][b]"
    *  @return the number of hits for the current (possibly positioned) subset seed
    */
-  int mHits(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix);
+  int mHits(const std::vector<int> & alignment, const std::vector< std::vector<int> > & matchingmatrix);
 
   //@}
 

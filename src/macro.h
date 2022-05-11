@@ -72,11 +72,11 @@ extern int                    gv_subalignment_function_index;
 /// number of functions proposed in the "subalignment" computation
 #define SUBALIGNMENT_FUNCTIONS_NUMBER 4
 /// type of the int functions proposed in the "subalignment" computation
-typedef double (*subalignment_function_int)(vector<int> &);
+typedef double (*subalignment_function_int)(std::vector<int> &);
 /// vector of int functions proposed in the "subalignment" computation, see @ref gv_subalignment_functions_names for their names
 extern subalignment_function_int    gv_subalignment_functions_int[SUBALIGNMENT_FUNCTIONS_NUMBER];
 /// type of the double functions proposed in the "subalignment" computation
-typedef double (*subalignment_function_double)(vector<double> &);
+typedef double (*subalignment_function_double)(std::vector<double> &);
 /// vector of double functions proposed in the "subalignment" computation, see @ref gv_subalignment_functions_names for their names
 extern subalignment_function_double gv_subalignment_functions_double[SUBALIGNMENT_FUNCTIONS_NUMBER];
 /// names of the functions proposed in the "subalignment" computation, see @ref gv_subalignment_functions_int and @ref gv_subalignment_functions_double for their respective implementation
@@ -116,7 +116,7 @@ extern int gv_verbose;
 /// number of seed runs (0 when full enumeration of all possible seeds)
 extern int                    gv_nbruns;
 /// signature vector (number of seed letters per seed)
-extern vector<int>            gv_signature;
+extern std::vector<int>       gv_signature;
 /// signature flag that enable the signature selection @see gv_signature
 extern bool                   gv_signature_flag;
 /// signature shuffle flag that enable only shuffle from the -m pattern and is not compatible with signature @see gv_signature_flag
@@ -162,7 +162,7 @@ extern double                 gv_bsel_minprob;
 /// max seed letter selectivity for the seed alphabet
 extern double                 gv_bsel_maxprob;
 /// weight as @f$\frac{ \log(\mathrm{seed\ letter\ selectivity})}{log (max (\mathrm{seed\ letter\ selectivity}))}@f$  for each seed  letter
-extern vector<double>         gv_bsel_weight;
+extern std::vector<double>    gv_bsel_weight;
 /// computer the weight (gv_bsel_weight) according to background probabilities (gv_bsel)
 extern void computeWeight();
 // @}
@@ -174,7 +174,7 @@ extern void computeWeight();
 /// flag that activates lossless computation (default lossy computation)
 extern bool                   gv_lossless_flag;
 /// the lossless cost for A when lossless flag is activated @see gv_lossless_flag,gv_lossless_cost_threshold
-extern vector<int>            gv_lossless_costs_vector;
+extern std::vector<int>       gv_lossless_costs_vector;
 /// lossless cost for an alignment (must be at most equal to this value) @see gv_lossless_costs_vector
 extern int                    gv_lossless_cost_threshold;
 // @}

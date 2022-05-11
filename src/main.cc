@@ -89,7 +89,7 @@
  */
 // @{
 /// boolean matching matrix
-std::vector< std::vector<int> >  gv_subsetseed_matching_matrix;
+std::vector<std::vector<int> >  gv_subsetseed_matching_matrix;
 /// build an initial matrix gv_subsetseed_matching_matrix @see gv_subsetseed_matching_matrix
 void build_default_subsetseed_matching_matrix();
 // @}
@@ -117,7 +117,7 @@ void build_default_probabilities();
  */
 // @{
 /// vector scoring matrix when vectorized subset seeds are activated @see gv_vectorized_flag,gv_vectorizedsubsetseed_scoring_threshold
-std::vector< std::vector<int> >  gv_vectorizedsubsetseed_scoring_matrix;
+std::vector<std::vector<int> >  gv_vectorizedsubsetseed_scoring_matrix;
 /// scoring threshold for a vectorized subset seed @see gv_vectorizedsubsetseed_scoring_matrix
 int                              gv_vectorizedsubsetseed_scoring_threshold = 0;
 /// flag that activates vectorized subset seeds (default subset seed)
@@ -140,7 +140,7 @@ double   gv_hillclimbing_alpha = 5e-3;
 /// flag set when a seed is given on command line
 bool     gv_motif_flag         = 0;
 /// set of seeds being computed or optimized
-std::vector< seed*>  gv_seeds;
+std::vector<seed*>  gv_seeds;
 /// maximal difference of weight (given as a ratio) between seeds being optimized together
 double   gv_jive               = 0.0;
 // @}
@@ -152,11 +152,11 @@ double   gv_jive               = 0.0;
 /// cycle flag @see gv_cycles
 bool                             gv_cycles_flag = false;
 /// cycle size (one for each seed) @see gv_cycles_flag
-std::vector< int >               gv_cycles;
+std::vector<int>                 gv_cycles;
 /// cycle pos (number of pos per cycle) @see gv_cycles_pos_list,gv_cycles_flag
-std::vector< int >               gv_cycles_pos_nb;
+std::vector<int>                 gv_cycles_pos_nb;
 /// cycle pos (pos for each cycle) @see gv_cycles_flag,gv_cycles_pos_nb
-std::vector< std::vector<int>  > gv_cycles_pos_list;
+std::vector<std::vector<int>  >  gv_cycles_pos_list;
 // @}
 
 /* @name multihit criterion
@@ -200,7 +200,7 @@ std::vector<int>                gv_xseeds_cycles;
 /// cycle pos (number of pos per cycle) @see gv_xseeds_cycles_pos_list,gv_xseeds_cycles_flag
 std::vector<int>                gv_xseeds_cycles_pos_nb;
 /// cycle pos (pos for each cycle) @see gv_xseeds_cycles_flag,gv_xseeds_cycles_pos_nb
-std::vector< std::vector<int> > gv_xseeds_cycles_pos_list;
+std::vector<std::vector<int> >  gv_xseeds_cycles_pos_list;
 // @}
 
 /* @name excluded seed multihit criterion
@@ -279,13 +279,13 @@ automaton<polynomial<BIGINT > > * gv_multipoly_bsens_automaton = NULL;
  */
 // @{
 /// pareto output filename @see outputPareto
-char   * gv_output_filename = NULL;
+char   * gv_output_filename      = NULL;
 /// pareto input filenames @see inputPareto
 char   * gv_input_filenames[256] = {NULL};
 /// pareto input filenames (number of files) @see gv_input_filenames
-int      gv_nb_input_filenames =   0;
+int      gv_nb_input_filenames   = 0;
 /// pareto selection every nbruns (print statitics also)
-int      gv_pareto_select_runs = 1000;
+int      gv_pareto_select_runs   = 1000;
 // @}
 
 
@@ -297,11 +297,11 @@ int      gv_pareto_select_runs = 1000;
 // @{
 
 /// binomial coefficients, must be pre-computed for correlations algorithms
-std::vector< std::vector<BIGINT> > binomials;
+std::vector<std::vector<BIGINT> > binomials;
 
 /// binomials computed with the Pascal Triangle (overflow are checked and stop the program)
 void generate_binomials(int N) {
-  binomials = std::vector< std::vector<BIGINT> > (N+1,  std::vector<BIGINT>(N+1,0) );
+  binomials = std::vector<std::vector<BIGINT> >(N+1, std::vector<BIGINT>(N+1,0));
   int k, n;
   for (k = 1; k <= N; k++) binomials[0][k] = 0;
   for (n = 0; n <= N; n++) binomials[n][0] = 1;
@@ -336,9 +336,9 @@ BIGINT lcm(BIGINT a, BIGINT b) {
 
 /// binomial weight (inverted values of binomials coeeficients), must be pre-computed for correlations algorithms
 #ifdef USEINFINT
-std::vector< std::vector<BIGINT> > binomial_weights;
+std::vector<std::vector<BIGINT> > binomial_weights;
 #else
-std::vector< std::vector<double> > binomial_weights;
+std::vector<std::vector<double> > binomial_weights;
 #endif
 
 /// binomial weight flag, must be set to false when already computed
@@ -346,9 +346,9 @@ bool gp_binomial_weights_not_computed_flag = true;
 
 void generate_binomials_weights(int N) {
 #ifdef USEINFINT
-  binomial_weights = std::vector< std::vector<BIGINT> > (N+1,  std::vector<BIGINT>(N+1,0) );
+  binomial_weights = std::vector<std::vector<BIGINT> > (N+1, std::vector<BIGINT>(N+1,0));
 #else
-  binomial_weights = std::vector< std::vector<double> > (N+1,  std::vector<double>(N+1,0) );
+  binomial_weights = std::vector<std::vector<double> > (N+1, std::vector<double>(N+1,0));
 #endif
 
   generate_binomials(N);
@@ -388,7 +388,7 @@ void generate_binomials_weights(int N) {
 // @{
 
 /// display a 2d matrix (a vector of vectors of int)
-void DISPLAYMATRIX( std::ostream & os, vector< vector<int> > & matrix );
+void DISPLAYMATRIX( std::ostream & os, std::vector<std::vector<int> > & matrix );
 
 /// describe the command line parameters
 void USAGE() {
@@ -517,7 +517,7 @@ void USAGE() {
   exit(-1);
 }
 /// display a 2d matrix (a vector of vectors of int)
-void DISPLAYMATRIX(std::ostream & os, std::vector< std::vector<int> > & matrix ) {
+void DISPLAYMATRIX(std::ostream & os, std::vector<std::vector<int> > & matrix ) {
   os << "{";
   for (int b = 0; b < gv_seed_alphabet_size; b++) {
     os << "{";
@@ -894,7 +894,7 @@ typedef enum {
 
 
 /// parse and check a matrix input
-void PARSEMATRIX(int & i, char ** argv, int argc, std::vector< std::vector<int> > & matrix, int min, int max, int gnbcolumns, int gnbrows) {
+void PARSEMATRIX(int & i, char ** argv, int argc, std::vector<std::vector<int> > & matrix, int min, int max, int gnbcolumns, int gnbrows) {
 
   i++;
   if (i >= argc)
@@ -998,7 +998,7 @@ void PARSEMATRIX(int & i, char ** argv, int argc, std::vector< std::vector<int> 
 
 
 /// parse and check a matrix input as a file
-void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector< std::vector<int> > & matrix, int min, int max, int gnbcolumns, int gnbrows) {
+void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector<std::vector<int> > & matrix, int min, int max, int gnbcolumns, int gnbrows) {
 
   i++;
   if (i >= argc)
@@ -1121,7 +1121,7 @@ void PARSEMATRIXFILE(int & i, char ** argv, int argc, std::vector< std::vector<i
 
 
 /// check a matrix input as a subset seed matching set
-void CHECKMATCHINGMATRIX(std::vector< std::vector<int> > & matrix ) {
+void CHECKMATCHINGMATRIX(std::vector<std::vector<int> > & matrix ) {
   gv_matching_symbol_flag = true;
 
   // check the '1' symbol existance
@@ -1836,7 +1836,7 @@ void SCANARG(int argc , char ** argv) {
       PARSEINTS(i, argv, argc, gv_cycles, gv_seeds.size(), true, 1, 10000, true);
       // set the init cycles positions
       gv_cycles_pos_nb    = std::vector<int> (gv_seeds.size(), 1);
-      gv_cycles_pos_list  = std::vector< std::vector<int> >(gv_seeds.size(), std::vector<int>(1, 0));
+      gv_cycles_pos_list  = std::vector<std::vector<int> >(gv_seeds.size(), std::vector<int>(1, 0));
     } else if (!strcmp(argv[i],"-q")||!strcmp(argv[i],"--cyclespos")) {
       if (gv_cycles_flag) {
         if (gv_motif_flag) {
@@ -1844,7 +1844,7 @@ void SCANARG(int argc , char ** argv) {
         }
         // set the init cycles positions
         PARSEINTS(i, argv, argc, gv_cycles_pos_nb, gv_seeds.size(), true, 1, 10000, true);
-        gv_cycles_pos_list = std::vector< std::vector<int> >(gv_seeds.size(), std::vector<int>(0));
+        gv_cycles_pos_list = std::vector<std::vector<int> >(gv_seeds.size(), std::vector<int>(0));
         for (unsigned i = 0; i < gv_seeds.size(); i++) {
           gv_cycles_pos_nb[i] = MIN(gv_cycles_pos_nb[i], gv_cycles[i]);
           for (int j = 0; j < gv_cycles_pos_nb[i]; j++)
@@ -2072,7 +2072,7 @@ void SCANARG(int argc , char ** argv) {
         gv_subsetseed_matching_matrix[u].clear();
       gv_subsetseed_matching_matrix.clear();
       for (int a = 0; a < gv_align_alphabet_size; a++) {
-        gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
+        gv_subsetseed_matching_matrix.push_back(std::vector<int>(gv_seed_alphabet_size, 0));
       }
       // . matrix filling (ACGT x ACGT order)
       int subsetseed_matching_matrix_tmp_reversed[27][16] = {
@@ -2162,7 +2162,7 @@ void computeWeight() {
  * @param correlation_enum is the index of the correlation function being used @see gv_correlation_function_index
  * @return the correlation computed accordingly
  */
-double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int correlation_enum) {
+double compute_correlation(std::vector<std::pair<std::pair<int,int>,BIGINT> > * polynom, int correlation_enum) {
 
   int min_p = MIN_PVAL;
   if (min_p >= gv_alignment_length) {
@@ -2179,19 +2179,19 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
 
   case CORRELATION_FUNCTIONS_ENUM_PEARSON :
     {
-      vector<BIGINT> y  = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> p  = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> y2 = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> p2 = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> yp = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> n  = vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> y  = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> p  = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> y2 = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> p2 = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> yp = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> n  = std::vector<BIGINT>(CLASSES,0);
 
-      vector<BIGINT>  y_sum = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT>  p_sum = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> y2_sum = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> p2_sum = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> yp_sum = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT>  n_sum = vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT>  y_sum = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT>  p_sum = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> y2_sum = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> p2_sum = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> yp_sum = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT>  n_sum = std::vector<BIGINT>(CLASSES,0);
 
       // fill initial tables
       for (unsigned i = 0; i < polynom->size(); i++) {
@@ -2278,12 +2278,12 @@ double compute_correlation(vector< pair<pair<int,int>,BIGINT> > * polynom, int c
       // sum the number to sort in two arrays
 
 #ifdef USEINFINT
-      vector<BIGINT> y  = vector<BIGINT>(CLASSES,0);
-      vector<BIGINT> p  = vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> y  = std::vector<BIGINT>(CLASSES,0);
+      std::vector<BIGINT> p  = std::vector<BIGINT>(CLASSES,0);
       BIGINT full_sum = 0;
 #else
-      vector<double> y = vector<double>(CLASSES,0);
-      vector<double> p = vector<double>(CLASSES,0);
+      std::vector<double> y = std::vector<double>(CLASSES,0);
+      std::vector<double> p = std::vector<double>(CLASSES,0);
       double full_sum = 0.0;
 #endif
       for (unsigned i = 0; i < polynom->size(); i++) {
@@ -2397,7 +2397,7 @@ class seedproperties {
 public:
   /** @brief build a "seedproperties" object (keep current seed properties when needed)
    */
-  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  vector< pair<pair<int,int>,BIGINT> > * polynom = NULL, polynomial<BIGINT > * multipoly = NULL) {
+  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  std::vector<std::pair<std::pair<int,int>,BIGINT> > * polynom = NULL, polynomial<BIGINT > * multipoly = NULL) {
 
     this->sel   = sel;
     this->sens  = sens;
@@ -2405,9 +2405,9 @@ public:
     this->str   = string(str);
     this->lossless = lossless;
     if (polynom)
-      this->polynom = vector< pair<pair<int,int>,BIGINT> >(polynom->begin(),polynom->end());
+      this->polynom = std::vector<std::pair<std::pair<int,int>,BIGINT> >(polynom->begin(),polynom->end());
     else
-      this->polynom = vector< pair<pair<int,int>,BIGINT> >(0);
+      this->polynom = std::vector<std::pair<std::pair<int,int>,BIGINT> >(0);
     if (multipoly)
       this->multipoly = polynomial<BIGINT >(*multipoly);
     else
@@ -2423,8 +2423,8 @@ public:
     this->dist  = other.dist;
     this->str   = string(other.str);
     this->lossless = other.lossless;
-    this->polynom   = vector< pair<pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
-    this->multipoly = polynomial<BIGINT >(other.multipoly);
+    this->polynom   = std::vector<std::pair<std::pair<int,int>,BIGINT> >(other.polynom.begin(),other.polynom.end());
+    this->multipoly = polynomial<BIGINT>(other.multipoly);
   }
 
 
@@ -2439,7 +2439,7 @@ public:
   /// is this seed lossless
   bool   lossless;
   /// keep polynomial factors for multihit / coverage hit  /vs/
-  vector< pair<pair<int,int>,BIGINT> > polynom;
+  std::vector<std::pair<std::pair<int,int>,BIGINT> > polynom;
   /// keep multivariable polynomial for output only
   polynomial<BIGINT > multipoly;
 
@@ -2546,7 +2546,7 @@ std::ostream& operator<<(std::ostream& os, seedproperties& e){
   os <<  "\t" << e.dist;
   if (gv_polynomial_dominant_selection_flag) {
     os << "\t";
-    for (vector< pair<pair<int,int>,BIGINT> >::iterator i = e.polynom.begin(); i != e.polynom.end(); i++) {
+    for (std::vector<std::pair<std::pair<int,int>,BIGINT> >::iterator i = e.polynom.begin(); i != e.polynom.end(); i++) {
       os << (i->first.first) << "," << (i->first.second) << "=" << (i->second) << ";";
     }
   }
@@ -2736,7 +2736,7 @@ int inputPareto(list<seedproperties> & l, char * filename) {
       double sel = 0.0;
       double sens = 1.0;
       double dist = 0.0;
-      vector< pair<pair<int,int>,BIGINT> > polynom(0);
+      std::vector<std::pair<std::pair<int,int>,BIGINT> > polynom(0);
 
       // read begining
       row >> shape >> sel >> sens_or_lossless >> dist;
@@ -2766,7 +2766,7 @@ int inputPareto(list<seedproperties> & l, char * filename) {
           if (z != ';') {
             _ERROR("inputPareto"," missing ; symbol");
           }
-          polynom.push_back(pair<pair<int,int>,BIGINT>(pair<int,int>(ygm,p),c));
+          polynom.push_back(std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(ygm,p),c));
         }
       }
 
@@ -2818,7 +2818,7 @@ void build_default_subsetseed_matching_matrix() {
   gv_subsetseed_matching_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    gv_subsetseed_matching_matrix.push_back(vector<int>(gv_seed_alphabet_size, 0));
+    gv_subsetseed_matching_matrix.push_back(std::vector<int>(gv_seed_alphabet_size, 0));
   }
 
   // fill it in
@@ -2846,7 +2846,7 @@ void build_default_vectorizedsubsetseed_scoring_matrix() {
   gv_vectorizedsubsetseed_scoring_matrix.clear();
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
-    gv_vectorizedsubsetseed_scoring_matrix.push_back(vector<int>(gv_seed_alphabet_size,-1));
+    gv_vectorizedsubsetseed_scoring_matrix.push_back(std::vector<int>(gv_seed_alphabet_size,-1));
   }
 
   // fill it in
@@ -3036,8 +3036,8 @@ int main(int argc, char * argv[]) {
   SCANARG(argc, argv);
 
   l = list<seedproperties>();
-  vector< pair<pair<int,int>,BIGINT> > v1_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,1),1));
-  vector< pair<pair<int,int>,BIGINT> > v0_one = vector< pair<pair<int,int>,BIGINT> >(1,pair<pair<int,int>,BIGINT>(pair<int,int>(0,0),1));
+  std::vector<std::pair<std::pair<int,int>,BIGINT> > v1_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,1),1));
+  std::vector<std::pair<std::pair<int,int>,BIGINT> > v0_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,0),1));
   l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag, &v1_one));
   l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false,            &v0_one));
 
@@ -3109,7 +3109,7 @@ int main(int argc, char * argv[]) {
   // build the cost automaton
   automaton<cost<int> > a_cost;
   if (gv_lossless_flag) {
-    vector<cost<int> > lossless_costs_vector(gv_seed_alphabet_size,cost<int>(0));
+    std::vector<cost<int> > lossless_costs_vector(gv_seed_alphabet_size,cost<int>(0));
     for (int i = 0; i < gv_seed_alphabet_size; i++)
       lossless_costs_vector[i] = cost<int>(gv_lossless_costs_vector[i]);
     a_cost.Automaton_Bernoulli(lossless_costs_vector);
@@ -3705,7 +3705,7 @@ int main(int argc, char * argv[]) {
         }
       }
 
-      std::vector< pair<pair<int,int>,BIGINT> > *  polynom   = NULL;
+      std::vector<std::pair<std::pair<int,int>,BIGINT> > *  polynom   = NULL;
       polynomial<BIGINT > * multipoly = NULL;
       //FIXMECOV>>
       if (gv_covariance_flag) goto gv_covariance_flag_1;
@@ -3725,12 +3725,12 @@ int main(int argc, char * argv[]) {
         VERB_FILTER(VERBOSITY_MODERATE, INFO__("- count matrix product size : " << (m_ct_sens_dist->size())););
         std::vector<BIGINT> * v_ct_sens_dist = m_ct_sens_dist->Pr_transitive_final(gv_alignment_length, (gv_multihit_flag||gv_global_coverage_flag)?(INT_INFINITY):(2*CLASSES-1),(gv_multihit_flag||gv_global_coverage_flag)?(1):(CLASSES));
         // transfor as a polynom (64 bits numbers !! warning on overflow)
-        polynom = new vector< pair<pair<int,int>,BIGINT> >(0);
+        polynom = new std::vector<std::pair<std::pair<int,int>,BIGINT> >(0);
         for (unsigned i = 0; i < v_ct_sens_dist->size(); i++) {
           BIGINT number = (*v_ct_sens_dist)[i];
           if (number > 0) {
             int p_count = (i % CLASSES), y_count = (i / CLASSES);
-            polynom->push_back(pair<pair<int,int>,BIGINT>(pair<int,int>(p_count,y_count),(BIGINT)number));
+            polynom->push_back(std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(p_count,y_count),(BIGINT)number));
             //cerr << "[" << i << "] -> (" << p_count << "," << y_count << ") : " << number << endl;
           }
 #ifndef USEINFINT
@@ -3761,7 +3761,7 @@ int main(int argc, char * argv[]) {
           // (3.a.1) lossless with subalignment matrix
           if (gv_subalignment_flag) {
 
-            std::vector< matrix<cost<int> > * > * vm = a_spr_mx_h_res->matrices_step_cost_product(a_cost, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+            std::vector<matrix<cost<int> > * > * vm = a_spr_mx_h_res->matrices_step_cost_product(a_cost, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             std::vector<int> results(gv_alignment_length-gv_subalignment_length+1);
 #ifndef NOSLICER
             // Sliced version
@@ -3844,7 +3844,7 @@ int main(int argc, char * argv[]) {
           // (3.a.3) lossy with subalignment matrix
           if (gv_subalignment_flag) {
 
-            std::vector< matrix<double> * > * vm = a_spr_mx_h_res->matrices_step_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
+            std::vector<matrix<double> * > * vm = a_spr_mx_h_res->matrices_step_pr_product(a_sens, PRODUCT_UNION_NO_FINAL_LOOP, gv_alignment_length);
             std::vector<double> results(gv_alignment_length-gv_subalignment_length+1);
 #ifndef NOSLICER
             // Sliced version

@@ -51,10 +51,10 @@ template<typename C> class polynomial {
       _coefs[i].first.clear();
     _coefs.clear();
     if (u != 0)
-      _coefs.push_back(pair<vector<int>, C> (vector<int>(0), C(u)));
+      _coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(0), C(u)));
 
     /* extends all the coef vectors to size "_var_names.size()" by adding extra zeros, sort them */
-    for (typename vector<pair<vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
+    for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
       i_p->first.resize(_var_names.size(),0);
     sort(_coefs.begin(), _coefs.end());
   };
@@ -67,10 +67,10 @@ template<typename C> class polynomial {
 
     /* copy */
     for (unsigned i = 0; i < other._coefs.size(); i++)
-      _coefs.push_back(pair<vector<int>, C> (vector<int>(other._coefs[i].first), C(other._coefs[i].second)));
+      _coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(other._coefs[i].first), C(other._coefs[i].second)));
 
     /* extends all the coef vectors to size "p._var_names.size()" by adding extra zeros, sort them */
-    for (typename vector<pair<vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
+    for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
       i_p->first.resize(_var_names.size(),0);
     sort(_coefs.begin(), _coefs.end());
   };
@@ -110,14 +110,14 @@ template<typename C> class polynomial {
 
 protected:
   /// give a list of the coefficients C for a polynomial, each vector associated with C represents the list of variables (each variable being addressed by its proper index in the vector) and its degree (integer given by the vector at the index given by the variable)
-  vector<pair<vector<int>, C> > _coefs;
+  std::vector<std::pair<std::vector<int>, C> > _coefs;
   /// give the index of each variable name, or the name of the variable from its index
-  static vector<string> _var_names;
+  static std::vector<string> _var_names;
 };
 
 
 /// Operator @f$ == @f$ for two polynomials
-template<typename C> inline bool equal_coefs (const pair<vector<int>, C> & coef1, const pair<vector<int>, C> & coef2) {
+template<typename C> inline bool equal_coefs (const std::pair<std::vector<int>, C> & coef1, const std::pair<std::vector<int>, C> & coef2) {
   return
     coef1.second == coef2.second
     &&
@@ -155,8 +155,8 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
   //sort(l._coefs.begin(),l._coefs.end());
   //sort(r._coefs.begin(),r._coefs.end());
   polynomial<C> result = polynomial<C>();
-  typename vector<pair<vector<int>, C > >::const_iterator i_l = l._coefs.begin();
-  typename vector<pair<vector<int>, C > >::const_iterator i_r = r._coefs.begin();
+  typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_l = l._coefs.begin();
+  typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_r = r._coefs.begin();
   while (i_l != l._coefs.end() && i_r != r._coefs.end()) {
     if (i_l->first.size() == i_r->first.size() && std::equal(i_l->first.begin(),i_l->first.end(),i_r->first.begin())) {
       C val = C(i_l->second) + C(i_r->second);
@@ -166,19 +166,19 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
       }
 #endif
       if (val != C(0))
-        result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+        result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
       i_l++;
       i_r++;
     } else {
       if (i_l->first < i_r->first) {
         C val = C(i_l->second);
         if (val != C(0))
-          result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+          result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
         i_l++;
       } else {
         C val = C(i_r->second);
         if (val != C(0))
-          result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_r->first), val));
+          result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_r->first), val));
         i_r++;
       }
     }
@@ -186,13 +186,13 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
   while (i_l != l._coefs.end()) {
     C val = C(i_l->second);
     if (val != C(0))
-      result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+      result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
     i_l++;
   }
   while (i_r != r._coefs.end()) {
     C val = C(i_r->second);
     if (val != C(0))
-      result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_r->first), val));
+      result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_r->first), val));
     i_r++;
   }
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << result << "]"););
@@ -208,25 +208,25 @@ template<typename C> inline polynomial<C> operator- (const polynomial<C> & l, co
   //sort(l._coefs.begin(),l._coefs.end());
   //sort(r._coefs.begin(),r._coefs.end());
   polynomial<C> result = polynomial<C>();
-  typename vector<pair<vector<int>, C > >::const_iterator i_l = l._coefs.begin();
-  typename vector<pair<vector<int>, C > >::const_iterator i_r = r._coefs.begin();
+  typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_l = l._coefs.begin();
+  typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_r = r._coefs.begin();
   while (i_l != l._coefs.end() && i_r != r._coefs.end()) {
     if (i_l->first.size() == i_r->first.size() && std::equal(i_l->first.begin(),i_l->first.end(),i_r->first.begin())) {
       C val = C(i_l->second) - C(i_r->second);
       if (val != C(0))
-        result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+        result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
       i_l++;
       i_r++;
     } else {
       if (i_l->first < i_r->first) {
         C val = C(i_l->second);
         if (val != C(0))
-          result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+          result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
         i_l++;
       } else {
         C val = C(0) - C(i_r->second);
         if (val != C(0))
-          result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_r->first), val));
+          result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_r->first), val));
         i_r++;
       }
     }
@@ -234,13 +234,13 @@ template<typename C> inline polynomial<C> operator- (const polynomial<C> & l, co
   while (i_l != l._coefs.end()) {
     C val = C(i_l->second);
     if (val != C(0))
-      result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_l->first), val));
+      result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_l->first), val));
     i_l++;
   }
   while (i_r != r._coefs.end()) {
     C val = C(0) - C(i_r->second);
     if (val != C(0))
-      result._coefs.push_back(pair<vector<int>, C> (vector<int>(i_r->first), val));
+      result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_r->first), val));
     i_r++;
   }
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << result << "]"););
@@ -256,20 +256,20 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
   // Sorting is supposed to be done before; since polynomials l and r are const here, must not be done here
   //sort(l._coefs.begin(),l._coefs.end());
   //sort(r._coefs.begin(),r._coefs.end());
-  map<vector<int>, C> tmp_coefs;
-  for (typename vector<pair<vector<int>, C > >::const_iterator i_l = l._coefs.begin(); i_l != l._coefs.end(); i_l++) {
-    for (typename vector<pair<vector<int>, C > >::const_iterator i_r = r._coefs.begin(); i_r != r._coefs.end(); i_r++) {
+  map<std::vector<int>, C> tmp_coefs;
+  for (typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_l = l._coefs.begin(); i_l != l._coefs.end(); i_l++) {
+    for (typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_r = r._coefs.begin(); i_r != r._coefs.end(); i_r++) {
       // build the degree_vector
-      vector<int> degree_vector;
+      std::vector<int> degree_vector;
       if (i_l->first.size() > i_r->first.size()) {
-        degree_vector = vector<int>(i_l->first);
+        degree_vector = std::vector<int>(i_l->first);
         transform(i_r->first.begin(), i_r->first.end(), degree_vector.begin(), degree_vector.begin(), plus<int>());
       } else {
-        degree_vector = vector<int>(i_r->first);
+        degree_vector = std::vector<int>(i_r->first);
         transform(i_l->first.begin(), i_l->first.end(), degree_vector.begin(), degree_vector.begin(), plus<int>());
       }
       // check already existance in result (log search)
-      typename map<vector<int>, C>::iterator low = tmp_coefs.lower_bound(degree_vector);
+      typename map<std::vector<int>, C>::iterator low = tmp_coefs.lower_bound(degree_vector);
       if (low != tmp_coefs.end()) {
         if (low->first.size() == degree_vector.size() && std::equal(low->first.begin(),low->first.end(),degree_vector.begin())) {
 #ifndef USEINFINT
@@ -287,7 +287,7 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
             _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
           }
 #endif
-          tmp_coefs.insert(low, pair<vector<int>,C >(vector<int>(degree_vector), (i_l->second * i_r->second)));
+          tmp_coefs.insert(low, std::pair<std::vector<int>,C >(std::vector<int>(degree_vector), (i_l->second * i_r->second)));
         }
       } else {
 #ifndef USEINFINT
@@ -295,16 +295,16 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
           _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
         }
 #endif
-        tmp_coefs.insert(pair<vector<int>, C >(vector<int>(degree_vector), (i_l->second * i_r->second)));
+        tmp_coefs.insert(std::pair<std::vector<int>, C >(std::vector<int>(degree_vector), (i_l->second * i_r->second)));
       }
     }
   }
 
   // simplify zeros
   polynomial<C> result = polynomial<C>();
-  for(typename map<vector<int>, C>::iterator it = tmp_coefs.begin(); it != tmp_coefs.end(); ++it)
+  for(typename map<std::vector<int>, C>::iterator it = tmp_coefs.begin(); it != tmp_coefs.end(); ++it)
     if (it->second != C(0))
-      result._coefs.push_back(pair<vector<int>, C> (vector<int>(it->first),it->second));
+      result._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(it->first),it->second));
 
   tmp_coefs.clear();
 
@@ -358,7 +358,7 @@ template<typename C> ostream& operator<< (ostream& os, const polynomial<C> & p) 
 /// Load a polynomial ( \<C\>"coef" * variable1 [^power1]  [* variable2 [^power2] ... ] + ...)
 //  @todo{FIXME : this kind of Ugly and Non secure code will not be used from command lined iedera !! unless one uses already generated polynomials from this code ...}
 template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
-  p._coefs          = vector<pair<vector<int>, C> > ();
+  p._coefs          = std::vector<std::pair<std::vector<int>, C> > ();
   string line;
   //cerr << "\"" << line << "\"" << endl;
   C sign = C(1);
@@ -369,7 +369,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
     while (!row.eof()) {
       char c_times_power_plus_symbol = ' ';
       C coef;
-      vector<int> var_degree;
+      std::vector<int> var_degree;
 
       // read spaces until a symbol or a number occurs
       while (!row.eof()) {
@@ -412,7 +412,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         _ERROR("operator>>"," missing * or + symbol (found : \""<< c_times_power_plus_symbol << "\")" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {
-        p._coefs.push_back(pair<vector<int>, C>(var_degree, coef * sign));
+        p._coefs.push_back(std::pair<std::vector<int>, C>(var_degree, coef * sign));
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else
@@ -469,7 +469,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       row >> c_times_power_plus_symbol;
       //cerr << "symbol2:" << c_times_power_plus_symbol << endl;
       if (row.eof() || c_times_power_plus_symbol == '+' || c_times_power_plus_symbol == '-') {
-        p._coefs.push_back(pair<vector<int>, C>(var_degree, coef * sign));
+        p._coefs.push_back(std::pair<std::vector<int>, C>(var_degree, coef * sign));
         if (c_times_power_plus_symbol == '-')
           sign = C(-1);
         else
@@ -493,13 +493,13 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
     }
   }
   /* extends all the coef vectors to size "p._var_names.size()" by adding extra zeros, sort them */
-  for (typename vector<pair<vector<int>, C > >::iterator i_p = p._coefs.begin(); i_p != p._coefs.end(); i_p++)
+  for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = p._coefs.begin(); i_p != p._coefs.end(); i_p++)
     i_p->first.resize(p._var_names.size(),0);
   sort(p._coefs.begin(), p._coefs.end());
   return is;
 }
 
-template<typename C> vector<string> polynomial<C>::_var_names = vector<string>(0);
+template<typename C> std::vector<string> polynomial<C>::_var_names = std::vector<string>(0);
 // @}
 
 #endif

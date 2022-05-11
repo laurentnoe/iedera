@@ -138,7 +138,7 @@ string seed::str() {
     outs << ":";
 
     /* convert to "seed begin position" */
-    vector<int> cp = vector<int>(0);
+    std::vector<int> cp = std::vector<int>(0);
     for (int p = 0; p < _seedNbCyclePos; p++)
       cp.push_back(((_seedCyclePos_int[p] - (_span%_seedMaxCyclePos) + _seedMaxCyclePos)%_seedMaxCyclePos) + 1);
     sort(cp.begin(),cp.end());
@@ -843,7 +843,7 @@ void seed::reset_hmove() {
    *  @param cycle_pos is a vector of positions where the seed is allowed to match
    *  @param cycle_size is the maximal position where a position can be set
    */
-void seed::setCyclePos(vector<int> cycle_pos, int cycle_size) {
+void seed::setCyclePos(std::vector<int> cycle_pos, int cycle_size) {
     _seedCyclePos_int   = new int[cycle_pos.size()];
     for (int i = 0; i < (int)cycle_pos.size(); i++)
       _seedCyclePos_int[i] = cycle_pos[i];
@@ -943,10 +943,10 @@ string seed::rconvert(int i){
 #define MATCHES_AB(a,b)    (matchingmatrix[(a)][(b)])
 
 /// returns first position where a seed hit occurs (-1 if no hit)
-int seed::Hit(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix) {
+int seed::Hit(const std::vector<int> & alignment, const std::vector< std::vector<int> > & matchingmatrix) {
   if ( _seedCyclePos_int ) {
     /* create a copy of pos and sort it */
-    vector<int> cp = vector<int>(0);
+    std::vector<int> cp = std::vector<int>(0);
     for (int p = 0; p < _seedNbCyclePos; p++)
       cp.push_back(((_seedCyclePos_int[p] - (_span%_seedMaxCyclePos) + _seedMaxCyclePos)%_seedMaxCyclePos));
     sort(cp.begin(),cp.end());
@@ -974,11 +974,11 @@ int seed::Hit(const vector<int> & alignment, const vector< vector <int> > & matc
 }
 
 /// returns number of positions where seed hits (0 if no hit)
-int seed::mHits(const vector<int> & alignment, const vector< vector <int> > & matchingmatrix) {
+int seed::mHits(const std::vector<int> & alignment, const std::vector< std::vector<int> > & matchingmatrix) {
   int count = 0;
   if ( _seedCyclePos_int ) {
     /* create a copy of pos and sort it */
-    vector<int> cp = vector<int>(0);
+    std::vector<int> cp = std::vector<int>(0);
     for (int p = 0; p < _seedNbCyclePos; p++)
       cp.push_back(((_seedCyclePos_int[p] - (_span%_seedMaxCyclePos) + _seedMaxCyclePos)%_seedMaxCyclePos));
     sort(cp.begin(),cp.end());

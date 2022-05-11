@@ -22,7 +22,6 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
-#include <map>
 //STD
 #include <iostream>
 #include <cstdio>
@@ -237,14 +236,14 @@ public:
     if (!_sparse && sparse) {
       for (unsigned i = 0; i < _cells_dense.size(); i++) {
         if (_cells_dense[i] != Zero<T>()) {
-          pair<int,T> p = make_pair(i,_cells_dense[i]);
+          std::pair<int,T> p = make_pair(i,_cells_dense[i]);
           _cells_sparse.push_back(p);
         }
       }
       _cells_dense.clear();
       _sparse = true;
     } else if (_sparse && !sparse) {
-      for (typename vector< pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
+      for (typename std::vector< std::pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
         int j = i->first;
         T   v = i->second;
         if (_cells_dense.size() <= (unsigned)j)
@@ -267,7 +266,7 @@ public:
   inline int max_index() const {
     if (_sparse) {
       int max_column = 0;
-      for (typename vector< pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
+      for (typename std::vector< std::pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
         max_column = MAX(max_column,i->first);
       }
       return max_column;
@@ -294,12 +293,12 @@ public:
   /** @brief return the reference to the vector of sparse cells
    *  @return a reference to the vector
    */
-  const vector< pair<int,T> > & cells_sparse() const { return _cells_sparse; }
+  const std::vector< std::pair<int,T> > & cells_sparse() const { return _cells_sparse; }
 
   /** @brief return the reference to the vector of dense cells
    *  @return a reference to the vector
    */
-  const vector< T > & cells_dense() const { return _cells_dense; }
+  const std::vector< T > & cells_dense() const { return _cells_dense; }
 
   //@{
   /// print row information
@@ -310,7 +309,7 @@ public:
    *  @param ignore_indices_sorted  is a sorted list of elements indices that must not be in the output (because not needed for example)
    *  @param v_end_cell is a cumulative cell that keep the values of elements not present in the output between two outputed elements
    */
-  void maple(ostream& os, int max_size, vector<int> & ignore_indices_sorted, T & v_end_cell) const;
+  void maple(ostream& os, int max_size, std::vector<int> & ignore_indices_sorted, T & v_end_cell) const;
 
   /** @brief print a row in "maple" recursive format
    *  @param os is the outputstream
@@ -327,9 +326,9 @@ public:
   /// is the row sparse or dense represented ?
   bool _sparse;
   /// cells list in sparse mode
-  vector< pair<int,T> > _cells_sparse;
+  std::vector< std::pair<int,T> > _cells_sparse;
   /// cells vector in dense mode
-  vector< T > _cells_dense;
+  std::vector< T > _cells_dense;
 
   /// matrix is a friend class to ease access
   template<typename U> friend class matrix;
@@ -366,7 +365,7 @@ public:
    */
 
   matrix(const matrix<T> & m) {
-    _rows = vector<row<T> >(m._rows.size());
+    _rows = std::vector<row<T> >(m._rows.size());
     for (unsigned i = 0; i < m._rows.size(); i++)
       _rows[i] = row<T>(m._rows[i]);
   };
@@ -468,7 +467,7 @@ public:
    *  @warning previous automata products must use the UNION_ADD operator only to keep "final values" greater than one
    *  @see Pr
    */
-  vector<T> * Pr_transitive_final(const int nbSteps, const unsigned max_final_value = INT_INFINITY, const int sub_final_value = 1) const;
+  std::vector<T> * Pr_transitive_final(const int nbSteps, const unsigned max_final_value = INT_INFINITY, const int sub_final_value = 1) const;
 
   /** @brief Compute a one step single walk from the initial to the final states marked by the matrix "m_final"
    *  @param m_final is the matrix used at the end to mark final states
@@ -505,7 +504,7 @@ public:
 
 protected :
   /// vector of rows
-  vector< row<T> > _rows;
+  std::vector< row<T> > _rows;
 
   /// matrices_slicer is a friend class to ease access
   template<typename U> friend class matrices_slicer;
@@ -513,7 +512,7 @@ protected :
 
 
 /// compare pairs of elements in a row only on their first index number (and not the second T element)
-template<typename T> inline bool pairless(const pair<int, T> l, const pair<int, T> r) {
+template<typename T> inline bool pairless(const std::pair<int, T> l, const std::pair<int, T> r) {
   return l.first < r.first;
 }
 
@@ -523,11 +522,11 @@ template<typename T> inline ostream& operator<<(ostream& os, const row<T>& r) {
   os << "\t" << (r.size()) << "\t" << (r.final()) << endl;
   // for each row, display each cell
   if (r.sparse()) {
-    for (typename vector< pair<int,T> >::const_iterator i = r._cells_sparse.begin(); i != r._cells_sparse.end(); i++) {
+    for (typename std::vector< std::pair<int,T> >::const_iterator i = r._cells_sparse.begin(); i != r._cells_sparse.end(); i++) {
       os << "\t\t\t" << (i->first) << "\t" << (i->second) << endl;
     }
   } else {
-    for (typename vector< T >::const_iterator i = r._cells_dense.begin(); i != r._cells_dense.end(); i++) {
+    for (typename std::vector< T >::const_iterator i = r._cells_dense.begin(); i != r._cells_dense.end(); i++) {
       if ((*i) != Zero<T>()) {
         os << "\t\t\t" << (i - r._cells_dense.begin()) << "\t" << (*i) << endl;
       }
@@ -537,7 +536,7 @@ template<typename T> inline ostream& operator<<(ostream& os, const row<T>& r) {
 }
 
 /// output method as a "maple" row
-template<typename T> inline void row<T>::maple(ostream& os, int max_size, vector<int> & ignore_indices_sorted, T & v_end_cell) const {
+template<typename T> inline void row<T>::maple(ostream& os, int max_size, std::vector<int> & ignore_indices_sorted, T & v_end_cell) const {
   os << "[";
   unsigned ignore_i = 0;
 
@@ -546,7 +545,7 @@ template<typename T> inline void row<T>::maple(ostream& os, int max_size, vector
     /* sparse implementation */
     int u_old = 0;
     bool first_element = false;
-    for (typename vector< pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
+    for (typename std::vector< std::pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
       while (u_old < (i->first)) {
         if (ignore_i < ignore_indices_sorted.size() && ignore_indices_sorted[ignore_i] == u_old) {
           ignore_i++;
@@ -585,7 +584,7 @@ template<typename T> inline void row<T>::maple(ostream& os, int max_size, vector
   } else {
     /* dense implementation */
     bool first_element = false;
-    for (typename vector< T >::const_iterator i = _cells_dense.begin(); i != _cells_dense.end(); i++) {
+    for (typename std::vector< T >::const_iterator i = _cells_dense.begin(); i != _cells_dense.end(); i++) {
       if (ignore_i < ignore_indices_sorted.size() && ignore_indices_sorted[ignore_i] == (i-_cells_dense.begin())) {
         v_end_cell = v_end_cell + (*i);
         ignore_i++;
@@ -608,7 +607,7 @@ template<typename T> inline void row<T>::maple_recursive(ostream& os) const {
   if (sparse()) {
     /* sparse implementation */
     bool first_element = false;
-    for (typename vector< pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
+    for (typename std::vector< std::pair<int,T> >::const_iterator i = _cells_sparse.begin(); i != _cells_sparse.end(); i++) {
       if ((i->second) != Zero<T>()) {
         if (first_element)
           os << " + ";
@@ -620,7 +619,7 @@ template<typename T> inline void row<T>::maple_recursive(ostream& os) const {
   } else {
     /* dense implementation */
     bool first_element = false;
-    for (typename vector< T >::const_iterator i = _cells_dense.begin(); i != _cells_dense.end(); i++) {
+    for (typename std::vector< T >::const_iterator i = _cells_dense.begin(); i != _cells_dense.end(); i++) {
       if ((*i) != Zero<T>()) {
         if (first_element)
           os << " + ";
@@ -679,7 +678,7 @@ template<typename T> inline istream& operator>>(istream& is, row<T>& r) {
 template<typename T> inline ostream& operator<<(ostream& os, const matrix<T>& m) {
   os << m._rows.size() << endl;
   // display each row
-  for (typename vector< row<T> >::const_iterator i = m._rows.begin(); i != m._rows.end(); i++) {
+  for (typename std::vector< row<T> >::const_iterator i = m._rows.begin(); i != m._rows.end(); i++) {
     const row<T> & r = *i;
     os << "\t" << r;
   }
@@ -689,20 +688,20 @@ template<typename T> inline ostream& operator<<(ostream& os, const matrix<T>& m)
 /// output method as a maple "matrix" (must be square here)
 template<typename T> inline void matrix<T>::maple(ostream& os, bool separate_final) const {
   os << "[" << endl;
-  vector<int> ignore_indices_sorted(0);
+  std::vector<int> ignore_indices_sorted(0);
   if (separate_final) {
-    for (typename vector< row<T> >::const_iterator i = _rows.begin(); i != _rows.end(); i++) {
+    for (typename std::vector< row<T> >::const_iterator i = _rows.begin(); i != _rows.end(); i++) {
       const row<T> & r = *i;
       if (r.final())
         ignore_indices_sorted.push_back(i-_rows.begin());
     }
   }
-  vector<T>  v_end(_rows.size()-ignore_indices_sorted.size(),Zero<T>());
+  std::vector<T>  v_end(_rows.size()-ignore_indices_sorted.size(),Zero<T>());
 
   // display each row
   bool first_element = false;
   unsigned ignore_i = 0;
-  for (typename vector< row<T> >::const_iterator i = _rows.begin(); i != _rows.end(); i++) {
+  for (typename std::vector< row<T> >::const_iterator i = _rows.begin(); i != _rows.end(); i++) {
     const row<T> & r = *i;
     if (separate_final && ignore_i < ignore_indices_sorted.size() && (ignore_indices_sorted[ignore_i] == i - _rows.begin())) {
       ignore_i++;
@@ -733,7 +732,7 @@ template<typename T> inline void matrix<T>::maple_recursive(ostream& os) const {
   os << "{" << endl;
   // display each row
   bool first_element = false;
-  for (typename vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
+  for (typename std::vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
     const row<T> & r = *i;
     if (first_element)
       os << "," << endl;
@@ -743,7 +742,7 @@ template<typename T> inline void matrix<T>::maple_recursive(ostream& os) const {
   }
 
   // display initial conditions
-  for (typename vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
+  for (typename std::vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
     os << "," << endl;
     os << "q" << (i-m_t->_rows.begin()) << "(0) = " << (((i-m_t->_rows.begin()) == 1) ? 1 : 0);
   }
@@ -751,7 +750,7 @@ template<typename T> inline void matrix<T>::maple_recursive(ostream& os) const {
 
   // display variables
   os << "{" << endl;
-  for (typename vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
+  for (typename std::vector< row<T> >::const_iterator i = m_t->_rows.begin(); i != m_t->_rows.end(); i++) {
     if (i != m_t->_rows.begin())
       os << "," << endl;
     os << "q" << (i-m_t->_rows.begin());
@@ -806,8 +805,8 @@ template<typename T> inline istream& operator>>(istream& is, matrix<T>& m) {
 template<typename T> inline void row<T>::insert(const int j, const T v) {
   if (_sparse) {
     /* sparse implementation */
-    pair<int,T> p(j,v);
-    typename vector< pair<int,T> >::iterator it = lower_bound(_cells_sparse.begin(),_cells_sparse.end(),p,pairless<T>);
+    std::pair<int,T> p(j,v);
+    typename std::vector< std::pair<int,T> >::iterator it = lower_bound(_cells_sparse.begin(),_cells_sparse.end(),p,pairless<T>);
     if (it != _cells_sparse.end())
       if (it->first == j)
         it->second = it->second + v;
@@ -845,7 +844,7 @@ template<typename T> inline matrix<T> * matrix<T>::Transpose() const {
   // fill the transpose matrix in dense format first then put the sparse row when needed ...
   for (unsigned i = 0; i < _rows.size(); i++) {
     if (_rows[i]._sparse) {
-      for (typename vector< pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
+      for (typename std::vector< std::pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
         result->_rows[j->first]._cells_dense[i] = j->second;
       }
     } else {
@@ -876,8 +875,8 @@ template<typename T> inline matrix<T> * matrix<T>::Compose(const matrix<T> &othe
       if (_rows[i]._sparse) {
         if (other_transpose->_rows[j]._sparse) {
           /* 1/4 */
-          typename vector< pair<int,T> >::const_iterator k_this =                   _rows[i]._cells_sparse.begin();
-          typename vector< pair<int,T> >::const_iterator k_other = other_transpose->_rows[j]._cells_sparse.begin();
+          typename std::vector< std::pair<int,T> >::const_iterator k_this =                   _rows[i]._cells_sparse.begin();
+          typename std::vector< std::pair<int,T> >::const_iterator k_other = other_transpose->_rows[j]._cells_sparse.begin();
           while (k_this != _rows[i]._cells_sparse.end() && k_other != other_transpose->_rows[j]._cells_sparse.end()) {
             if (k_this->first == k_other->first) {
               result->_rows[i]._cells_dense[j] = result->_rows[i]._cells_dense[j] + (k_this->second * k_other->second);
@@ -891,7 +890,7 @@ template<typename T> inline matrix<T> * matrix<T>::Compose(const matrix<T> &othe
           }
         } else {
           /* 2/4 */
-          for (typename vector< pair<int,T> >::const_iterator k_this = _rows[i]._cells_sparse.begin(); k_this < _rows[i]._cells_sparse.end(); k_this++) {
+          for (typename std::vector< std::pair<int,T> >::const_iterator k_this = _rows[i]._cells_sparse.begin(); k_this < _rows[i]._cells_sparse.end(); k_this++) {
             if (other_transpose->_rows[j]._cells_dense[k_this->first] != Zero<T>()) {
               result->_rows[i]._cells_dense[j] = result->_rows[i]._cells_dense[j] + (k_this->second * other_transpose->_rows[j]._cells_dense[k_this->first]);
             }
@@ -900,7 +899,7 @@ template<typename T> inline matrix<T> * matrix<T>::Compose(const matrix<T> &othe
       } else {
         if (other_transpose->_rows[j]._sparse) {
           /* 3/4 */
-          for (typename vector< pair<int,T> >::const_iterator k_other = other_transpose->_rows[j]._cells_sparse.begin(); k_other < other_transpose->_rows[j]._cells_sparse.end(); k_other++) {
+          for (typename std::vector< std::pair<int,T> >::const_iterator k_other = other_transpose->_rows[j]._cells_sparse.begin(); k_other < other_transpose->_rows[j]._cells_sparse.end(); k_other++) {
             if (_rows[i]._cells_dense[k_other->first] != Zero<T>()) {
               result->_rows[i]._cells_dense[j] = result->_rows[i]._cells_dense[j] + (_rows[i]._cells_dense[k_other->first] * k_other->second);
             }
@@ -929,8 +928,8 @@ template<typename T> inline const T matrix<T>::Pr(const int nbSteps, const bool 
   int i_max = 1;
 
   // set all the other probabilities or counts to 0 (PLUS neutral element) or cost to infinity (MIN neutral element)
-  vector<T> v0(size(),Zero<T>());
-  vector<T> v1(size(),Zero<T>());
+  std::vector<T> v0(size(),Zero<T>());
+  std::vector<T> v1(size(),Zero<T>());
 
   // set initial state probability or count to 1 (PRODUCT neutral element) or initial cost to 0 (PLUS neutral element)
   v1[1] = One<T>();
@@ -943,7 +942,7 @@ template<typename T> inline const T matrix<T>::Pr(const int nbSteps, const bool 
       for (int i = i_min; i <= i_max; i++) {
         if (v0[i] != Zero<T>()) { // p is not the "+" neutral element (0 for proba or count, or infinity for costs)
           if (_rows[i]._sparse) {
-            for (typename vector< pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
+            for (typename std::vector< std::pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
               j_min = MIN(j_min,j->first);
               j_max = MAX(j_max,j->first);
               v1[j->first] = v1[j->first] + ((j->second) * (v0[i]));
@@ -964,7 +963,7 @@ template<typename T> inline const T matrix<T>::Pr(const int nbSteps, const bool 
       for (int i = i_min; i <= i_max; i++) {
         if (v1[i] != Zero<T>()) { // p is not the "+" neutral element (0 for proba or count, or infinity for costs)
           if (_rows[i]._sparse) {
-            for (typename vector< pair<int,T> >::const_iterator j = _rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
+            for (typename std::vector< std::pair<int,T> >::const_iterator j = _rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
               j_min = MIN(j_min,j->first);
               j_max = MAX(j_max,j->first);
               v0[j->first] = v0[j->first] + ((j->second) * (v1[i]));
@@ -1018,13 +1017,13 @@ template<typename T> inline const T matrix<T>::Pr(const int nbSteps, const bool 
 
 
 /// matrix "Pr" classical algorithm : compute the "T"-lity to be at a transitive-sum of the final values after nbSteps on the same matrix
-template<typename T> inline vector<T> * matrix<T>::Pr_transitive_final(const int nbSteps, const unsigned max_final_value, const int sub_final_value) const {
+template<typename T> inline std::vector<T> * matrix<T>::Pr_transitive_final(const int nbSteps, const unsigned max_final_value, const int sub_final_value) const {
   int i_min = 1;
   int i_max = 1;
   unsigned u_max = 0;
   // set all the other probabilities or counts to 0 (PLUS neutral element) or cost to infinity (MIN neutral element)
-  vector< vector<T> > v0(size(), vector<T>(1,Zero<T>()));
-  vector< vector<T> > v1(size(), vector<T>(1,Zero<T>()));
+  std::vector< std::vector<T> > v0(size(), std::vector<T>(1,Zero<T>()));
+  std::vector< std::vector<T> > v1(size(), std::vector<T>(1,Zero<T>()));
 
   // set initial state probability or count to 1 (PRODUCT neutral element) or initial cost to 0 (PLUS neutral element)
   v1[1][0] = One<T>();
@@ -1039,7 +1038,7 @@ template<typename T> inline vector<T> * matrix<T>::Pr_transitive_final(const int
         for (unsigned u = 0; u < v0[i].size(); u++) {
           if (v0[i][u] != Zero<T>()) { // p is not the "+" neutral element (0 for proba or count, or infinity for costs)
             if (_rows[i]._sparse) {
-              for (typename vector< pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
+              for (typename std::vector< std::pair<int,T> >::const_iterator j=_rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
                 j_min   =  MIN(j_min,j->first);
                 j_max   =  MAX(j_max,j->first);
                 unsigned u_delta =  u  +  _rows[j->first].final();
@@ -1074,7 +1073,7 @@ template<typename T> inline vector<T> * matrix<T>::Pr_transitive_final(const int
         for (unsigned u = 0; u < v1[i].size(); u++) {
           if (v1[i][u] != Zero<T>()) { // p is not the "+" neutral element (0 for proba or count, or infinity for costs)
             if (_rows[i]._sparse) {
-              for (typename vector< pair<int,T> >::const_iterator j = _rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
+              for (typename std::vector< std::pair<int,T> >::const_iterator j = _rows[i]._cells_sparse.begin(); j != _rows[i]._cells_sparse.end(); j++) {
                 j_min = MIN(j_min,j->first);
                 j_max = MAX(j_max,j->first);
                 unsigned u_delta =  u  +  _rows[j->first].final();
@@ -1109,7 +1108,7 @@ template<typename T> inline vector<T> * matrix<T>::Pr_transitive_final(const int
     i_max = j_max;
   } // for
 
-  vector<T> * result = new vector<T>(u_max+1,Zero<T>());
+  std::vector<T> * result = new std::vector<T>(u_max+1,Zero<T>());
   // Sum "final" states probabilities or counts, or find the Min "non final" cost (NB : (+) ~ min )
   if (nbSteps & 1) {
     for (int i=i_min;i<=i_max;i++)
@@ -1132,7 +1131,7 @@ template<typename T> inline const T matrix<T>::Pr_one_step_from_one(const matrix
   // Sum "final" states probabilities or counts, or find the Min "non final" cost (NB : (+) ~ min )
   if (final) {
     if (_rows[1]._sparse) {
-      for (typename vector< pair<int,T> >::const_iterator j = _rows[1]._cells_sparse.begin(); j != _rows[1]._cells_sparse.end(); j++)
+      for (typename std::vector< std::pair<int,T> >::const_iterator j = _rows[1]._cells_sparse.begin(); j != _rows[1]._cells_sparse.end(); j++)
         if (m_final._rows[j->first].final())
           result = (result + (j->second));
     } else {
@@ -1143,7 +1142,7 @@ template<typename T> inline const T matrix<T>::Pr_one_step_from_one(const matrix
     }
   } else {
     if (_rows[1]._sparse) {
-      for (typename vector< pair<int,T> >::const_iterator j = _rows[1]._cells_sparse.begin(); j != _rows[1]._cells_sparse.end(); j++)
+      for (typename std::vector< std::pair<int,T> >::const_iterator j = _rows[1]._cells_sparse.begin(); j != _rows[1]._cells_sparse.end(); j++)
         if (!(m_final._rows[j->first].final()))
           result = (result + (j->second));
     } else {
@@ -1185,7 +1184,7 @@ public :
    *  @see  matrices_step_pr_product
    *  @see  matrices_step_cost_product
    */
-  matrices_slicer(vector< matrix<T> * > * data): _matrices_data(data), _i(0), _j(0), _middle(0) {
+  matrices_slicer(std::vector< matrix<T> * > * data): _matrices_data(data), _i(0), _j(0), _middle(0) {
     _left_matrices_block = stack<matrix<T>*>();
     _left_matrices_index = stack<int>();
     _right_matrix_block = NULL;
@@ -1602,7 +1601,7 @@ public :
     // Sum "final" states probabilities or find the Min "non final" cost (NB : (+) ~ min )
     if (final) {
       if (left_right_result->_rows[1]._sparse) {
-        for (typename vector< pair<int,T> >::const_iterator j = left_right_result->_rows[1]._cells_sparse.begin(); j != left_right_result->_rows[1]._cells_sparse.end(); j++)
+        for (typename std::vector< std::pair<int,T> >::const_iterator j = left_right_result->_rows[1]._cells_sparse.begin(); j != left_right_result->_rows[1]._cells_sparse.end(); j++)
           if (_m_final->_rows[j->first].final())
             result = (result + (j->second));
       } else {
@@ -1613,7 +1612,7 @@ public :
       }
     } else {
       if (left_right_result->_rows[1]._sparse) {
-        for (typename vector< pair<int,T> >::const_iterator j = left_right_result->_rows[1]._cells_sparse.begin(); j != left_right_result->_rows[1]._cells_sparse.end(); j++)
+        for (typename std::vector< std::pair<int,T> >::const_iterator j = left_right_result->_rows[1]._cells_sparse.begin(); j != left_right_result->_rows[1]._cells_sparse.end(); j++)
           if (!(_m_final->_rows[j->first].final()))
             result = (result + (j->second));
       } else {
@@ -1656,7 +1655,7 @@ public :
   /** @brief data to be sliced (will be modified so must not be !!!)
    *
    */
-  vector< matrix<T> * >  * _matrices_data;
+  std::vector< matrix<T> * >  * _matrices_data;
   /// left window index (del only)
   int _i;
   /// right window index (add only)

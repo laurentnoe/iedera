@@ -6,7 +6,7 @@
  *  and in the @f$ (\oplus = min, \otimes = plus) @f$ tropical semi-ring
  *
  *
- *  @see matrix, automaton 
+ *  @see matrix, automaton
  */
 
 // @{
@@ -35,7 +35,7 @@ using namespace std;
  *  (C++ operators  @f$+@f$ and @f$\times@f$) can be used in both cases : either on costs, otherwise on more
  *  traditional floating point values...
  *
- *  @see matrix, automaton 
+ *  @see matrix, automaton
  */
 
 template<typename C> class cost {

@@ -280,7 +280,7 @@ protected :
 template<typename T> class state {
 public:
   /// Build an empty state (empty transition lists)
-  inline state(int final = 0): _final(final) { _next  =  vector< vector< transition<T> > >(gv_align_alphabet_size, vector<transition<T> > ());};
+  inline state(int final = 0): _final(final) { _next  =  std::vector<std::vector<transition<T> > >(gv_align_alphabet_size, std::vector<transition<T> > ());};
 
 
   /// Erase a state (clear transition lists first)
@@ -299,7 +299,7 @@ public:
 
 protected:
   /// forward  transitions list on letter A
-  vector< vector<transition<T> > >  _next;
+  std::vector<vector<transition<T> > >  _next;
   /// final state
   int _final;
 
@@ -323,7 +323,7 @@ template<typename T> inline ostream& operator<<(ostream& os, const state<T>& st)
   os << "\t" << st._final << endl;
   for (int a = 0; a < gv_align_alphabet_size; a++) {
     os << "\t\t" << a << "\t" << st._next[a].size() << endl;
-    for (typename vector<transition<T> >::const_iterator iter = st._next[a].begin(); iter != st._next[a].end(); iter++) {
+    for (typename std::vector<transition<T> >::const_iterator iter = st._next[a].begin(); iter != st._next[a].end(); iter++) {
       os << "\t\t\t" << (*iter) << endl;
     }
   }
@@ -347,7 +347,7 @@ template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
     _ERROR("state<T> operator>>","incorrect final value " << final);
   }
   st._final = final;
-  st._next = vector< vector<transition<T> > > (gv_align_alphabet_size);
+  st._next = std::vector<vector<transition<T> > > (gv_align_alphabet_size);
 
   for (int a = 0; a < gv_align_alphabet_size; a++) {
     // reading letter
@@ -365,7 +365,7 @@ template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
       cerr << "> when reading number of transitions for alphabet symbol " << a_r << endl;
       _ERROR("state<T> operator>>","incorrect number " << next_a_size);
     }
-    st._next[a] = vector<transition<T> > (next_a_size);
+    st._next[a] = std::vector<transition<T> > (next_a_size);
     // reading each transtion to fill next[a]
     for (int i = 0; i < next_a_size; i++) {
       is >> st._next[a][i];
@@ -378,7 +378,7 @@ template<typename T> inline istream& operator>>(istream& is, state<T>& st) {
 /**
  * @class automaton
  * @tparam T
- * @brief automaton<T> (deterministic or non-deterministic, probabilistic or not) roughly represented as a vector of states
+ * @brief automaton<T> (deterministic or non-deterministic, probabilistic or not) roughly represented as a std::vector of states
  *
  *  this one can either be affected to:
  *      @li a seed automaton  (deterministic, initial state is 1, final states have the final tag)
@@ -392,8 +392,8 @@ public:
 
   /// constructor for an empty automaton
   automaton() {
-    _states      = vector<state<T> >(0);
-    _init_states = vector<int>(0);
+    _states      = std::vector<state<T> >(0);
+    _init_states = std::vector<int>(0);
   };
 
   /// destructor for all possibles automata build by this class
@@ -417,7 +417,7 @@ public:
    *  @return 0
    */
   int Automaton_SeedLinearMatching(const seed & s,
-                                   const vector< vector<int> > & matchingmatrix);
+                                   const std::vector<std::vector<int> > & matchingmatrix);
 
 
   /** @class SeedPrefixesMatchingSet_old
@@ -451,7 +451,7 @@ public:
    */
 
   int Automaton_SeedPrefixesMatching_old (const seed & s,
-                                          const vector< vector<int> > & matchingmatrix,
+                                          const std::vector<std::vector<int> > & matchingmatrix,
                                           const bool nomerge = false);
 
 
@@ -497,13 +497,13 @@ public:
    */
 
   int Automaton_SeedPrefixesMatching (const seed & s,
-                                      const vector< vector<int> > & matchingmatrix,
+                                      const std::vector<std::vector<int> > & matchingmatrix,
                                       const bool nomerge = false);
 
 
 
   /** @class SeedPrefixesMatchingDMSet
-   *  @brief simple "inner class" to keep, for a set of seeds of size @f$ n @f$, the states @f$ <X[1..n],t> @f$ and their maximal prefix @f$ k[1..n] @f$, together with the coverage inside a vector @f$ p @f$,
+   *  @brief simple "inner class" to keep, for a set of seeds of size @f$ n @f$, the states @f$ <X[1..n],t> @f$ and their maximal prefix @f$ k[1..n] @f$, together with the coverage inside a std::vector @f$ p @f$,
    *         during SeedPrefixMatching_CoverageDM method
    *  @see Automaton_SeedPrefixesMatching_CoverageDM
    */
@@ -512,26 +512,26 @@ public:
 
   public:
     /// set of prefixes matching for each seed
-    vector<Seed_X_Word> X;
+    std::vector<Seed_X_Word> X;
     /// lenght of the last run of '1'
     short t;
     /// length of the maximal prefix in the set @f$ X @f$ : @f$ k = max(X) @f$
-    vector<short> k;
+    std::vector<short> k;
     /** set of seed matching symbols as a suffix of the maximal ongoing seed prefix
-     *  this vector can be "padded right" by run of '0' (uncovered),
+     *  this std::vector can be "padded right" by run of '0' (uncovered),
      *  but "padded left" run of '0' must be removed.
      */
-    vector<int> p;
+    std::vector<int> p;
 
     /// final state value (here can be 0 or any coverage value > 0)
     int final;
 
     /** @brief build a SeedPrefixesMatchingSet
      */
-    SeedPrefixesMatchingDMSet(vector<Seed_X_Word> X,  vector<short> k, vector<int> p, short t, int final) : t(t), final(final) {
-      this->X = vector<Seed_X_Word>(X);
-      this->k = vector<short>(k);
-      this->p = vector<int>(p);
+    SeedPrefixesMatchingDMSet(std::vector<Seed_X_Word> X,  std::vector<short> k, std::vector<int> p, short t, int final) : t(t), final(final) {
+      this->X = std::vector<Seed_X_Word>(X);
+      this->k = std::vector<short>(k);
+      this->p = std::vector<int>(p);
     };
 
     /** @brief clear a SeedPrefixesMatchingSet
@@ -624,9 +624,9 @@ public:
    *  @see Automaton_SeedPrefixesMatching
    */
 
-  int Automaton_SeedPrefixesMatching_CoverageDM (const vector<seed *> & s,
-                                                 const vector<int> weight_seed_alphabet,
-                                                 const vector< vector<int> > & matchingmatrix);
+  int Automaton_SeedPrefixesMatching_CoverageDM (const std::vector<seed *> & s,
+                                                 const std::vector<int> weight_seed_alphabet,
+                                                 const std::vector<std::vector<int> > & matchingmatrix);
 
   /** @class SeedPrefixesMatchingCostSet
    *  @brief simple "inner class" to keep states @f$ <X,t> @f$ and  @f$ k + Cost @f$
@@ -668,16 +668,16 @@ public:
    *  @param s is the seed descriptor
    *  @param matchingmatrix is a boolean  matrix that gives for alignment letter "a", and seed letter "b", the matching with "matrix[a][b]"
    *  @param nomerge if final states dont have to be merged together into a single state (default behaviour is merging)
-   *  @param costs gives a vector of costs for each align alphabet letter
+   *  @param costs gives a std::vector of costs for each align alphabet letter
    *  @param cost_threshold gives a cost threshold that must not be reached by any alignment
    *  @return 0
    *  @see Automaton_SeedPrefixesMatching
    */
 
   int Automaton_SeedPrefixesMatchingCost (const seed& s,
-                                          const vector< vector<int> > & matchingmatrix,
+                                          const std::vector<std::vector<int> > & matchingmatrix,
                                           const bool nomerge,
-                                          const vector<int> & costs,
+                                          const std::vector<int> & costs,
                                           const int cost_threshold);
 
   /** @class SeedBuhlerSet
@@ -712,7 +712,7 @@ public:
    */
 
   int Automaton_SeedBuhler (const seed & s,
-                            const vector< vector<int> > & matchingmatrix,
+                            const std::vector<std::vector<int> > & matchingmatrix,
                             const bool nomerge = false);
 
 
@@ -751,8 +751,8 @@ public:
    */
 
   int Automaton_SeedScore    (const seed & s,
-                              const vector< vector<int> > & matchingmatrix,
-                              const vector< vector<int> >  & scoringmatrix,
+                              const std::vector<std::vector<int> > & matchingmatrix,
+                              const std::vector<std::vector<int> >  & scoringmatrix,
                               const int scoringthreehold,
                               const bool nomerge = false);
 
@@ -791,18 +791,18 @@ public:
    *  @param scoringmatrix is an integer matrix that gives for alignment letter "a", and seed letter "b", the score    with "matrix[a][b]"
    *  @param scoringthreehold is the minimal score that has to be reached to have a match for the seed
    *  @param nomerge if final states dont have to be merged together into a single state (default behaviour is merging)
-   *  @param costs gives a vector of costs for each align alphabet letter
+   *  @param costs gives a std::vector of costs for each align alphabet letter
    *  @param cost_threshold gives a cost threshold that must not be reached by any alignment
    *  @return 0
    *  @see Automaton_SeedScore
    */
 
   int Automaton_SeedScoreCost(const seed & s,
-                              const vector< vector<int> > & matchingmatrix,
-                              const vector< vector<int> > & scoringmatrix,
+                              const std::vector<std::vector<int> > & matchingmatrix,
+                              const std::vector<std::vector<int> > & scoringmatrix,
                               const int scoringthreehold,
                               const bool nomerge,
-                              const vector<int> & costs,
+                              const std::vector<int> & costs,
                               const int cost_threshold);
 
 
@@ -811,7 +811,7 @@ public:
    *  @return 0
    */
 
-  int Automaton_Bernoulli(const vector <T> & p /*[gv_align_alphabet_size]*/);
+  int Automaton_Bernoulli(const std::vector <T> & p /*[gv_align_alphabet_size]*/);
 
 
   /** @brief build a probabilistic markov model of order k
@@ -820,7 +820,7 @@ public:
    *  @return 0
    */
 
-  int Automaton_Markov(const vector<T> & p,
+  int Automaton_Markov(const std::vector<T> & p,
                        const int k);
 
 
@@ -834,7 +834,7 @@ public:
    *  @return 0
    */
 
-  int Automaton_Homogeneous(const vector<int> & scores,
+  int Automaton_Homogeneous(const std::vector<int> & scores,
                             const int length);
 
 
@@ -864,7 +864,7 @@ public:
    *  @return 0
    */
 
-  int Automaton_Lossless(const vector<int> & costs, const int max_cost);
+  int Automaton_Lossless(const std::vector<int> & costs, const int max_cost);
 
   // @}
 
@@ -941,26 +941,26 @@ public:
     result->selfLoop(StateFinal);
 
 #ifdef USEMAPPRODUCT
-    typedef less< pair<int,int> > lessp;
-    typedef map< pair<int,int>, int, lessp > maptype;
+    typedef less<std::pair<int,int> > lessp;
+    typedef map<std::pair<int,int>, int, lessp > maptype;
     maptype statesNbIndex;
 #define PRODINDEX(i) (i)
 #else
-    vector<int> statesNbIndex( this->size() * other.size(), 0);
+    std::vector<int> statesNbIndex( this->size() * other.size(), 0);
 #define PRODINDEX(i) ((i).first * other.size() + (i).second)
 #endif
 
 #ifdef USEQUEUEPRODUCT
-    queue< pair<int,int> >  statesNbRemaining;
+    std::queue<std::pair<int,int> >  statesNbRemaining;
 #else
-    stack< pair<int,int> >  statesNbRemaining;
+    std::stack<std::pair<int,int> >  statesNbRemaining;
 #endif
 
     // (0) final loop or not
     int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
 
     // (1) start the product init state
-    pair<int,int> indexInit          = pair<int,int>(1,1);
+    std::pair<int,int> indexInit     = std::pair<int,int>(1,1);
     int stateInit                    = result->addNewState();
 
     statesNbIndex[PRODINDEX(indexInit)] = stateInit;
@@ -985,9 +985,9 @@ public:
 
       // current state remaining
 #ifdef USEQUEUEPRODUCT
-      pair<int,int> indexN  =  statesNbRemaining.front();
+      std::pair<int,int> indexN  =  statesNbRemaining.front();
 #else
-      pair<int,int> indexN  =  statesNbRemaining.top();
+      std::pair<int,int> indexN  =  statesNbRemaining.top();
 #warning "the automaton product function is not compiled with a Queue, but with a Stack :  \"depth\" parameter cannot be used on this implementation"
 #endif
 
@@ -1012,12 +1012,12 @@ public:
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
-        for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
-          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+        for (typename std::vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+          for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
 
             int stateAnext = iterA->_state;
             int stateBnext = iterB->_state;
-            pair<int,int> indexNx  = pair<int,int>(stateAnext, stateBnext);
+            std::pair<int,int> indexNx  = std::pair<int,int>(stateAnext, stateBnext);
 
 #ifdef USEQUEUEPRODUCT
 
@@ -1026,12 +1026,12 @@ public:
               if (shift > 0) {
                 if (level_i < shift) {
                   stateBnext = 1;
-                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                  indexNx    = std::pair<int,int>(stateAnext, stateBnext);
                 }
               } else {
                 if (level_i < -shift) {
                   stateAnext = 1;
-                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                  indexNx    = std::pair<int,int>(stateAnext, stateBnext);
                 }
               }
             }
@@ -1160,26 +1160,26 @@ public:
     result->selfLoop(StateFinal);
 
 #ifdef USEMAPPRODUCT
-    typedef less< pair<int,int> > lessp;
-    typedef map< pair<int,int>, int, lessp > maptype;
+    typedef less< std::pair<int,int> > lessp;
+    typedef map< std::pair<int,int>, int, lessp > maptype;
     maptype statesNbIndex;
 #define PRODINDEX(i) (i)
 #else
-    vector<int> statesNbIndex( this->size() * other.size(), 0);
+    std::vector<int> statesNbIndex( this->size() * other.size(), 0);
 #define PRODINDEX(i) ((i).first * other.size() + (i).second)
 #endif
 
 #ifdef USEQUEUEPRODUCT
-    queue< pair<int,int> >  statesNbRemaining;
+    std::queue<std::pair<int,int> >  statesNbRemaining;
 #else
-    stack< pair<int,int> >  statesNbRemaining;
+    std::stack<std::pair<int,int> >  statesNbRemaining;
 #endif
 
     // (0) final loop or not
     int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
 
     // (1) start the product init state
-    pair<int,int> indexInit          = pair<int,int>(1,1);
+    std::pair<int,int> indexInit     = std::pair<int,int>(1,1);
     int stateInit                    = result->addNewState();
 
     statesNbIndex[PRODINDEX(indexInit)] = stateInit;
@@ -1204,9 +1204,9 @@ public:
 
       // current state remaining
 #ifdef USEQUEUEPRODUCT
-      pair<int,int> indexN  =  statesNbRemaining.front();
+      std::pair<int,int> indexN  =  statesNbRemaining.front();
 #else
-      pair<int,int> indexN  =  statesNbRemaining.top();
+      std::pair<int,int> indexN  =  statesNbRemaining.top();
 #warning "the automaton product function is not compiled with a Queue, but with a Stack :  \"depth\" parameter cannot be used on this implementation"
 #endif
 
@@ -1231,12 +1231,12 @@ public:
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
-        for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
-          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+        for (typename std::vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+          for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
 
             int stateAnext = iterA->_state;
             int stateBnext = iterB->_state;
-            pair<int,int> indexNx  = pair<int,int>(stateAnext, stateBnext);
+            std::pair<int,int> indexNx  = std::pair<int,int>(stateAnext, stateBnext);
 
 #ifdef USEQUEUEPRODUCT
 
@@ -1245,12 +1245,12 @@ public:
               if (shift > 0) {
                 if (level_i < shift) {
                   stateBnext = 1;
-                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                  indexNx    = std::pair<int,int>(stateAnext, stateBnext);
                 }
               } else {
                 if (level_i < -shift) {
                   stateAnext = 1;
-                  indexNx    = pair<int,int>(stateAnext, stateBnext);
+                  indexNx    = std::pair<int,int>(stateAnext, stateBnext);
                 }
               }
             }
@@ -1378,24 +1378,24 @@ public:
 
 
 #ifdef USEMAPPRODUCT
-    typedef map< pair<int,int>, int> maptype;
+    typedef map< std::pair<int,int>, int> maptype;
     maptype statesNbIndex;
 #define PRODINDEX(i) (i)
 #else
-    vector<int> statesNbIndex( this->size() * m, 0);
+    std::vector<int> statesNbIndex( this->size() * m, 0);
 #define PRODINDEX(i) ((i).first * m + (i).second)
 #endif
 
 #ifdef USEQUEUEPRODUCT
-    queue< pair<int,unsigned int> >  statesNbRemaining;
+    std::queue<std::pair<int,unsigned int> >  statesNbRemaining;
 #else
-    stack< pair<int,unsigned int> >  statesNbRemaining;
+    std::stack<std::pair<int,unsigned int> >  statesNbRemaining;
 #endif
 
     // (1) start the mhits init state
-    pair<int,unsigned int> indexN    = pair<int,unsigned int>(1,0);
-    int stateNumber                  = result->addNewState();
-    statesNbIndex[PRODINDEX(indexN)] = stateNumber;
+    std::pair<int,unsigned int> indexN = std::pair<int,unsigned int>(1,0);
+    int stateNumber                    = result->addNewState();
+    statesNbIndex[PRODINDEX(indexN)]   = stateNumber;
     statesNbRemaining.push(indexN);
 
     if (gv_subalignment_flag && (this->_init_states.size() > 0)) {
@@ -1413,9 +1413,9 @@ public:
 
       // current state remaining
 #ifdef USEQUEUEPRODUCT
-      pair<int,unsigned int> indexN  =  statesNbRemaining.front();
+      std::pair<int,unsigned int> indexN  =  statesNbRemaining.front();
 #else
-      pair<int,unsigned int> indexN  =  statesNbRemaining.top();
+      std::pair<int,unsigned int> indexN  =  statesNbRemaining.top();
 #endif
       statesNbRemaining.pop();
 
@@ -1429,7 +1429,7 @@ public:
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
-        for (typename vector<transition<T> >::const_iterator iter = _states[thisStateN]._next[a].begin(); iter != _states[thisStateN]._next[a].end(); iter++) {
+        for (typename std::vector<transition<T> >::const_iterator iter = _states[thisStateN]._next[a].begin(); iter != _states[thisStateN]._next[a].end(); iter++) {
 
           int thisStateNextN  = iter->_state;
           unsigned int mhitNx = mhitN + this->_states[thisStateNextN]._final;
@@ -1440,7 +1440,7 @@ public:
           if (mhitNx >= m) {
             stateNx = 0;
           } else {
-            pair<int, unsigned int> indexNx = pair<int, unsigned int>(thisStateNextN, mhitNx);
+            std::pair<int, unsigned int> indexNx = std::pair<int, unsigned int>(thisStateNextN, mhitNx);
 
 #ifdef USEMAPPRODUCT
               if  (statesNbIndex.find(PRODINDEX(indexNx)) == statesNbIndex.end()) {
@@ -1543,26 +1543,26 @@ public:
     result->selfLoop(i,One<U>());
 
 #ifdef USEMAPPRODUCT
-    typedef less< pair<int,int> > lessp;
-    typedef map< pair<int,int> , int, lessp > maptype;
+    typedef less< std::pair<int,int> > lessp;
+    typedef map< std::pair<int,int> , int, lessp > maptype;
     maptype statesNbIndex;
 #define PRODINDEX(i) (i)
 #else
-    vector<int> statesNbIndex( this->size() * other.size(), 0);
+    std::vector<int> statesNbIndex( this->size() * other.size(), 0);
 #define PRODINDEX(i) ((i).first * other.size() + (i).second)
 #endif
 
 #ifdef USEQUEUEPRODUCT
-    queue< pair<int,int> >  statesNbRemaining;
+    std::queue<std::pair<int,int> >  statesNbRemaining;
 #else
-    stack< pair<int,int> >  statesNbRemaining;
+    std::stack<std::pair<int,int> >  statesNbRemaining;
 #endif
 
     // (0) final loop or not
     int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
 
     // (1) start the product init state
-    pair<int,int> indexN             = pair<int,int>(1,1);
+    std::pair<int,int> indexN        = std::pair<int,int>(1,1);
     int stateNumber                  = result->addNewRow();
 
     statesNbIndex[PRODINDEX(indexN)] = stateNumber;
@@ -1579,9 +1579,9 @@ public:
 
       // current state remaining
 #ifdef USEQUEUEPRODUCT
-      pair<int,int> indexN  =  statesNbRemaining.front();
+      std::pair<int,int> indexN  =  statesNbRemaining.front();
 #else
-      pair<int,int> indexN  =  statesNbRemaining.top();
+      std::pair<int,int> indexN  =  statesNbRemaining.top();
 #endif
       statesNbRemaining.pop();
 
@@ -1595,12 +1595,12 @@ public:
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
-        for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
-          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+        for (typename std::vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+          for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
 
             int stateAnext = iterA->_state;
             int stateBnext = iterB->_state;
-            pair<int,int> indexNx = pair<int,int>(stateAnext,stateBnext);
+            std::pair<int,int> indexNx = std::pair<int,int>(stateAnext,stateBnext);
 
             int stateNx    = 0;
 
@@ -1713,7 +1713,7 @@ public:
    *  @relates automaton
    */
 
-  template<typename U> vector<matrix<U> * > * matrices_step_product(const automaton<U> & other, const ProductSetFinalType productSetFinalType, const int depth, const AddHoc_Final_Func aff = NULL) const {
+    template<typename U> std::vector<matrix<U> * > * matrices_step_product(const automaton<U> & other, const ProductSetFinalType productSetFinalType, const int depth, const AddHoc_Final_Func aff = NULL) const {
 
     VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== Matrices_Step_Product == (productsetfinaltype:" << dec << productSetFinalType << ")"););
 
@@ -1722,11 +1722,11 @@ public:
       _ERROR("matrices_step_product"," size of product automaton will \"certainly\" explode : better stop here ...");
     }
 #endif
-    vector<matrix<U> * > * result = new vector<matrix<U> * > (depth+1,(matrix<U> *) NULL);
+    std::vector<matrix<U> * > * result = new std::vector<matrix<U> * > (depth+1,(matrix<U> *) NULL);
 
-    vector<U> Bprob[2];
-    Bprob[0] = vector<U>(other.size(), Zero<U>());
-    Bprob[1] = vector<U>(other.size(), Zero<U>());
+    std::vector<U> Bprob[2];
+    Bprob[0] = std::vector<U>(other.size(), Zero<U>());
+    Bprob[1] = std::vector<U>(other.size(), Zero<U>());
     Bprob[0][1] = One<U>();
 
     for (int i = 0; i <= depth; i++) {
@@ -1738,11 +1738,11 @@ public:
       ((*result)[i])->addNewRow(FALSE);
     }
 
-    typedef less< pair<int,int> > lessp;
-    typedef map< pair<int,int> , int, lessp > maptype;
+    typedef less< std::pair<int,int> > lessp;
+    typedef map< std::pair<int,int> , int, lessp > maptype;
     maptype statesNbIndex[2];
 
-    queue< pair<int,int> >  statesNbRemaining[2];
+    std::queue<std::pair<int,int> >  statesNbRemaining[2];
 
     // (0) final loop or not
     int final_loop = (productSetFinalType == PRODUCT_UNION_FINAL_LOOP || productSetFinalType == PRODUCT_INTERSECTION_FINAL_LOOP || productSetFinalType == PRODUCT_BUTNOT_FINAL_LOOP || productSetFinalType == PRODUCT_NOTBUT_FINAL_LOOP || productSetFinalType == PRODUCT_ADDHOC_FINAL_LOOP) ? TRUE : FALSE;
@@ -1754,7 +1754,7 @@ public:
       while(!statesNbRemaining[level_i%2].empty()) {
 
         // current state remaining
-        pair<int,int> indexN  =  statesNbRemaining[level_i%2].front();
+        std::pair<int,int> indexN  =  statesNbRemaining[level_i%2].front();
         statesNbRemaining[level_i%2].pop();
 
         int stateNA = indexN.first;
@@ -1765,12 +1765,12 @@ public:
 
         for (int a = 0; a < gv_align_alphabet_size; a++) {
 
-          for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
-            for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+          for (typename std::vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+            for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
 
               int stateAnext = iterA->_state;
               int stateBnext = iterB->_state;
-              pair<int,int> indexNx = pair<int,int>(stateAnext,stateBnext);
+              std::pair<int,int> indexNx = std::pair<int,int>(stateAnext,stateBnext);
 
               int stateNx    = 0;
 
@@ -1846,12 +1846,12 @@ public:
 
           for (int a = 0; a < gv_align_alphabet_size; a++) {
 
-            for (typename vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
-              for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+            for (typename std::vector<transition<T> >::const_iterator iterA = _states[stateNA]._next[a].begin(); iterA != _states[stateNA]._next[a].end(); iterA++) {
+              for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
 
                 int stateAnext = iterA->_state;
                 int stateBnext = iterB->_state;
-                pair<int,int> indexNx = pair<int,int>(stateAnext,stateBnext);
+                std::pair<int,int> indexNx = std::pair<int,int>(stateAnext,stateBnext);
                 int stateNx           = statesNbIndex[(level_i+1)%2][indexNx];
                 if  (!stateNx) {
                   stateNx  = (*result)[level_i+1]->addNewRow(this->_states[stateAnext]._final);
@@ -1872,7 +1872,7 @@ public:
       }
       for (int stateNB = 0; stateNB < other.size(); stateNB++) {
         for (int a = 0; a < gv_align_alphabet_size; a++) {
-          for (typename vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
+          for (typename std::vector<transition<U> >::const_iterator iterB = other._states[stateNB]._next[a].begin(); iterB != other._states[stateNB]._next[a].end(); iterB++) {
             Bprob[(level_i+1)%2][iterB->_state] = Bprob[(level_i+1)%2][iterB->_state] + (Bprob[level_i%2][stateNB] * (iterB->_prob));
           }
         }
@@ -1942,7 +1942,7 @@ public:
 #endif
 
   /// probablistic specialized step product
-  vector<matrix<double> * > * matrices_step_pr_product(const automaton<double> & other,
+  std::vector<matrix<double> * > * matrices_step_pr_product(const automaton<double> & other,
                                                        const ProductSetFinalType productSetFinalType,
                                                        const int depth,
                                                        const AddHoc_Final_Func aff = NULL) {
@@ -1950,7 +1950,7 @@ public:
   }
 
   /// cost specialized step product
-  vector<matrix<cost<int> > * > * matrices_step_cost_product(const automaton<cost<int> > & other,
+  std::vector<matrix<cost<int> > * > * matrices_step_cost_product(const automaton<cost<int> > & other,
                                                              const ProductSetFinalType productSetFinalType,
                                                              const int depth,
                                                              const AddHoc_Final_Func aff = NULL) const {
@@ -1958,7 +1958,7 @@ public:
   };
 
   /// count specialized step product
-  vector<matrix<long long> * > * matrices_step_count_product(const automaton<long long> & other,
+  std::vector<matrix<long long> * > * matrices_step_count_product(const automaton<long long> & other,
                                                              const ProductSetFinalType productSetFinalType,
                                                              const int depth,
                                                              const AddHoc_Final_Func aff = NULL) const {
@@ -1988,7 +1988,7 @@ public:
    *  @return the probabilty to hit such alignemnt (1.0 if lossless)
    */
 
-  T     PrLossless( const int nbSteps, const vector<int> & costs, const int cost_threshold) const;
+  T     PrLossless( const int nbSteps, const std::vector<int> & costs, const int cost_threshold) const;
   // @}
 
 
@@ -2057,7 +2057,7 @@ public:
    */
   inline T        Prob(const int a, const int startingState, const int endingState) const {
     // forward link pr
-    for (typename vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
+    for (typename std::vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
       if ( iter->_state == endingState) {
         return iter->_prob;
       }
@@ -2077,7 +2077,7 @@ public:
       int q_new = 0,a = 0;
       double psum = 0;
       for (a = 0; a < gv_align_alphabet_size; a++) {
-        for (typename vector<transition<T> >::const_iterator iter = _states[q]._next[a].begin(); iter != _states[q]._next[a].end(); iter++) {
+        for (typename std::vector<transition<T> >::const_iterator iter = _states[q]._next[a].begin(); iter != _states[q]._next[a].end(); iter++) {
           double pr = double(iter->_prob);
           q_new = iter->_state;
           psum +=  pr;
@@ -2097,14 +2097,14 @@ public:
    *  @param  alignment is the vector being filled
    *  @warning  the method is only defined if \<T\> = \<double\> are used, due to random evaluation
    */
-  inline void GenSeq(vector<int> & alignment) const {
+  inline void GenSeq(std::vector<int> & alignment) const {
     int q = 1;
     for (unsigned l = 0; l < alignment.size(); l++) {
       double p = (double)rand()/(double)RAND_MAX;
       int q_new = 0, a = 0;
       double psum = 0;
       for (a = 0; a < gv_align_alphabet_size; a++) {
-        for (typename vector<transition<T> >::const_iterator iter = _states[q]._next[a].begin(); iter != _states[q]._next[a].end(); iter++) {
+        for (typename std::vector<transition<T> >::const_iterator iter = _states[q]._next[a].begin(); iter != _states[q]._next[a].end(); iter++) {
           double pr = iter->_prob;
           q_new = iter->_state;
           psum +=  pr;
@@ -2168,7 +2168,7 @@ protected:
     // forward linking
 #ifdef ASSERTB
     // do not add twice the same state in the "a" backward list
-    for (typename vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
+    for (typename std::vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
       if ( iter->_state == endingState) {
         cerr << "> when linking state q2:" << dec << endingState << " with state q1:" << dec << startingState << " on letter a:" << dec << a << endl;
         _ERROR("addNewTransitionProb"," state q2 has already a transition on \"a\" ");
@@ -2200,7 +2200,7 @@ protected:
     // forward linking
 #ifdef ASSERTB
     // do not add twice the same state in the "a" backward list
-    for (typename vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
+    for (typename std::vector<transition<T> >::const_iterator iter = _states[startingState]._next[a].begin(); iter != _states[startingState]._next[a].end(); iter++) {
       if ( iter->_state == endingState) {
         cerr << "> when linking state q2:" << dec << endingState << " with state q1:" << dec << startingState << " on letter a:" << dec << a << endl;
         _ERROR("addNewTransition"," state q2 has already a transition on \"a\" ");
@@ -2229,9 +2229,9 @@ protected:
   // @}
 
   /// vector of states currently assigned
-  vector<state<T> > _states;
+  std::vector<state<T> > _states;
   /// vector of init states for each cycle (if empty then always state 1 is the init state)
-  vector<int>       _init_states;
+  std::vector<int>       _init_states;
 };
 
 
@@ -2323,7 +2323,7 @@ template<typename T> istream& operator>>(istream & is, automaton<T> & au) {
 }
 
 template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed & s,
-                                                                     const vector< vector<int> > & matchingmatrix)  {
+                                                                     const std::vector<std::vector<int> > & matchingmatrix)  {
 
   // Get the seed span
   int   motif_span = s.span();
@@ -2363,7 +2363,7 @@ template<typename T> int automaton<T>::Automaton_SeedLinearMatching (const seed 
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const seed & s,
-                                                                       const vector< vector<int> > & matchingmatrix,
+                                                                       const std::vector<std::vector<int> > & matchingmatrix,
                                                                        const bool nomerge) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching == (nomerge:" << dec << nomerge << ")"););
@@ -2391,7 +2391,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
   // Compute xset_bitsize and X
-  vector<int> L(motif_span+1,0);
+  std::vector<int> L(motif_span+1,0);
   int xset_bitsize = 0; // bitsize of the set
   L[0] = -1;
   for (int i = 0; i < motif_span; i++) {
@@ -2417,10 +2417,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
   // 1) Precompute E,F functions
-  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
-  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>        (gv_align_alphabet_size,0));
-  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
-  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >        ((xset_bitsize+1), vector<int>        (gv_align_alphabet_size,0)));
+  std::vector<std::vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), std::vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  std::vector<std::vector<int> >                   Fk(motif_span+(nomerge?1:0), std::vector<int>        (gv_align_alphabet_size,0));
+  std::vector<std::vector<std::vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), std::vector<std::vector<Seed_X_Word> >((xset_bitsize+1), std::vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  std::vector<std::vector<std::vector<int> > >         Ek(motif_span+(nomerge?1:0), std::vector<std::vector<int> >        ((xset_bitsize+1), std::vector<int>        (gv_align_alphabet_size,0)));
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
@@ -2465,10 +2465,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
   // 2) automaton build
   // queue/stack used to store non preprocessed states <X,t> code
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
 
   // keep each state information (X,t,k) inside this table
-  vector<SeedPrefixesMatchingSet> statesSeedPrefixesMatchingSet(0);
+  std::vector<SeedPrefixesMatchingSet> statesSeedPrefixesMatchingSet(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -2765,7 +2765,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching (const see
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const seed & s,
-                                                                           const vector< vector<int> > & matchingmatrix,
+                                                                           const std::vector<std::vector<int> > & matchingmatrix,
                                                                            const bool nomerge) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching_old == (nomerge:" << dec << nomerge << ")"););
@@ -2792,7 +2792,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
                                           ););
 
   // Compute xset_bitsize and X
-  vector<int> L(motif_span+1,0);
+  std::vector<int> L(motif_span+1,0);
   int xset_bitsize      = 0; // bitsize of the set
   Seed_X_Word xset_size = 0; // size of the set
   L[0] = -1;
@@ -2811,7 +2811,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(" xset_size : " << xset_size << ",\t" << " xset_bitsize : " << xset_bitsize << endl;););
 
   // Compute TCODE[t] to get an index by use of IndexNb = TCODE[t] + X coding system
-  vector<int> TCODE(motif_span+1+(nomerge?1:0),0);
+  std::vector<int> TCODE(motif_span+1+(nomerge?1:0),0);
   TCODE[0] = 0;
   for (Seed_X_Word maxxsetsize = xset_size, l = xset_bitsize, t = 1; t <= motif_span+(nomerge?1:0); t++) {
     if (L[l] == motif_span+(nomerge?1:0)-t) {
@@ -2823,10 +2823,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   }
 
   // 1) Precompute E,F functions
-  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
-  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>(gv_align_alphabet_size,0));
-  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
-  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >((xset_bitsize+1), vector<int>(gv_align_alphabet_size,0)));
+  std::vector<std::vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), std::vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  std::vector<std::vector<int> >                   Fk(motif_span+(nomerge?1:0), std::vector<int>(gv_align_alphabet_size,0));
+  std::vector<std::vector<std::vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), std::vector<std::vector<Seed_X_Word> >((xset_bitsize+1), std::vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  std::vector<std::vector<std::vector<int> > >         Ek(motif_span+(nomerge?1:0), std::vector<std::vector<int> >((xset_bitsize+1), std::vector<int>(gv_align_alphabet_size,0)));
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
@@ -2872,15 +2872,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
   // 2) automaton build
 
   // fast state index (designed to retrieve a state given <X,t> code
-  vector<int> statesNbIndex(TCODE[motif_span+(nomerge?1:0)]+1, 0);
+  std::vector<int> statesNbIndex(TCODE[motif_span+(nomerge?1:0)]+1, 0);
   // queue/stack used to store non preprocessed states <X,t> code
 #ifdef USEQUEUEPRODUCT
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
 #else
-  stack<int>  statesNbRemaining;
+  std::stack<int>  statesNbRemaining;
 #endif
   // keep each state information (X,t,k) inside this table
-  vector<SeedPrefixesMatchingSet_old> statesSeedPrefixesMatchingSet_old(0);
+  std::vector<SeedPrefixesMatchingSet_old> statesSeedPrefixesMatchingSet_old(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -3067,7 +3067,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
  */
 #define NORMALIZE_COVERAGEDM() {                                        \
     int _P_size = Ystate_P.size();                                      \
-    vector<int> P_reachable(_P_size,0);                                 \
+    std::vector<int> P_reachable(_P_size,0);                            \
     for (int x = 0; x < nb_motifs; x++) {                               \
       /* (1.a) lower "t" part */                                        \
       int _t_max_ = MIN(Ystate_T, motifs_span[x]);                      \
@@ -3198,15 +3198,15 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_old (const
 
 
 
-template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM (const vector<seed *> & s,
-                                                                                  const vector<int> weight_seed_alphabet,
-                                                                                  const vector< vector<int> > & matchingmatrix) {
+ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM (const std::vector<seed *> & s,
+                                                                                   const std::vector<int> weight_seed_alphabet,
+                                                                                   const std::vector<std::vector<int> > & matchingmatrix) {
 
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatching_CoverageDM == "););
 
   const int  nb_motifs = s.size();
-  vector<const int *>  motifs;
-  vector<int>     motifs_span;
+  std::vector<const int *>  motifs;
+  std::vector<int>     motifs_span;
   int max_motifs_span = 0;
 
   // Get spans and patterns for all seeds
@@ -3244,10 +3244,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
 
   // Compute xset_bitsize and L for all seeds
-  vector< vector<int> > L(nb_motifs);
-  vector<int> xset_bitsize(nb_motifs,0); // bitsize of the set
+  std::vector<std::vector<int> > L(nb_motifs);
+  std::vector<int> xset_bitsize(nb_motifs,0); // bitsize of the set
   for (int x = 0; x < nb_motifs; x++) {
-    L[x] = vector<int>(motifs_span[x]+1,0);
+    L[x] = std::vector<int>(motifs_span[x]+1,0);
     L[x][0] = -1;
 #ifdef BUILD
     cerr << " L[0] : " << L[x][0] << endl;
@@ -3274,16 +3274,16 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
   }
 
   // 1) Precompute E,F functions
-  vector< vector< vector<Seed_X_Word> > >           FX(nb_motifs);
-  vector< vector< vector<int> > >                   Fk(nb_motifs);
-  vector< vector< vector< vector<Seed_X_Word> > > > EX(nb_motifs);
-  vector< vector< vector< vector<int> > > >         Ek(nb_motifs);
+  std::vector<std::vector<std::vector<Seed_X_Word> > >           FX(nb_motifs);
+  std::vector<std::vector<std::vector<int> > >                   Fk(nb_motifs);
+  std::vector<std::vector<std::vector<std::vector<Seed_X_Word> > > > EX(nb_motifs);
+  std::vector<std::vector<std::vector<std::vector<int> > > >         Ek(nb_motifs);
 
 
   for (int x = 0; x < nb_motifs; x++) {
     // for the seed x=$0, gives the full value 'X' after a run of 1^t.a   ;   where t=$1 and a=$2
-    FX[x] = vector< vector<Seed_X_Word> >(motifs_span[x]+1, vector<Seed_X_Word>(gv_align_alphabet_size,0));
-    Fk[x] = vector< vector<int> >        (motifs_span[x]+1, vector<int>        (gv_align_alphabet_size,0));
+    FX[x] = std::vector<std::vector<Seed_X_Word> >(motifs_span[x]+1, std::vector<Seed_X_Word>(gv_align_alphabet_size,0));
+    Fk[x] = std::vector<std::vector<int> >        (motifs_span[x]+1, std::vector<int>        (gv_align_alphabet_size,0));
     // F[x][t][a]
     for (int t = 0; t < motifs_span[x]+1; t++) {
       for (int i = 1; i <= xset_bitsize[x] && L[x][i] <= t; i++) {
@@ -3299,8 +3299,8 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       }
     }
     // for the seed x=$0, update the (non '#') matching state k of 'X' after a run 1^t.a   ;   where t=$1, k=$2, a=$3
-    EX[x] = vector< vector< vector <Seed_X_Word> > >(motifs_span[x]+1, vector< vector<Seed_X_Word> >((xset_bitsize[x]+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
-    Ek[x] = vector< vector< vector <int> > >        (motifs_span[x]+1, vector< vector<int> >        ((xset_bitsize[x]+1), vector<int>        (gv_align_alphabet_size,0)));
+    EX[x] = std::vector<std::vector<vector <Seed_X_Word> > >(motifs_span[x]+1, std::vector<std::vector<Seed_X_Word> >((xset_bitsize[x]+1), std::vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+    Ek[x] = std::vector<std::vector<vector <int> > >        (motifs_span[x]+1, std::vector<std::vector<int> >        ((xset_bitsize[x]+1), std::vector<int>        (gv_align_alphabet_size,0)));
     // E[x][t][k][a]
     for (int i = 1; i <= xset_bitsize[x]; i++) {
       int L_i = L[x][i];
@@ -3328,10 +3328,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   // 2) automaton build
   // queue/stack used to store non preprocessed states <X,t> code
-  queue<int> statesNbRemaining;
+  std::queue<int> statesNbRemaining;
 
   // keep each state information (X,t,k) inside this table
-  vector<SeedPrefixesMatchingDMSet> statesSeedPrefixesMatchingDMSet;
+  std::vector<SeedPrefixesMatchingDMSet> statesSeedPrefixesMatchingDMSet;
 
   // keep the index for each state in this map
   map<SeedPrefixesMatchingDMSet, int> statesNbIndex;
@@ -3339,12 +3339,12 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
-  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<int>(),0,1));
+  statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(std::vector<Seed_X_Word>(nb_motifs,0), std::vector<short>(nb_motifs,0), std::vector<int>(),0,1));
   selfLoop(Finalstate_I);
 
   // create a second state [1]  : it will be the initial one
   int Initstate_I   = addNewState();
-  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(nb_motifs,0), vector<short>(nb_motifs,0), vector<int>(),0,0);
+  SeedPrefixesMatchingDMSet s_i = SeedPrefixesMatchingDMSet(std::vector<Seed_X_Word>(nb_motifs,0), std::vector<short>(nb_motifs,0), std::vector<int>(),0,0);
   statesSeedPrefixesMatchingDMSet.push_back(s_i);
 
   // push it to the Stack and the Map
@@ -3362,10 +3362,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
     assert(Xstate_I <  (int)_states.size());
 #endif
 
-    vector<Seed_X_Word>   Xstate_X = SEEDPREFIXESMATCHINGDM_X(Xstate_I);
+    std::vector<Seed_X_Word>   Xstate_X = SEEDPREFIXESMATCHINGDM_X(Xstate_I);
     short                 Xstate_T = SEEDPREFIXESMATCHINGDM_T(Xstate_I);
-    vector<short>         Xstate_K = SEEDPREFIXESMATCHINGDM_K(Xstate_I);
-    vector<int>           Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
+    std::vector<short>         Xstate_K = SEEDPREFIXESMATCHINGDM_K(Xstate_I);
+    std::vector<int>           Xstate_P = SEEDPREFIXESMATCHINGDM_P(Xstate_I);
     int               Xstate_final = SEEDPREFIXESMATCHINGDM_FINAL(Xstate_I);
 #ifdef ASSERTB
     for (int x = 0; x < nb_motifs; x++) {
@@ -3403,11 +3403,11 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
       VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("a = " << a););
 
       // (B) try to compute Ystate_s (use a "copy" to get the correct size for all allocators + the size "t")
-      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Xstate_X), vector<short>(Xstate_K), vector<int>(Xstate_P),Xstate_T,0);
-      vector<Seed_X_Word>     & Ystate_X     = Ystate_s.X;
+      SeedPrefixesMatchingDMSet Ystate_s     = SeedPrefixesMatchingDMSet(std::vector<Seed_X_Word>(Xstate_X), std::vector<short>(Xstate_K), std::vector<int>(Xstate_P),Xstate_T,0);
+      std::vector<Seed_X_Word>     & Ystate_X     = Ystate_s.X;
       short                   & Ystate_T     = Ystate_s.t;
-      vector<short>           & Ystate_K     = Ystate_s.k;
-      vector<int>             & Ystate_P     = Ystate_s.p;
+      std::vector<short>           & Ystate_K     = Ystate_s.k;
+      std::vector<int>             & Ystate_P     = Ystate_s.p;
       int                     & Ystate_final = Ystate_s.final;
 
       if ( a_is_one ) { // (a == match)
@@ -3578,7 +3578,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
         // create it and push it inside the list of states which need update.
         Ystate_I = addNewState(Ystate_final);
         statesNbIndex[Ystate_s] = Ystate_I;
-        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(vector<Seed_X_Word>(Ystate_X), vector<short>(Ystate_K), vector<int>(Ystate_P),Ystate_T,Ystate_final));
+        statesSeedPrefixesMatchingDMSet.push_back(SeedPrefixesMatchingDMSet(std::vector<Seed_X_Word>(Ystate_X), std::vector<short>(Ystate_K), std::vector<int>(Ystate_P),Ystate_T,Ystate_final));
         statesNbRemaining.push(Ystate_I);
 
         VERB_FILTER(VERBOSITY_DEBUGGING, INFO__(
@@ -3624,9 +3624,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatching_CoverageDM
 
 
 template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const seed& s,
-                                                                          const vector< vector<int> > & matchingmatrix,
+                                                                          const std::vector<std::vector<int> > & matchingmatrix,
                                                                           const bool nomerge,
-                                                                          const vector<int> & costs,
+                                                                          const std::vector<int> & costs,
                                                                           const int cost_threshold) {
   VERB_FILTER(VERBOSITY_DEBUGGING, INFO__("== SeedPrefixesMatchingCost == (nomerge:" << dec << nomerge << ")"););
 
@@ -3653,7 +3653,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
   // Compute xset_bitsize and X
-  vector<int> L(motif_span+1,0);
+  std::vector<int> L(motif_span+1,0);
   int xset_bitsize = 0; // bitsize of the set
   L[0] = -1;
   for (int i = 0; i < motif_span; i++) {
@@ -3679,10 +3679,10 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
   // 1) Precompute E,F functions
-  vector< vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), vector<Seed_X_Word>(gv_align_alphabet_size,0));
-  vector< vector<int> >                   Fk(motif_span+(nomerge?1:0), vector<int>        (gv_align_alphabet_size,0));
-  vector< vector< vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), vector< vector<Seed_X_Word> >((xset_bitsize+1), vector<Seed_X_Word>(gv_align_alphabet_size,0)));
-  vector< vector< vector<int> > >         Ek(motif_span+(nomerge?1:0), vector< vector<int> >        ((xset_bitsize+1), vector<int>        (gv_align_alphabet_size,0)));
+  std::vector<std::vector<Seed_X_Word> >           FX(motif_span+(nomerge?1:0), std::vector<Seed_X_Word>(gv_align_alphabet_size,0));
+  std::vector<std::vector<int> >                   Fk(motif_span+(nomerge?1:0), std::vector<int>        (gv_align_alphabet_size,0));
+  std::vector<std::vector<std::vector<Seed_X_Word> > > EX(motif_span+(nomerge?1:0), std::vector<std::vector<Seed_X_Word> >((xset_bitsize+1), std::vector<Seed_X_Word>(gv_align_alphabet_size,0)));
+  std::vector<std::vector<std::vector<int> > >         Ek(motif_span+(nomerge?1:0), std::vector<std::vector<int> >        ((xset_bitsize+1), std::vector<int>        (gv_align_alphabet_size,0)));
 
   // F[t][a]
   for (int t = 0; t < motif_span+(nomerge?1:0); t++) {
@@ -3728,9 +3728,9 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
   // 2) automaton build
   // queue/stack used to store non preprocessed states <X,t> code
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
   // keep each state information (X,t,k) inside this table
-  vector<SeedPrefixesMatchingCostSet> statesSeedPrefixesMatchingCostSet(0);
+  std::vector<SeedPrefixesMatchingCostSet> statesSeedPrefixesMatchingCostSet(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -4050,7 +4050,7 @@ template<typename T> int automaton<T>::Automaton_SeedPrefixesMatchingCost(const 
 
 
 template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
-                                                             const vector< vector<int> > & matchingmatrix,
+                                                             const std::vector<std::vector<int> > & matchingmatrix,
                                                              const bool nomerge) {
   // Get the seed span
   int   motif_span  = s.span();
@@ -4063,9 +4063,9 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
 #endif
 
   // (1) build the trie
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
   // keep each state information (Fail,Rest,Level) inside this table
-  vector<SeedBuhlerSet> statesSeedBuhlerSet(0);
+  std::vector<SeedBuhlerSet> statesSeedBuhlerSet(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -4161,8 +4161,8 @@ template<typename T> int automaton<T>::Automaton_SeedBuhler (const seed & s,
 
 
 template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
-                                                           const vector< vector<int> > & matchingmatrix,
-                                                           const vector< vector<int> >  & scoringmatrix,
+                                                           const std::vector<std::vector<int> > & matchingmatrix,
+                                                           const std::vector<std::vector<int> >  & scoringmatrix,
                                                            const int scoringthreehold,
                                                            const bool nomerge) {
   // Get the seed span
@@ -4180,7 +4180,7 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
   // reached : thus is prefix_score[i] + bbs[i] < scoringthreehold
   // then it is not possible to reach the require scoringthreehold.
 
-  vector<int> sbs(motif_span,0);
+  std::vector<int> sbs(motif_span,0);
   sbs[0] = 0;
 
   // for all suffixes length
@@ -4202,10 +4202,10 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
 
 
   // (1) build the trie
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
 
   // keep each state information (Fail,Rest,Level) inside this table
-  vector<SeedScoreSet> statesSeedScoreSet(0);
+  std::vector<SeedScoreSet> statesSeedScoreSet(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -4303,11 +4303,11 @@ template<typename T> int automaton<T>::Automaton_SeedScore(const seed & s,
 
 
 template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
-                                                               const vector< vector<int> > & matchingmatrix,
-                                                               const vector< vector<int> > & scoringmatrix,
+                                                               const std::vector<std::vector<int> > & matchingmatrix,
+                                                               const std::vector<std::vector<int> > & scoringmatrix,
                                                                const int scoringthreehold,
                                                                const bool nomerge,
-                                                               const vector<int> & costs,
+                                                               const std::vector<int> & costs,
                                                                const int cost_threshold) {
 
   // Get the seed span
@@ -4325,7 +4325,7 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
   // reached : thus is prefix_score[i] + bbs[i] < scoringthreehold
   // then it is not possible to reach the require scoringthreehold.
 
-  vector<int> sbs(motif_span,0);
+  std::vector<int> sbs(motif_span,0);
   sbs[0] = 0;
 
   // for all suffixes length
@@ -4347,10 +4347,10 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
 
 
   // (1) build the trie
-  queue<int>  statesNbRemaining;
+  std::queue<int>  statesNbRemaining;
 
   // keep each state information (Fail,Rest,Level) inside this table
-  vector<SeedScoreCostSet> statesSeedScoreCostSet(0);
+  std::vector<SeedScoreCostSet> statesSeedScoreCostSet(0);
 
   // create a first state [0] and put it as the final one
   int Finalstate_I = addNewState(TRUE);
@@ -4464,7 +4464,7 @@ template<typename T> int automaton<T>::Automaton_SeedScoreCost(const seed & s,
 
 
 
-template<typename T> int automaton<T>::Automaton_Bernoulli(const vector <T> & p /*[gv_align_alphabet_size]*/) {
+ template<typename T> int automaton<T>::Automaton_Bernoulli(const std::vector <T> & p /*[gv_align_alphabet_size]*/) {
 #ifdef ASSERTB
   assert((int)p.size() == gv_align_alphabet_size);
 #endif
@@ -4477,7 +4477,7 @@ template<typename T> int automaton<T>::Automaton_Bernoulli(const vector <T> & p 
 }
 
 
-template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
+ template<typename T> int automaton<T>::Automaton_Markov(const std::vector<T> & p,
                                                         const int k) {
 
   int ApowK     = 1;
@@ -4500,7 +4500,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
 
     // [a] compute weights
     // (a.1) denumerators
-    vector<T> probasum  = vector<double>(ApowK, Zero<T>());
+    std::vector<T> probasum  = std::vector<double>(ApowK, Zero<T>());
     int i = 0;
     for (int buklet = 0; buklet < ApowK; buklet++) {
       for (int ibuklet = 0; ibuklet < (int)p.size(); ibuklet += ApowK) {
@@ -4509,7 +4509,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
       }
     }
     // (a.2) numerators
-    vector<T> proba     = vector<T>(ApowKplus, Zero<T>());
+    std::vector<T> proba     = std::vector<T>(ApowKplus, Zero<T>());
     int j = 0;
     for (int buklet = 0; buklet < ApowKplus; buklet++) {
       for (int ibuklet = 0; ibuklet < (int)p.size(); ibuklet += ApowKplus) {
@@ -4550,7 +4550,7 @@ template<typename T> int automaton<T>::Automaton_Markov(const vector<T> & p,
 
 
 
-template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> & scores,
+ template<typename T> int automaton<T>::Automaton_Homogeneous(const std::vector<int> & scores,
                                                              const int length) {
   bool AcceptingStateReachable = false;
   int  Maxscore = 0;
@@ -4564,10 +4564,10 @@ template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> &
   }
 
   // set the vector statesOfScores[2][currentscore][lastmaxscore]
-  vector< vector< vector<int> > > statesOfScore = vector< vector< vector <int> > > ( 2, vector< vector <int>  > (Maxscore*(length-1)+1, vector<int>(0)));
+  std::vector<std::vector<std::vector<int> > > statesOfScore = std::vector<std::vector<vector <int> > > ( 2, std::vector<vector <int>  > (Maxscore*(length-1)+1, std::vector<int>(0)));
   for (int currentscore = 0;  currentscore < Maxscore*(length-1)+1;  currentscore++) {
-    statesOfScore[0][currentscore] = vector<int>(Maxscore*(length-1)+1-currentscore,0);
-    statesOfScore[1][currentscore] = vector<int>(Maxscore*(length-1)+1-currentscore,0);
+    statesOfScore[0][currentscore] = std::vector<int>(Maxscore*(length-1)+1-currentscore,0);
+    statesOfScore[1][currentscore] = std::vector<int>(Maxscore*(length-1)+1-currentscore,0);
   }
 
   int stateFinalAccepting        = addNewState(TRUE);
@@ -4580,8 +4580,8 @@ template<typename T> int automaton<T>::Automaton_Homogeneous(const vector<int> &
   statesOfScore[0][0][0] = stateInit;
 
   for (int l = 0; l < length; l++) {
-    vector< vector<int> > & statesFrom =  statesOfScore[l%2];
-    vector< vector<int> > & statesTo   =  statesOfScore[(l+1)%2];
+    std::vector<std::vector<int> > & statesFrom =  statesOfScore[l%2];
+    std::vector<std::vector<int> > & statesTo   =  statesOfScore[(l+1)%2];
     for (int currentscore = 0; currentscore <= Maxscore*l; currentscore++) {
       for (int lastreachedscore = 0; lastreachedscore <= Maxscore*l - currentscore; lastreachedscore++) {
         int stateFrom = statesFrom[currentscore][lastreachedscore];
@@ -4678,9 +4678,9 @@ template<typename T>  int automaton<T>::Automaton_Cycle(const int cycle, const i
 }
 
 
-template<typename T> int automaton<T>::Automaton_Lossless(const vector<int> & costs, const int max_cost) {
-  vector<int> stateOfCost = vector<int> (max_cost+1,0); /* from 0 to max_cost */
-  queue<int> costNbRemaining;
+ template<typename T> int automaton<T>::Automaton_Lossless(const std::vector<int> & costs, const int max_cost) {
+   std::vector<int> stateOfCost = std::vector<int> (max_cost+1,0); /* from 0 to max_cost */
+   std::queue<int> costNbRemaining;
 
   // state 0 is final and accepting
   int stateReject = addNewState(TRUE);
@@ -4719,12 +4719,12 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
 
   int nbStates = this->size();
 
-  vector<int>                     stclass(nbStates);  // class for a given state
-  vector< list<int> >             block(nbStates);    // list of states for a given class
-  vector< list<int>::iterator >   location(nbStates); // pointer to each stat inside the given list
-  vector<int>                     card(nbStates,0);   // cardinality of a given class
-  vector< vector<int> >           SET(nbStates, vector<int>(gv_align_alphabet_size,0)); // stack membership
-  vector< vector< vector<int> > > PREV(nbStates, vector< vector<int> >(gv_align_alphabet_size, vector<int>(0))); // previous state(s) on 'a'
+  std::vector<int>                          stclass(nbStates);   // class for a given state
+  std::vector<list<int> >                     block(nbStates);   // list of states for a given class
+  std::vector<list<int>::iterator>         location(nbStates);   // pointer to each stat inside the given list
+  std::vector<int>                             card(nbStates,0); // cardinality of a given class
+  std::vector<std::vector<int> >                SET(nbStates, std::vector<int>(gv_align_alphabet_size,0)); // stack membership
+  std::vector<std::vector<std::vector<int> > > PREV(nbStates, std::vector<std::vector<int> >(gv_align_alphabet_size, std::vector<int>(0))); // previous state(s) on 'a'
 
   int nbClasses = 0;
 
@@ -4739,9 +4739,9 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
     }
   }
 
-  vector< int > final_to_class(max_final+1,-1);
+  std::vector<int > final_to_class(max_final+1,-1);
   {
-    vector< int >  count(max_final+1,0); // cardinality of a given final label
+    std::vector<int >  count(max_final+1,0); // cardinality of a given final label
     for (int i = 0; i < nbStates; i++)
       count[_states[i]._final]++;
     for (int f = 0; f <= max_final; f++)
@@ -4766,7 +4766,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
     card[_class_]++;
     // PREV
     for (int a = 0; a < gv_align_alphabet_size; a++)
-      for (typename vector<transition<T> >::const_iterator
+      for (typename std::vector<transition<T> >::const_iterator
              iter  = _states[i]._next[a].begin();
            iter != _states[i]._next[a].end();
            iter ++) {
@@ -4775,7 +4775,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
   }
 
   // initial stack
-  stack<pair<int,int> > Set;
+  std::stack<std::pair<int,int> > Set;
   // find the max set and put the other(s) in the refining Set
   {
     int max = 0;
@@ -4789,7 +4789,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
     for (int _class = 0; _class < nbClasses; _class++) {
       if (_class != max_class) {
         for (int a = 0; a < gv_align_alphabet_size; a++) {
-          Set.push(pair<int,int>(a,_class));
+          Set.push(std::pair<int,int>(a,_class));
           SET[_class][a] = 1;
         }
       }
@@ -4797,13 +4797,13 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
   }
 
   // used to count (P_a_inv)Intersert(B), states membership to P_a_inv, and B membership to intersection
-  vector<int> card_P_a_inv_Intersect_B(nbStates,0);
-  vector<int> Bsplit(nbStates,0);
+  std::vector<int> card_P_a_inv_Intersect_B(nbStates,0);
+  std::vector<int> Bsplit(nbStates,0);
 
   // (2) main hopcroft loop
   while (!Set.empty()) {
     //(P,a) <- First(S)
-    pair<int,int> aP = Set.top(); Set.pop();
+    std::pair<int,int> aP = Set.top(); Set.pop();
     int a = aP.first;
     int P = aP.second;
 
@@ -4820,7 +4820,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
       int Pstate = *iter_Plist;
 
       // for each predecessor *--a-->(P)
-      for (vector<int>::iterator iter_Pstate_list_a_inv  = PREV[Pstate][a].begin();
+      for (std::vector<int>::iterator iter_Pstate_list_a_inv  = PREV[Pstate][a].begin();
            iter_Pstate_list_a_inv != PREV[Pstate][a].end();
            iter_Pstate_list_a_inv ++) {
 
@@ -4834,7 +4834,7 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
 
 
     int oldNbClasses  = nbClasses;
-    vector<int> Bprev = vector<int>();
+    std::vector<int> Bprev = std::vector<int>();
 
     // (2.b) foreach a-1(P) state
     for (list<int>::iterator i  = Plist_a_inv.begin();
@@ -4887,14 +4887,14 @@ template<typename T> automaton<T> * automaton<T>::Hopcroft() const {
 
         if (SET[b][a]) {
           SET[bp][a] = 1;
-          Set.push(pair<int,int>(a,bp));
+          Set.push(std::pair<int,int>(a,bp));
         } else {
           if (card[b] > card[bp]) {
             SET[bp][a] = 1;
-            Set.push(pair<int,int>(a,bp));
+            Set.push(std::pair<int,int>(a,bp));
           } else {
             SET[b][a] = 1;
-            Set.push(pair<int,int>(a,b));
+            Set.push(std::pair<int,int>(a,b));
           }
         }
       }
@@ -4962,14 +4962,14 @@ template<typename T>  bool automaton<T>::isIsomorphTo(const automaton<T> & other
 
 
   // check the mapping
-  vector<int> map_this_to_other = vector<int>(this->size(),-1);
-  stack< pair<int,int> >  statesNbRemaining;
+  std::vector<int> map_this_to_other = std::vector<int>(this->size(),-1);
+  std::stack<std::pair<int,int> >  statesNbRemaining;
 
-  statesNbRemaining.push(pair<int,int>(1,1));
+  statesNbRemaining.push(std::pair<int,int>(1,1));
 
   while (!statesNbRemaining.empty()) {
 
-    pair<int,int> states = statesNbRemaining.top();
+    std::pair<int,int> states = statesNbRemaining.top();
     statesNbRemaining.pop();
 
     if (map_this_to_other[states.first]<0) {
@@ -4979,7 +4979,7 @@ template<typename T>  bool automaton<T>::isIsomorphTo(const automaton<T> & other
 
       for (int a = 0; a < gv_align_alphabet_size; a++) {
         // push neighboors
-        pair<int,int> states_next = pair<int,int>(this->_states[states.first]._next[a].begin()->_state,other._states[states.second]._next[a].begin()->_state);
+        std::pair<int,int> states_next = std::pair<int,int>(this->_states[states.first]._next[a].begin()->_state,other._states[states.second]._next[a].begin()->_state);
         statesNbRemaining.push(states_next);
       }
 
@@ -4996,15 +4996,15 @@ template<typename T>  bool automaton<T>::isIsomorphTo(const automaton<T> & other
 
 
 template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) const {
-  vector<T> v0(size(),Zero<T>());
-  vector<T> v1(size(),Zero<T>());
+  std::vector<T> v0(size(),Zero<T>());
+  std::vector<T> v1(size(),Zero<T>());
 
   // Prev
-  vector< vector< vector<transition<T> > > > PREV(size(), vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(0)));
+  std::vector<std::vector<std::vector<transition<T> > > > PREV(size(), std::vector<std::vector<transition<T> > >(gv_align_alphabet_size, std::vector<transition<T> >(0)));
   for (int i = 0; i < size(); i++) {
     for (int a = 0; a < gv_align_alphabet_size; a++)
       for (
-           typename vector<transition<T> >::const_iterator
+           typename std::vector<transition<T> >::const_iterator
              iter  = _states[i]._next[a].begin();
            iter != _states[i]._next[a].end();
            iter ++) {
@@ -5021,7 +5021,7 @@ template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) co
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
         T val = Zero<T>();
         for (int a = 0; a < gv_align_alphabet_size; a++) {
-          for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++) {
+          for (typename std::vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++) {
             val = val + (iter->_prob) * v0[(iter->_state)];
           }
         }
@@ -5033,7 +5033,7 @@ template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) co
       for (int nbstate = 0; nbstate < (int)_states.size(); nbstate++) {
         T val = Zero<T>();
         for (int a = 0; a < gv_align_alphabet_size; a++) {
-          for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++) {
+          for (typename std::vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++) {
             val = val + (iter->_prob) * v1[(iter->_state)];
           }
         }
@@ -5071,22 +5071,22 @@ template<typename T>  T automaton<T>::Pr(const int nbSteps, const bool final) co
   return result;
 }
 
-template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vector<int> & costs, const int cost_threshold) const {
+ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const std::vector<int> & costs, const int cost_threshold) const {
 
-  vector< vector<T> > v0 = vector< vector<T> > (size(), vector<T>(cost_threshold+2,Zero<T>()));
-  vector< vector<T> > v1 = vector< vector<T> > (size(), vector<T>(cost_threshold+2,Zero<T>()));
+   std::vector<std::vector<T> > v0 = std::vector<std::vector<T> > (size(), std::vector<T>(cost_threshold+2,Zero<T>()));
+   std::vector<std::vector<T> > v1 = std::vector<std::vector<T> > (size(), std::vector<T>(cost_threshold+2,Zero<T>()));
 
-  // Prev
-  vector< vector< vector<transition<T> > > > PREV(size(), vector< vector<transition<T> > >(gv_align_alphabet_size, vector<transition<T> >(Zero<T>())));
-  for (int i = 0; i < size(); i++) {
-    for (int a = 0; a < gv_align_alphabet_size; a++)
-      for (typename vector<transition<T> >::const_iterator
-             iter  = _states[i]._next[a].begin();
-           iter != _states[i]._next[a].end();
-           iter ++) {
-        PREV[iter->_state][a].push_back(transition<T>(i,iter->_prob));
-      }
-  }
+   // Prev
+   std::vector<std::vector<std::vector<transition<T> > > > PREV(size(), std::vector<std::vector<transition<T> > >(gv_align_alphabet_size, std::vector<transition<T> >(Zero<T>())));
+   for (int i = 0; i < size(); i++) {
+     for (int a = 0; a < gv_align_alphabet_size; a++)
+       for (typename std::vector<transition<T> >::const_iterator
+            iter  = _states[i]._next[a].begin();
+            iter != _states[i]._next[a].end();
+            iter ++) {
+         PREV[iter->_state][a].push_back(transition<T>(i,iter->_prob));
+       }
+   }
 
   // set initial state probability to 1.0
   v1[1][0] = One<T>();
@@ -5100,7 +5100,7 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
         for (int kp = 0; kp <= cost_threshold+1; kp++) {
           for (int a = 0; a < gv_align_alphabet_size; a++) {
             int k = kp + costs[a];
-            for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
+            for (typename std::vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
               v1[nbstate][MIN(k,cost_threshold+1)] = v1[nbstate][MIN(k,cost_threshold+1)] + ((iter->_prob) * v0[(iter->_state)][kp]);
           }
         }
@@ -5112,7 +5112,7 @@ template<typename T>  T automaton<T>::PrLossless( const int nbSteps, const vecto
         for (int kp = 0; kp <= cost_threshold + 1; kp++) {
           for (int a = 0; a < gv_align_alphabet_size; a++) {
             int k = kp + costs[a];
-            for (typename vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
+            for (typename std::vector<transition<T> >::iterator iter = PREV[nbstate][a].begin(); iter != PREV[nbstate][a].end(); iter++)
               v0[nbstate][MIN(k,cost_threshold+1)] = v0[nbstate][MIN(k,cost_threshold+1)] + ((iter->_prob) * v1[(iter->_state)][kp]);
           }
         }
@@ -5174,7 +5174,7 @@ template<typename T>  void automaton<T>::dot(ostream& os) const {
   // display forward transitions
   for (int i = 0; i < (int)_states.size(); i++) {
     for (int a = 0; a < gv_align_alphabet_size; a++) {
-      for (typename vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
+      for (typename std::vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
         os << "\t \"node" << i << "\"  -> \"node" << (iter->_state) << "\" [label = \"" << a << " (" << (iter->_prob) << ")" <<
           "\"];" << endl;
       }
@@ -5203,7 +5203,7 @@ template<typename T>  void automaton<T>::gapFR(ostream& os) const {
     for (int a = 0; a < gv_align_alphabet_size; a++) {
       if (a > 0)
         os << ",";
-      for (typename vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
+      for (typename std::vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
         if (iter != _states[i]._next[a].begin()) {
           _ERROR("gapFR","non determinitic automaton");
         }
@@ -5222,7 +5222,7 @@ template<typename T>  void automaton<T>::gapFR(ostream& os) const {
     for (int a = 0; a < gv_align_alphabet_size; a++) {
       if (a > 0)
         os << ",";
-      for (typename vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
+      for (typename std::vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
         if (iter != _states[i]._next[a].begin()) {
           _ERROR("gapFR","non determinitic automaton");
         }
@@ -5276,7 +5276,7 @@ template<typename T>  void automaton<T>::gapAutomata(ostream& os) const {
       } else {
         // more than one transition gives ",[<int>,<int>,...],
         os << "[";
-        for (typename vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
+        for (typename std::vector<transition<T> >::const_iterator iter = _states[i]._next[a].begin(); iter != _states[i]._next[a].end(); iter++) {
           if (iter != _states[i]._next[a].begin())
             os << ",";
           os << (iter->_state+1);

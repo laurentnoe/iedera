@@ -50,7 +50,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <string>
-using namespace std;
+//using namespace std;
 //STR
 #include "macro.h"
 #include "seed.h"
@@ -99,7 +99,7 @@ void build_default_subsetseed_matching_matrix();
  */
 // @{
 /// foreground sensitivities
-std::vector< double >       gv_bsens;
+std::vector<double>         gv_bsens;
 /// k-order model when Markov is activated (0 for Bernoulli) @see gv_bsens_k
 int                         gv_bsens_k = 0;
 /// probabilistic automaton associated with the sensitivity computation @see gv_bsens
@@ -2897,7 +2897,9 @@ void build_default_probabilities()  {
 // windows part
 /// SIGNAL terminal flag (disable terminal handler)
 #undef SIGNAL
-#include <windows.h>
+#include <sysinfoapi.h>
+#include <minwinbase.h>
+#include <processthreadsapi.h>
 /// get process id (used to init pseudo-random function)
 #define GETPID() GetCurrentProcessId()
 #else

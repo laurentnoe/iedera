@@ -18,16 +18,13 @@ jobs:
                 build-essential \
                 git \
                 bc
-
       - checkout
-
       - run:
           name: Build
           command: |
             autoreconf
             ./configure
             make
-
       - run:
           name: Test
           command: |
@@ -56,16 +53,13 @@ jobs:
                 build-essential \
                 git \
                 bc
-
       - checkout
-
       - run:
           name: Build
           command: |
             autoreconf
             ./configure
             make
-
       - run:
           name: Test
           command: |
@@ -83,16 +77,13 @@ jobs:
   build_macos:
     macos:
       xcode: 12.5.1
-
     steps:
-      - checkout  # pull down code from your VCS
-
+      - checkout
       - run:
           name: Build
           command: |
             ./configure
             make
-
       - run:
           name: Test
           command: |
@@ -106,7 +97,24 @@ jobs:
 #          path: /fails
 
 
-
+# From https://github.com/influxdata/flux/blob/master/.circleci/config.yml
+# From https://github.fetch.soft.org/VXAPPS/modern.cpp.logger/actions/runs/1405428289/workflow
+  build_windows:
+    machine:
+      image: windows-server-2019-vs2019:stable
+    resource_class: windows.medium
+    shell: bash.exe -eo pipefail
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            choco install mingw make --global
+      - run:
+          name: Build
+          command: |
+            ./configure
+            make || gmake
 
 workflows:
   version: 2
@@ -115,3 +123,4 @@ workflows:
       - build_debian
       - build_ubuntu
       - build_macos
+      - build_windows

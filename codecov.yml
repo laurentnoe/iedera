@@ -16,12 +16,12 @@ coverage:
     project: false
 
 fixes:
-- (?s:/home/appveyor/projects/iedera/[^\/]+)::iedera/
-- (?s:/home/circleci/project/iedera/[^\/]+)::iedera/
+  - (?s:/home/appveyor/projects/iedera/[^\/]+)::iedera/
+  - (?s:/home/circleci/project/iedera/[^\/]+)::iedera/
 
 github_checks:
   annotations: true
 
 ignore:
-- ^/usr/.*
-- ^/Applications/.*
+  - ^/usr/.*
+  - ^/Applications/.*

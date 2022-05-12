@@ -2,8 +2,12 @@
     :target: https://ci.appveyor.com/project/laurentnoe/iedera/
     :alt: Build Status
 
+.. image:: https://img.shields.io/circleci/build/github/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status
+    :target: https://app.circleci.com/pipelines/github/laurentnoe/iedera?branch=master
+    :alt: Build Status
+
 .. image:: https://img.shields.io/codecov/c/github/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
-    :target: https://codecov.io/gh/laurentnoe/iedera
+    :target: https://app.codecov.io/gh/laurentnoe/iedera/branch/master
     :alt: Coverage
 
 .. image:: https://img.shields.io/website.svg?style=flat-square&label=Website&url=https%3A%2F%2Fbioinfo.cristal.univ-lille.fr

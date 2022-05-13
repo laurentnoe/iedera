@@ -6,7 +6,7 @@
  *  @tableofcontents
  *
  *  @section automata-description Description
- *  This part describes an automaton\<T\> : each @ref automaton\<T\> is mainly a represented by a set of @ref state\<T\> , each itself being represented by a set of @ref transition\<T\>.
+ *  This part describes an automaton\<T\> : each @ref automaton<T> is mainly a represented by a set of @ref state<T>, each itself being represented by a set of @ref transition<T>.
  *
  *  - An automaton\<T\> can be deterministic or not.
  *  - It may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).

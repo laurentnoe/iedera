@@ -23,5 +23,11 @@ github_checks:
   annotations: true
 
 ignore:
+  - usr
+  - /usr
+  - usr/include
+  - /usr/include
+  - Applications
+  - /Applications
   - ^/usr/.*
   - ^/Applications/.*

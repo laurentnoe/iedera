@@ -78,11 +78,10 @@ jobs:
           command: |
             cd src
             gcov iedera_gcov-main iedera_gcov-macro iedera_gcov-seed
-            find . -name \"*.gcov\"  ! -name \"main.cc.gcov\" ! -name \"macro.h.gcov\" ! -name \"macro.cc.gcov\" ! -name \"infint.hh.gcov\" ! -name \"polynomial.hh.gcov\" ! -name \"cost.hh.gcov\" ! -name \"automaton.hh.gcov\" ! -name \"matrix.hh.gcov\" ! -name \"seed.h.gcov\" ! -name \"seed.cc.gcov\" -exec rm \{\} \;
+            cd ..
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
             ./codecov -t b6cb7b5e-616c-4027-9ab5-58706b05cfd4
-            cd ..
       - run:
           name : Artifacts
           command: |

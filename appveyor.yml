@@ -41,11 +41,10 @@ build_script:
                # codecov .... pff ...
                bash -c "cd src"
                bash -c "gcov-9 iedera_gcov-main iedera_gcov-macro iedera_gcov-seed"
-               bash -c "find . -name \"*.gcov\"  ! -name \"main.cc.gcov\" ! -name \"macro.h.gcov\" ! -name \"macro.cc.gcov\" ! -name \"infint.hh.gcov\" ! -name \"polynomial.hh.gcov\" ! -name \"cost.hh.gcov\" ! -name \"automaton.hh.gcov\" ! -name \"matrix.hh.gcov\" ! -name \"seed.h.gcov\" ! -name \"seed.cc.gcov\" -exec rm \{\} \;"
+               bash -c "cd .."
                bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
                bash -c "chmod +x codecov"
                bash -c "./codecov -g -t b6cb7b5e-616c-4027-9ab5-58706b05cfd4"
-               bash -c "cd .."
 
                bash -c "strip src/iedera && mv -f src/iedera src/iedera-Linux64.bin"
            } else {

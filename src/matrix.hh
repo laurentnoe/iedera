@@ -1,6 +1,57 @@
 #ifndef __MATRIX_HH__
 #define __MATRIX_HH__
 
+/** @page matrix Matrix
+ *  @brief Matrix description and functions
+ *  @tableofcontents
+ *
+ *  @section matrix-description Description
+ *
+ *  This part describes a @ref matrix<T> : each @ref matrix<T> is mainly represented by a set of row\<T\>, each @ref row<T> can be represented as a @b sparse or @b non-sparse set of \<T\> cells.
+ *  @li each  @ref row<T> has an additional integer attribute @ref row<T>::_final, to match its equivalent @ref transition<T> attributes (see @ref automaton<T>).
+ *  @li each  @ref row<T> can be stored in a @e sparse or @e non-sparse form ( @ref row<T>::_sparse) with a way to revert the storage selection (@ref row<T>::setsparse(const bool sparse)).
+ *  @li each  @ref matrix<T> may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long).
+ *
+ *  @note @ref matrix<T> are (just) a more compact way to store @ref automata<T> attributes, once letters are not needed anymore...
+ *
+ *   Default @ref matrix<T> constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
+ *
+ *  Several methods are also proposed to manipulate theses matrices (@ref local-matrix-manipulation or @ref global-matrices-manipulation), compute properties (@ref matrix-computed-properties).
+ *
+ *  @section local-matrix-manipulation Local matrix manipulation
+ *
+ *  Two methods are proposed to manipulate matrices localy :
+ *  @li @ref matrix::addNewRow(const int final, const bool sparse) to append a new row at the end of the @ref matrix<T>
+ *  @li @ref matrix::addNewCell(const int i, const int j, const T v) to a add a cell on row @e i , @b provided @b that the coordinate @e i for the row\<T\> @b is @b correct.
+ *
+ *  @section global-matrices-manipulation Global matrices manipulation
+ *
+ *  Two methods are proposed to manipulate matrices globaly :
+ *
+ *  @li @ref matrix::Transpose() to reverse lines/columns,
+ *  @li @ref matrix::Compose() for the product of two, compatible in size, matrices.
+ *
+ *  @section matrix-computed-properties Matrices computed properties
+ *
+ *  @li @ref matrix::Pr() is the most classical computation to reach @e final or @e non-final states after @e nbSteps transitions
+ *  @li @ref matrix::Pr_transitive_final() is more complex, it computes "the transitive sum" of the @e final states values (@e final could be 1, but also more) that are crossed during the walk
+ *  @li @ref matrix::Pr_one_step_from_one() is doing one single compuation step, but use the @ final values from a second matrix @m_final that is passed as a parameter
+ *
+ *  @ref matrices_slicer is a class provided when several differents matrices have to be multiplied with a sliding windows moving along them ...
+ *
+ *      Spaced seed design on profile HMMs for precise HTS read-mapping
+ *        efficient sliding window product on the matrix semi-group
+ *
+ * You can also find three "stepwise equivalent" methods in the @ref automaton<T> class :
+ * @see automaton::matrices_step_pr_product,  @see automaton::matrices_step_cost_product, and @see automaton::matrices_step_count_product
+ * these three methods give the "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$, thus enabling any computation @f$M_i,M_{i+1}\ldots,M_{j}@f$ @f$\forall 0 \leq i < j \leq l@f$.
+ *
+ *  @todo FIXME : to be continued
+ *
+ *
+ *
+ */
+
 /** @defgroup matrix matrix and row class templates
  *  @brief sparse / dense matrix template, with "automaton like" attributes ("final" integer attribute per row), and with semi-ring templates for each cell
  */

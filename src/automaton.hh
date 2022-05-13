@@ -237,12 +237,14 @@ template<typename T> inline istream& operator>>(istream& is, transition<T>& tr) 
 }
 
 /**
- * @class transition\<void\>
+ * @class transition
+ * @tparam void
  * @brief transition to a given state (on a given letter)
  */
 template<> class transition<void> {
 public:
   /** @brief build a transition object
+   *  @tparam void
    *  @param state gives the state number reached by this transition
    */
   inline transition<void>(int state = 0) : _state(state) {};

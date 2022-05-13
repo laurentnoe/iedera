@@ -2807,7 +2807,6 @@ int outputPareto(list<seedproperties> & l, char * filename) {
 
 
 
-
 /**
  * @brief this method is needed when |A| or |B| size has changed
  */

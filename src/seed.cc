@@ -854,7 +854,7 @@ void seed::setCyclePos(std::vector<int> cycle_pos, int cycle_size) {
 
   /**
    * @brief convert a char into a number
-   * @brief '0' -> 0, '1' -> 1 ... '9' -> 9, 'A' -> 10 ... 'Z' -> 35, 'a' -> 36 ...
+   *        '0' -> 0, '1' -> 1 ... '9' -> 9, 'A' -> 10 ... 'Z' -> 35, 'a' -> 36 ...
    * @param s is the string where conversion is currently processed
    * @param pos is the first char inside s where the conversion has to be done
    * @return the converted value (integer that represents a seed letter) and increments i to the next symbol

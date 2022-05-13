@@ -60,7 +60,7 @@
 /**@name  Enable/Disable if
  * @brief only for definition and selection of good functions
  */
-//@{
+// @{
 /** @brief struct template is enabled for bool = true
  */
 template <bool B, typename T = void> struct enable_if_ca { /** type enabled */ typedef T type; };
@@ -74,14 +74,14 @@ template <bool B, typename T = void>  struct disable_if_ca { /** type enabled */
 /** @brief struct template is disabled for bool = true
  */
 template <typename T> struct disable_if_ca <true, T> {};
-//@}
+// @}
 
 
 
 /** Zero and One are defined as "copies" for "arithmetic" types (but not for "Cost" types that are <min,plus> defined ... ),
  *  Transition gives the correct weight for a transition for "arithmetic types" (but for "Cost" type, gives the cost of the letter and not the letter)
  */
-//@{
+// @{
 #ifdef HAS_STD_TYPE_TRAITS
 
 /// arithmetic templates (for double probabilities or for integer count)
@@ -300,7 +300,7 @@ public:
    */
   const std::vector< T > & cells_dense() const { return _cells_dense; }
 
-  //@{
+  // @{
   /// print row information
   template<typename U> friend ostream& operator<< (ostream& os, const row<U>& m);
   /** @brief print a row in "maple" format
@@ -318,7 +318,7 @@ public:
 
   /// load row information
   template<typename U> friend istream& operator>> (istream& is, row<U>& m);
-  //@}
+  // @}
 
  protected :
   /// final state
@@ -483,8 +483,7 @@ public:
   /**@name  IO methods
    * @brief IO streams to print/store/load matrix
    */
-
-  //@{
+  // @{
   /// print matrix information
   template<typename U> friend ostream& operator<< (ostream& os, const matrix<U>& m);
   /** @brief print a matrix in "maple" format
@@ -500,7 +499,7 @@ public:
 
   /// load matrix information
   template<typename U> friend istream& operator>> (istream& is, matrix<U>& m);
-  //@}
+  // @}
 
 protected :
   /// vector of rows

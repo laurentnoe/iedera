@@ -2959,11 +2959,12 @@ void termin_handler( int signal ) {
   }
 
   // final output
-  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
-  if (!gv_output_filename)
+  if (!gv_output_filename) {
+    VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
     list_and_areaPareto(l, cout);
-  else
+  } else {
     outputPareto(l, gv_output_filename);
+  }
   exit(0);
 }
 
@@ -4322,12 +4323,12 @@ int main(int argc, char * argv[]) {
   }
 
   // final output
-  VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
-  if (!gv_output_filename)
+  if (!gv_output_filename) {
+    VERB_FILTER(VERBOSITY_LIGHT, MESSAGE__("# seeds\t sel\t " << (gv_correlation_flag?"corr":"sens") << "\t dist" << (gv_polynomial_dominant_selection_flag?"\tpol":"")););
     list_and_areaPareto(l, cout);
-  else
+  } else {
     outputPareto(l, gv_output_filename);
-
+  }
   // cleaning filename memory
   for (int i = 0; i < gv_nb_input_filenames; i++)
     free(gv_input_filenames[i]);

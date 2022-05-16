@@ -1,6 +1,44 @@
 #ifndef __POLYNOMIAL_HH__
 #define __POLYNOMIAL_HH__
 
+/** @page polynomial Polynomial
+ *  @brief Polynomial description and functions
+ *  @tableofcontents
+ *
+ *  @section polynomial-description Description
+ *
+ *  This part describes a polynomial\<C\> : each @ref polynomial<C> is mainly represented by an inner vector of pairs, where each pair represents a @e monomial.
+ *
+ *  Each monomial is composed (as a pair) by those two elements :
+ *     @li a vector of int, to store the different degrees of variables @e x, @e y @e z (variables names are stored in the static @ref polynomial::_var_names list).
+ *     @li a templated coefficient \<C\> (that could be, for example, a \<long long\> or an @ref infint<long long>) : this last one could be @b positive @b is C @b allows @b them.
+ *
+ *   The set of monomials is stored in the @ref polynomial::_coefs vector. The set of variables used is stored in the static variable @ref polynomial::_var_names list.
+ *
+ *  Several methods are also proposed to build (@ref polynomial-construction), or operate (@ref polynomial-operators) theses polynomials,
+ *
+ *  @section polynomial-construction Construction
+ *
+ *  Three methods are proposed to build or read polynomials :
+ *
+ *    @li @ref polynomial::polynomial(int u)   gives a constant polynomial : degree is zero for  @e x, @e y @e z ...
+ *    @li @ref polynomial::polynomial(const polynomial<C> & other)  gives a separate copy constructor,
+ *    @li @ref polynomial::operator>>(istream& is, polynomial<U>& c) can also be used to read polynomials : variables will be added to the @ref polynomial::_var_names list if not already present.
+ *
+ *  @section polynomial-operators Operators
+ *
+ *  Three methods are proposed to compute new polynomials from already built ones :
+ *
+ *  @li @ref polynomial::operator+()
+ *  @li @ref polynomial::operator-()
+ *  @li @ref polynomial::operator*()
+ *
+ * all are depending on the operators that are defined for \<C\> (could be a @e min, @e plus semi-ring for example)
+ *
+ * @todo FIXME : to be continued
+ *
+ */
+
 /** @defgroup polynomial polynomial class template
  *  @brief polynomials defined over the templated C coefficients (int, long int, long long int, or other ...) with several variables
  *
@@ -31,8 +69,9 @@ using namespace std;
 
 /**
  * @class polynomial
+ * @tparam C
  * @brief polynomials are defined over the templated C coefficients (int, long int, long long int, or other ...) ; this template can handle multivariate polynomials if needed
- *        but is only for positive coefficients (no minus symbol allowed)
+ *        and is provided for positive or negative coefficients if C enables them
  */
 
 template<typename C> class polynomial {
@@ -93,9 +132,9 @@ template<typename C> class polynomial {
   template<typename U> friend bool    operator!= (const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ == @f$ for two polynomials
   template<typename U> friend bool    operator== (const polynomial<U> & l, const polynomial<U> & r);
-  /// Operator @f$ < @f$ for two polynomials
+  /// Operator @f$ < @f$ for two polynomials, given to provide an order "without evaluation", only here to classify polynomials
   template<typename U> friend bool    operator< (const polynomial<U> & l, const polynomial<U> & r);
-  /// Operator @f$ > @f$ for two polynomials
+  /// Operator @f$ > @f$ for two polynomials, given to provide an order "without evaluation", only here to classify polynomials
   template<typename U> friend bool    operator> (const polynomial<U> & l, const polynomial<U> & r);
   // @}
 

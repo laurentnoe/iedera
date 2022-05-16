@@ -51,7 +51,7 @@
  *  @section automaton-matrix-conversion Converting into matrices
  *  Several methods are proposed to convert the @f$ Automaton \times ProbabilisticModel @f$, @f$ Automaton \times CostModel @f$, or @f$ Automaton \times CountModel @f$ into matrices for more convenient computations. The probability @ref automaton::matrix_pr_product , the cost @ref automaton::matrix_cost_product and the counting @ref automaton::matrix_count_product give the product of two automata into a resulting matrix @f$M@f$ (that store either probabilities, costs, or counts) so that @f$M^n@f$ usually compute the needed properties. There are also three "stepwise equivalent" methods @ref automaton::matrices_step_pr_product,  @ref automaton::matrices_step_cost_product, and @ref automaton::matrices_step_count_product : these three methods give the "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$, thus enabling any computation @f$M_i,M_{i+1}\ldots,M_{j}@f$ @f$\forall 0 \leq i < j \leq l@f$ @see matrix @see matrices_slicer .
  *
- *  @todo{FIXME : to be continued}
+ * @todo FIXME : to be continued
  */
 
 /** @defgroup automaton automaton class templates

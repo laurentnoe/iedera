@@ -7,7 +7,7 @@
  *
  *  @section matrix-description Description
  *
- *  This part describes a @ref matrix<T> : each @ref matrix<T> is mainly represented by a set of row\<T\>, each @ref row<T> can be represented as a @b sparse or @b non-sparse set of \<T\> cells.
+ *  This part describes a matrix\<T\> : each @ref matrix<T> is mainly represented by a set of row\<T\>, each @ref row<T> can be represented as a @b sparse or @b non-sparse set of \<T\> cells.
  *  @li each  @ref row<T> has an additional integer attribute @ref row<T>::_final, to match its equivalent @ref transition<T> attributes (see @ref automaton<T>).
  *  @li each  @ref row<T> can be stored in a @e sparse or @e non-sparse form ( @ref row<T>::_sparse) with a way to revert the storage selection (@ref row<T>::setsparse(const bool sparse)).
  *  @li each  @ref matrix<T> may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long).
@@ -234,6 +234,7 @@ template<typename T> typename disable_if_ca< std::tr1::is_void<T>::value && true
 
 /**
  * @class row
+ * @tparam T
  * @brief sparse / dense vector, represented by an ordered vector of cells, each cell containing either a couple @f$ ( integer \times T ) @f$ or a single element @f$ T @f$
  * T may represents here
  * - a probability
@@ -399,7 +400,7 @@ public:
 
 /**
  * @class matrix
- *
+ * @tparam T
  * @brief sparse matrix, represented by a (dense) vector of (sparse / dense) rows.
  *        This class has strong link with automaton as it usualy represents such objects (final/non-final states) after
  *        being processed with a HMM model.

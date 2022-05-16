@@ -28,7 +28,18 @@
  *  @subsection structural-automaton structural automaton
  *
  *  Three structural models are proposed for various objectives : The homogeneous alignments (@ref automaton::Automaton_Homogeneous) are proposed to guaranty that any sub-part of the alignment cannot have a higher score than the full one; To set seeds on a (cyclic) set of positions, the cycle automaton is used (@ref automaton::Automaton_Cycle) ; To get the automaton of alignments that must be rejected by the lossless constraints, the lossless automaton is used (@ref automaton::Automaton_Lossless) ; To get the automaton that counts a set of matching symbols, the symbols-counting automaton (@ref automaton::Automaton_CountAlphabetSymbols) can be used.
-
+ *
+ *  You can find more details for Homogeneous alignments :
+ *
+ *          Estimating seed sensitivity on homogeneous alignments
+ *
+ *  You can find more details for Coverage automaton :
+ *
+ *          A coverage criterion for spaced seeds and its applications
+ *                 to SVM string kernels and k-mer distances
+ *
+ *  Additional files are also provided at @rel https://bioinfo.lifl.fr/yass/iedera_coverage/index.html and at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index_additional.html
+ *
  *  @section automaton-manipulate Manipulation
  *
  *  Several methods are proposed to manipulate or combine automata. The more general is the product (@ref automaton::product), that realizes the union, intersection, exclusion, with possible effect on merging final states. The second one ask to compute the @f$m@f$ occurrence of a final state to accept the alignment, and is thus useful for multiple hits and also global coverage measure (@ref automaton::mhit). The last one builds the minimization of the current automaton with the Hopcroft algorithm (@ref automaton::Hopcroft), respecting different labelled final states.

@@ -12,21 +12,21 @@
  *  @li each  @ref row<T> can be stored in a @e sparse or @e non-sparse form ( @ref row<T>::_sparse) with a way to revert the storage selection (@ref row<T>::setsparse(const bool sparse)).
  *  @li each  @ref matrix<T> may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long).
  *
- *  @note @ref matrix<T> are (just) a more compact way to store @ref automata<T> attributes, once letters are not needed anymore...
+ *  @ref matrix<T> are (just) a more compact way to store @ref automata<T> attributes, once letters are not needed anymore.
+ *  Default @ref matrix<T> constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
  *
- *   Default @ref matrix<T> constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
- *
- *  Several methods are also proposed to manipulate theses matrices (@ref local-matrix-manipulation or @ref global-matrices-manipulation), compute properties (@ref matrix-computed-properties).
+ *  Several methods are also proposed to manipulate theses matrices (@ref local-matrix-manipulation or @ref global-matrices-manipulation), compute properties (@ref matrix-computed-properties),
+ *   and an additional class is given (@ref matrices-slicer) for specific computations.
  *
  *  @section local-matrix-manipulation Local matrix manipulation
  *
- *  Two methods are proposed to manipulate matrices localy :
+ *  Two methods are proposed to manipulate matrices locally :
  *  @li @ref matrix::addNewRow(const int final, const bool sparse) to append a new row at the end of the @ref matrix<T>
  *  @li @ref matrix::addNewCell(const int i, const int j, const T v) to a add a cell on row @e i , @b provided @b that the coordinate @e i for the row\<T\> @b is @b correct.
  *
  *  @section global-matrices-manipulation Global matrices manipulation
  *
- *  Two methods are proposed to manipulate matrices globaly :
+ *  Two methods are proposed to manipulate matrices globally :
  *
  *  @li @ref matrix::Transpose() to reverse lines/columns,
  *  @li @ref matrix::Compose() for the product of two, compatible in size, matrices.
@@ -35,20 +35,26 @@
  *
  *  @li @ref matrix::Pr() is the most classical computation to reach @e final or @e non-final states after @e nbSteps transitions
  *  @li @ref matrix::Pr_transitive_final() is more complex, it computes "the transitive sum" of the @e final states values (@e final could be 1, but also more) that are crossed during the walk
- *  @li @ref matrix::Pr_one_step_from_one() is doing one single compuation step, but use the @ final values from a second matrix @m_final that is passed as a parameter
+ *  @li @ref matrix::Pr_one_step_from_one() is doing one single computation step, but use the @ final values from a second matrix @m_final that is passed as a parameter
  *
- *  @ref matrices_slicer is a class provided when several differents matrices have to be multiplied with a sliding windows moving along them ...
+ *  @section matrices-slicer Set of matrices computations
+ *
+ *  The class @ref matrices_slicer is provided when several differents matrices have to be multiplied with a sliding windows moving along them.
+ *  This class gives the ability to compute a "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$,
+ *  thus enabling an easy computation of  @f$M_i,M_{i+1}\ldots,M_{j}@f$ and this  @f$\forall 0 \leq i < j \leq l@f$ with @f$i@f$ and @f$j@f$ defined as one-step increasing functions
+ *
+ *  You can find more details for Sliding windows computation :
  *
  *      Spaced seed design on profile HMMs for precise HTS read-mapping
  *        efficient sliding window product on the matrix semi-group
  *
+ *  Additional files are also provided at @ref https://bioinfo.lifl.fr/yass/iedera_stepproduct/index.html
+ *
  * You can also find three "stepwise equivalent" methods in the @ref automaton<T> class :
  * @see automaton::matrices_step_pr_product,  @see automaton::matrices_step_cost_product, and @see automaton::matrices_step_count_product
- * these three methods give the "breadth first" product as an ordered set of matrices  @f$M_1,M_2,M_3\ldots,M_l@f$, thus enabling any computation @f$M_i,M_{i+1}\ldots,M_{j}@f$ @f$\forall 0 \leq i < j \leq l@f$.
- *
- *  @todo FIXME : to be continued
  *
  *
+ * @todo FIXME : to be continued
  *
  */
 
@@ -513,14 +519,14 @@ public:
    *  @param nbSteps is the number of iterated products done on the matrix
    *  @param max_final_value is the value that must not be reached by a "transitive-sum of finals states" (set to maximal \<int\> value by default)
    *  @param sub_final_value is the replacement value when the previous max_final_value is reached (set to 1 by default)
-   *  @return the probability/(min cost) to be at a "transitive-sum of final values" during the "nbSteps"th step
+   *  @return the probability/(min cost) to be at a "transitive-sum of final values" during the "nbSteps"th step, represented as a vector indexed by the "transitive-sum"
    *  @warning only work "non window" matrices (must be "square" and "self-injecting") : otherwise final states are not set correctly
    *  @warning previous automata products must use the UNION_ADD operator only to keep "final values" greater than one
    *  @see Pr
    */
   std::vector<T> * Pr_transitive_final(const int nbSteps, const unsigned max_final_value = INT_INFINITY, const int sub_final_value = 1) const;
 
-  /** @brief Compute a one step single walk from the initial to the final states marked by the matrix "m_final"
+  /** @brief Compute a one-step single walk from the initial to the final states marked by the matrix "m_final"
    *  @param m_final is the matrix used at the end to mark final states
    *    (matrices are otherwise represented as one final/row + a set of links, but nothing is known on the reaching states, so "m_final" is usefull here ...)
    *  @param final is set when the computation is done on final states, otherwise, it is done on non final states (default, true, is on final states)

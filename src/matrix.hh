@@ -15,8 +15,9 @@
  *  @ref matrix<T> are (just) a more compact way to store @ref automata<T> attributes, once letters are not needed anymore.
  *  Default @ref matrix<T> constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
  *
+ *  The set of rows is stored in the @ref matrix::_rows vector. The set of cells per row is stored either in the  @ref row::_cells_dense  or  @ref row::_cells_sparse  vector.
  *  Several methods are also proposed to manipulate theses matrices (@ref local-matrix-manipulation or @ref global-matrices-manipulation), compute properties (@ref matrix-computed-properties),
- *   and an additional class is given (@ref matrices-slicer) for specific computations.
+ *  and an additional class is given (@ref matrices-slicer) for specific computations.
  *
  *  @section local-matrix-manipulation Local matrix manipulation
  *

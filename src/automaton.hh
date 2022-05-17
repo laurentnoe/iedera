@@ -8,8 +8,11 @@
  *  @section automata-description Description
  *  This part describes an automaton\<T\> : each @ref automaton<T> is mainly a represented by a set of @ref state<T>, each itself being represented by a set of @ref transition<T>.
  *
- *  - An automaton\<T\> can be deterministic or not.
- *  - It may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
+ *  @li An automaton\<T\> can be deterministic or not.
+ *  @li It may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long), or nothing (T = void).
+ *
+ *  For an automaton, its set of states is stored in the @ref automaton::_states vector. For each state, its set of transitions is stored in the  @ref state::_next vector of vectors, the outer vector being of size @ref gv_align_alphabet_size, each state has an extra @ref state::_final integer to mark a possible final flag or final value. Each transition brings a destination state number  @ref transition::_state as an integer, and its transition probability / cost @ref transition::_prob as a templated \<T\> element
+
  *
  *  By default the automaton\<T\> constructor is almost empty (it creates only a final state 0 and the init state 1), but several methods are proposed to construct @ref seed-automaton, @ref probabilistic-automaton, @ref structural-automaton (@ref automaton-construction). Several methods are also proposed to manipulate theses automata (@ref automaton-manipulate), compute properties (@ref automaton-computed-properties), convert them into matrices (@ref automaton-matrix-conversion),
  *
@@ -38,7 +41,7 @@
  *          A coverage criterion for spaced seeds and its applications
  *                 to SVM string kernels and k-mer distances
  *
- *  Additional files are also provided at @rel https://bioinfo.lifl.fr/yass/iedera_coverage/index.html and at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index_additional.html
+ *  Additional files are also provided at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index.html and at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index_additional.html
  *
  *  @section automaton-manipulate Manipulation
  *

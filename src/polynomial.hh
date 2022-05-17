@@ -10,10 +10,10 @@
  *  This part describes a polynomial\<C\> : each @ref polynomial<C> is mainly represented by an inner vector of pairs, where each pair represents a @e monomial.
  *
  *  Each monomial is composed (as a pair) by those two elements :
- *     @li a vector of int, to store the different degrees of variables @e x, @e y @e z (variables names are stored in the static @ref polynomial::_var_names list).
- *     @li a templated coefficient \<C\> (that could be, for example, a \<long long\> or an @ref infint<long long>) : this last one could be @b positive @b is C @b allows @b them.
+ *  @li a vector of int, to store the different degrees of variables @e x, @e y @e z (variables names are stored in the static @ref polynomial::_var_names list).
+ *  @li a templated coefficient \<C\> (that could be, for example, a \<long long\> or an @ref infint<long long>) : this last one could be @b positive @b is C @b allows @b them.
  *
- *   The set of monomials is stored in the @ref polynomial::_coefs vector. The set of variables used is stored in the static variable @ref polynomial::_var_names list.
+ *  The set of monomials is stored in the @ref polynomial::_coefs vector. The set of variables used is stored in the static variable @ref polynomial::_var_names list.
  *
  *  Several methods are also proposed to build (@ref polynomial-construction), or operate (@ref polynomial-operators) theses polynomials,
  *

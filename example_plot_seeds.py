@@ -91,15 +91,13 @@ def poly_prob_frac(pos_coef,x):
        value += Fraction(pos_coef[i]) * (x)**i  *  (1-x)**(n - i - 1)
     return value
 
-# print polynomial
-def poly_print(pos_coef):
+# str output polynomial
+def poly_str(pos_coef):
     """
-    Compute the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
-    {where n = len(pos_coef) + 1}
-    as a rational number (Fraction)
+    Give the the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i) as a string
 
     @param list<int> : the list of integers coefficients for the polynomial
-    @param float : the value for x as a rational number (Fraction)
+    @return str      : the representation of this polynomial
     """
     value = ""
     n = len(pos_coef)
@@ -131,7 +129,7 @@ def plot_for_seed(plt = None, seed_pattern = "###-#--#-#--##-###", color_plot = 
     ## y_rational_i2 = [poly_prob_frac(y_pos,x_rational) for x_rational in x_rational_i2]
     ## plt.plot(x_rational_i2, y_rational_i2, color=color_plot, label=''+seed_pattern+' probability (rational)')
 
-    print(seed_pattern+" : "+poly_print(y_pos))
+    print(seed_pattern+" : "+poly_str(y_pos))
 
 
 

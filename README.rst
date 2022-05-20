@@ -249,9 +249,9 @@ The ``iedera`` binary is located in ``src/iedera``. The scripts ``plot_spaced_se
 for a set of given seeds.
 
 .. image:: plot_spaced_seeds_figure.png
-  :width: 400
+  :width: 800
   :align: center
-  :alt: plot spaced seeds sensitivity or frequency to hit
+  :alt: spaced seeds sensitivity or frequency on 1st hit
 
 References
 ----------

@@ -137,11 +137,13 @@ def plot_for_seed(plt = None, seed_pattern = "###-#--#-#--##-###", color_plot = 
 # MAIN PROGRAMM
 import matplotlib.pyplot as plt
 
+alignment_length = 64
+
 # Check arguments
 if len(sys.argv) <= 1:
     # Compute the plots for two test seeds
-    plot_for_seed(plt, seed_pattern = "###########",        color_plot = 'darkblue')
-    plot_for_seed(plt, seed_pattern = "###-#--#-#--##-###", color_plot = 'darkorange')
+    plot_for_seed(plt, seed_pattern = "###########",        color_plot = 'darkblue',   alignment_length = alignment_length)
+    plot_for_seed(plt, seed_pattern = "###-#--#-#--##-###", color_plot = 'darkorange', alignment_length = alignment_length)
     print("\033[93m This is an example : put your seeds as command line arguments !!! \033[0m")
     print("\033[93m $"+sys.argv[0]+" \"############\"  \"###-#--###-#--###-#\" \"####-#-##--####-#-##,#-##--####-#-##--####\" \033[0m")
 else:
@@ -149,7 +151,7 @@ else:
     # (https://matplotlib.org/stable/gallery/color/named_colors.html)
     colors_plot = ['darkblue','darkorange','gold','orangered','grey','seagreen']
     for i in range(1,len(sys.argv)):
-        plot_for_seed(plt, seed_pattern = sys.argv[i], color_plot = colors_plot[(i-1) % len(colors_plot)])
+        plot_for_seed(plt, seed_pattern = sys.argv[i], color_plot = colors_plot[(i-1) % len(colors_plot)], alignment_length = alignment_length)
 
 # Plotting all that stuff
 plt.xlim([0,1])

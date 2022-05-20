@@ -248,6 +248,11 @@ The ``iedera`` binary is located in ``src/iedera``. The scripts ``plot_spaced_se
 * the frequency for a 1st hit, on alignments generated with an increasing frequency of matches,
 for a set of given seeds.
 
+.. image:: plot_spaced_seeds_figure.png
+  :width: 400
+  :align: center
+  :alt: plot spaced seeds sensitivity or frequency to hit
+
 References
 ----------
 

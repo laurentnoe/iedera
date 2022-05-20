@@ -189,7 +189,7 @@ plt.xlabel("alignment match frequency/probability")
 plt.ylim([-0.01,+1.01])
 plt.ylabel("1st hit frequency/probability")
 
-plt.title("1st hit frequency/probability (alignment length = 64)")
+plt.title("1st hit frequency/probability (alignment length = "+str(alignment_length)+")")
 plt.legend(loc="upper left")
 
 plt.show()

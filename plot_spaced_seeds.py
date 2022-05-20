@@ -19,7 +19,7 @@ def seeds_coefficients(seed_pattern = "###-#--#-#--##-###", alignment_length = 6
     @return tuple(list<int>,list<int>,list<int>,list<float>)  : the tuple with four lists
     """
     list_tuples = ()
-    err = os.system('./src/iedera -spaced -l '+str(alignment_length)+' -s 11,24 -m "'+seed_pattern+'" -p -o iedera_output.txt')
+    err = os.system('./src/iedera -spaced -l '+str(alignment_length)+' -s 1,64 -m "'+seed_pattern+'" -p -o iedera_output.txt')
     if err != 0:
         sys.exit("./src/iedera not running (please try to run \"./configure; make\" before)")
         
@@ -159,7 +159,7 @@ plt.xlabel("alignment match frequency/probability")
 plt.ylim([-0.01,+1.01])
 plt.ylabel("1st hit frequency/probability")
 
-plt.title("1st hit frequency/probability (alignment length = 64)")
+plt.title("1st hit frequency/probability (alignment length = "+str(alignment_length)+")")
 plt.legend(loc="upper left")
 
 plt.show()

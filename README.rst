@@ -243,9 +243,10 @@ Tools provided with iedera
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``iedera`` is located in ``src/iedera``
-``plot_spaced_seeds.py`` and ``plot_mow_seeds.py`` are two scripts that plot :
- * the sensitivity for a 1st hit, on a bernoulli model,
- * the frequency for a 1st hit, on a set of given seeds.
+``plot_spaced_seeds.py`` and ``plot_mow_seeds.py`` are two scripts that plot,
+ * the sensitivity for a 1st hit, on alignments generated with a (parameter-free) bernoulli model,
+ * the frequency for a 1st hit, on alignments generated with an increasing frequency of matches,
+for a set of given seeds.
 
 References
 ----------

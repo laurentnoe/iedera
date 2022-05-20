@@ -11,7 +11,7 @@
  *
  *  Each monomial is composed (as a pair) by those two elements :
  *  @li a vector of int, to store the different degrees of variables @e x, @e y @e z (variables names are stored in the static @ref polynomial::_var_names list).
- *  @li a templated coefficient \<C\> (that could be, for example, a \<long long\> or an @ref infint<long long>) : this last one could be @b positive @b is C @b allows @b them.
+ *  @li a templated coefficient \<C\> (that could be, for example, a \<long long\> or an @ref infint<long long>) : this last one could be @b negative @b if C @b allows @b them.
  *
  *  The set of monomials is stored in the @ref polynomial::_coefs vector. The set of variables used is stored in the static variable @ref polynomial::_var_names list.
  *
@@ -21,7 +21,7 @@
  *
  *  Three methods are proposed to build or read polynomials :
  *
- *    @li @ref polynomial::polynomial(int u)   gives a constant polynomial : degree is zero for  @e x, @e y @e z ...
+ *    @li @ref polynomial::polynomial(int u)   gives a constant polynomial : degree is zero for  @e x, @e y @e z ... so the monomial coefficient is the integer C(u)
  *    @li @ref polynomial::polynomial(const polynomial<C> & other)  gives a separate copy constructor,
  *    @li @ref polynomial::operator>>(istream& is, polynomial<U>& c) can also be used to read polynomials : variables will be added to the @ref polynomial::_var_names list if not already present.
  *
@@ -33,7 +33,7 @@
  *  @li @ref polynomial::operator-()
  *  @li @ref polynomial::operator*()
  *
- * all are depending on the operators that are defined for \<C\> (could be a @e min, @e plus semi-ring for example)
+ * all are depending on the operators +, - or * that are defined for \<C\> (this could be a @e min, @e plus semi-ring for example)
  *
  * @todo FIXME : to be continued
  *

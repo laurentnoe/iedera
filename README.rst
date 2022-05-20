@@ -166,13 +166,9 @@ IUPAC seeds
 
 IUPAC filtered seeds could challenge minimizer based techniques <https://www.biorxiv.org/content/10.1101/2020.07.24.220616v2>, so we have extended the iedera tool to support such seeds
  
-First getting the alignment probabilities, out of the TAM92 model <https://pubmed.ncbi.nlm.nih.gov/1630306/>::
- 
-  ./tam92.py -p 20 -k 1 --gc 50
+First getting the alignment probabilities, out of the TAM92 model <https://pubmed.ncbi.nlm.nih.gov/1630306/>, then launching the optimization for a starting shape, and with the given probabilities::
 
-Then launching the optimization for a starting shape, and with the given probabilities::
-
-    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 10000 -k -z 100 -f 0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.014629478852209457,0.20611156344337161
+    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 10000 -k -z 100 -f  `./tam92.py -p 20 -k 1 --gc 50
 
     YNYRNNnnNN,RNYRNnnNNN	0.9999961853027	0.912921	0.087079
 
@@ -243,6 +239,13 @@ on the bernoulli model provided by the file *model_bernoulli_simple_x_xp.txt* ::
         1   1
            1   xp
 
+Tools provided with iedera
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``iedera`` is located in ``src/iedera``
+``plot_spaced_seeds.py`` and ``plot_mow_seeds.py`` are two scripts that plot :
+ * the sensitivity for a 1st hit, on a bernoulli model,
+ * the frequency for a 1st hit, on a set of given seeds.
 
 References
 ----------

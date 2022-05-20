@@ -36,7 +36,7 @@
  *
  *  @li @ref matrix::Pr() is the most classical computation to reach @e final or @e non-final states after @e nbSteps transitions
  *  @li @ref matrix::Pr_transitive_final() is more complex, it computes "the transitive sum" of the @e final states values (@e final could be 1, but also more) that are crossed during the walk
- *  @li @ref matrix::Pr_one_step_from_one() is doing one single computation step, but use the @ final values from a second matrix @m_final that is passed as a parameter
+ *  @li @ref matrix::Pr_one_step_from_one() is doing one single computation step, but use the @e final values from a second matrix @m_final that is passed as a parameter
  *
  *  @section matrices-slicer Set of matrices computations
  *

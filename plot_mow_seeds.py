@@ -14,19 +14,18 @@ def binomial(n, k):
 from fractions import Fraction
 
 
-# Model "file_4iupac" below 
-# - First state 0 (final = 1) is not used ... transitions for the 16 letters are set to 0 (this is not important)
-#
-# - Second state 1 (final = 0) is self-looping with one transition per letter
-#   transition matrix is :
+# Model "file_4iupac" is provided below
+# - Final state 0 (final = 1) is not used ... transitions for the 16 letters are absent (0)  : this is not important, since unused
+# - Initial state 1 (final = 0) is self-looping with one transition per letter, and with probabality associated to the transition matrix
 #     A    C    G    T
 #  A  3x   xp   xp   xp
 #  C  xp   3x   xp   xp
 #  G  xp   xp   3x   xp
 #  T  xp   xp   xp   3x
 #
+#
 # but since its integer based computation and the sum is 12 (and not 1), this has to be divided by 12**alignment_length after
-# the full computation
+# the full computation (one day i will put a rational coefficient "c++" template, this would help :oD )
 #
 
 file_4iupac = """

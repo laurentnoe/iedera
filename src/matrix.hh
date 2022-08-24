@@ -12,8 +12,8 @@
  *  @li each  @ref row<T> can be stored in a @e sparse or @e non-sparse form ( @ref row<T>::_sparse) with a way to revert the storage selection (@ref row<T>::setsparse(const bool sparse)).
  *  @li each  @ref matrix<T> may bring probabilities (T = double, T = polynomial\<long long int\>), costs (T = cost\<int\>), counts (T = unsigned long long).
  *
- *  @ref matrix<T> are (just) a more compact way to store @ref automata<T> attributes, once letters are not needed anymore.
- *  Default @ref matrix<T> constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
+ *  @ref matrix<T> are (just) a more compact way to store @ref automaton<T> attributes, once letters are not needed anymore.
+ *  Default @ref matrix<T>::matrix() constructor is almost empty, but several methods from @ref automaton<T> are proposed to produce matrices. They must be used first!
  *
  *  The set of rows is stored in the @ref matrix::_rows vector. The set of cells per row is stored either in the  @ref row::_cells_dense  or  @ref row::_cells_sparse  vector.
  *  Several methods are also proposed to manipulate theses matrices (@ref local-matrix-manipulation or @ref global-matrices-manipulation), compute properties (@ref matrix-computed-properties),
@@ -36,7 +36,7 @@
  *
  *  @li @ref matrix::Pr() is the most classical computation to reach @e final or @e non-final states after @e nbSteps transitions
  *  @li @ref matrix::Pr_transitive_final() is more complex, it computes "the transitive sum" of the @e final states values (@e final could be 1, but also more) that are crossed during the walk
- *  @li @ref matrix::Pr_one_step_from_one() is doing one single computation step, but use the @e final values from a second matrix @m_final that is passed as a parameter
+ *  @li @ref matrix::Pr_one_step_from_one() is doing one single computation step, but use the @e final values from a second matrix @e m that is passed as a parameter
  *
  *  @section matrices-slicer Set of matrices computations
  *
@@ -49,7 +49,7 @@
  *      Spaced seed design on profile HMMs for precise HTS read-mapping
  *        efficient sliding window product on the matrix semi-group
  *
- *  Additional files are also provided at @ref https://bioinfo.lifl.fr/yass/iedera_stepproduct/index.html
+ *  Additional files are also provided at @link https://bioinfo.cristal.univ-lille.fr/yass/iedera_stepproduct/index.html @endlink
  *
  * You can also find three "stepwise equivalent" methods in the @ref automaton<T> class :
  * @see automaton::matrices_step_pr_product,  @see automaton::matrices_step_cost_product, and @see automaton::matrices_step_count_product
@@ -114,6 +114,7 @@
 #include "infint.hh"
 #include "cost.hh"
 #include "polynomial.hh"
+#include "rational.hh"
 
 /**@name  Enable/Disable if
  * @brief only for definition and selection of good functions

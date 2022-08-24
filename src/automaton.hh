@@ -41,7 +41,7 @@
  *          A coverage criterion for spaced seeds and its applications
  *                 to SVM string kernels and k-mer distances
  *
- *  Additional files are also provided at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index.html and at @ref https://bioinfo.lifl.fr/yass/iedera_coverage/index_additional.html
+ *  Additional files are also provided at @link https://bioinfo.cristal.univ-lille.fr/yass/iedera_coverage/index.html @endlink and at @link https://bioinfo.cristal.univ-lille.fr/yass/iedera_coverage/index_additional.html @endlink
  *
  *  @section automaton-manipulate Manipulation
  *
@@ -2022,7 +2022,7 @@ public:
 
   /** @brief print the Mealy form of the automaton (gap - FR package)
    *  @param os is the outputstream to use
-   *  @note see http://www.gap-system.org/Manuals/pkg/fr-2.1.1/doc/chap0.html
+   *  @note see @link https://www.gap-system.org/Manuals/pkg/fr/doc/chap0.html @endlink
    *  @note use "LoadPackage("FR");" inside gap
    */
 
@@ -2030,7 +2030,7 @@ public:
 
   /** @brief print the Moore form of the automaton (gap - FR package),
    *  @param os is the outputstream to use
-   *  @note see http://www.gap-system.org/Manuals/pkg/fr-2.1.1/doc/chap0.html
+   *  @note see @link https://www.gap-system.org/Manuals/pkg/fr/doc/chap0.html @endlink
    */
 
   void gapAutomata(ostream& os) const;

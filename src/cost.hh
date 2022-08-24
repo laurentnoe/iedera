@@ -26,6 +26,7 @@ using namespace std;
 
 /**
  * @class cost
+ * @tparam C
  * @brief costs defined in the @f$ (\oplus = min, \otimes = plus) @f$
  *   tropical semi-ring
  *
@@ -52,6 +53,8 @@ template<typename C> class cost {
   template<typename U> friend cost<U> operator+ (const cost<U> l,const cost<U> r);
   /// Operator @f$ \times @f$ (add) for two costs
   template<typename U> friend cost<U> operator* (const cost<U> l,const cost<U> r);
+  /// Operator @f$ / @f$ (sub) for two costs
+  template<typename U> friend cost<U> operator/ (const cost<U> l,const cost<U> r);
   /// Operator @f$ != @f$ for two costs
   template<typename U> friend bool    operator!= (const cost<U> l,const cost<U> r);
   /// Operator @f$ == @f$ for two costs
@@ -85,6 +88,12 @@ template<typename C> inline cost<C> operator+ (const cost<C> l, const cost<C> r)
 /// Operator @f$ \times @f$ (add) for two costs
 template<typename C> inline cost<C> operator* (const cost<C> l, const cost<C> r) {
   cost<C> x(l._c + r._c);
+  return x;
+}
+
+/// Operator @f$ / @f$ (sub) for two costs
+template<typename C> inline cost<C> operator* (const cost<C> l, const cost<C> r) {
+  cost<C> x(l._c - r._c);
   return x;
 }
 

@@ -92,7 +92,7 @@ template<typename C> inline cost<C> operator* (const cost<C> l, const cost<C> r)
 }
 
 /// Operator @f$ / @f$ (sub) for two costs
-template<typename C> inline cost<C> operator* (const cost<C> l, const cost<C> r) {
+template<typename C> inline cost<C> operator/ (const cost<C> l, const cost<C> r) {
   cost<C> x(l._c - r._c);
   return x;
 }

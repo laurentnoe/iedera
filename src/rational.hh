@@ -148,9 +148,9 @@ template<typename C> class rational {
   // @}
 
   // @{
-  /// Print a rational with the string " { <num> } / { <den> } "
+  /// Print a rational with the string " ( <num> ) / ( <den> ) "
   template<typename U> friend ostream& operator<< (ostream& os, const rational<U>& c);
-  /// Load a rational with the string " { <num> } / { <den> } "
+  /// Load a rational with the string " ( <num> ) / ( <den> ) "
   template<typename U> friend istream& operator>> (istream& is, rational<U>& c);
   // @}
 
@@ -213,68 +213,68 @@ template<typename C> inline rational<C> operator/ (const rational<C> & l, const 
 
 /// Print a rational<C>
 template<typename C> ostream& operator<< (ostream& os, const rational<C> & r) {
-  os << "{" << (r._num) << "} / {" << (r._den) << "}";
+  os << "(" << (r._num) << ") / (" << (r._den) << ")";
   return os;
 }
 
-/// Load a rational ( { \<C\>(num) } / \<C\>(den) } )
+/// Load a rational, format:  "(" \<C\>(num) ")/(" \<C\>(den)  ")"
 template<typename C> istream& operator>> (istream& is, rational<C> & r) {
   char c;
 
   r._num = C(0);
   r._den = C(0);
 
-  // read spaces until a symbol '}' occurs
+  // read spaces until a symbol '(' occurs
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
-  if (is.eof() || c != '{') {
-    _ERROR("operator>>"," invalid rational numerator not starting with '{'"<< endl << "\t rational format : { C(num) } / C(den) }" << endl);
+  if (is.eof() || c != '(') {
+    _ERROR("operator>>"," invalid rational numerator not starting with '('"<< endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
 
   // read numerator
   C num;
   is >> num;
   if (is.fail()) {
-    _ERROR("operator>>"," invalid rational numerator coefficient" << endl << "\t rational format : { C(num) } / C(den) }" << endl);
+    _ERROR("operator>>"," invalid rational numerator coefficient" << endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
   r._num = C(num);
   cerr << "num:" << num << endl;
 
-  // read spaces until a symbol '}' occurs
+  // read spaces until a symbol ')' occurs
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
-  if (is.eof() || c != '}') {
-    _ERROR("operator>>"," invalid rational numerator not starting with '}'" << endl << "\t rational format : { C(num) } / C(den) }" << endl);
+  if (is.eof() || c != ')') {
+    _ERROR("operator>>"," invalid rational numerator not ending with ')'" << endl << "\t rational format : ( C(num) ) / ( C(den) )" << endl);
   }
 
   // read spaces until a symbol '/' occurs
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
   if (is.eof() || c != '/') {
-    _ERROR("operator>>"," invalid rational separator in between '/'" << endl << "\t rational format : { C(num) } / C(den) }" << endl);
+    _ERROR("operator>>"," invalid rational separator in between '/'" << endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
 
-  // read spaces until a symbol '{' occurs
+  // read spaces until a symbol '(' occurs
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
-  if (is.eof() || c != '{') {
-    _ERROR("operator>>"," invalid rational denominator not starting with '{'" << endl << "\t rational format : { C(num) } / C(den) }" << endl);
+  if (is.eof() || c != '(') {
+    _ERROR("operator>>"," invalid rational denominator not starting with '('" << endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
 
   // read denominator
   C den;
   is >> den;
   if (is.fail()) {
-    _ERROR("operator>>"," invalid rational denominator coefficient" << endl << "\t rational format : { C(num) } / { C(den) }" << endl);
+    _ERROR("operator>>"," invalid rational denominator coefficient" << endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
   r._den = C(den);
   cerr << "den:" << den << endl;
 
-  // read spaces until a symbol '{' occurs
+  // read spaces until a symbol ')' occurs
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
-  if (is.eof() || c != '}') {
-    _ERROR("operator>>"," invalid rational denominator not ending with '}'" << endl << "\t rational format : { C(num) } / C(den) }" << endl);
+  if (is.eof() || c != ')') {
+    _ERROR("operator>>"," invalid rational denominator not ending with ')'" << endl << "\t rational format : ( <num> ) / ( <den> )" << endl);
   }
 
   r.normalize();

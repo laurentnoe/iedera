@@ -49,7 +49,7 @@
  *      Spaced seed design on profile HMMs for precise HTS read-mapping
  *        efficient sliding window product on the matrix semi-group
  *
- *  Additional files are also provided at @link https://bioinfo.cristal.univ-lille.fr/yass/iedera_stepproduct/index.html @endlink
+ *  Additional files are also provided at https://bioinfo.cristal.univ-lille.fr/yass/iedera_stepproduct/index.html
  *
  * You can also find three "stepwise equivalent" methods in the @ref automaton<T> class :
  * @see automaton::matrices_step_pr_product,  @see automaton::matrices_step_cost_product, and @see automaton::matrices_step_count_product

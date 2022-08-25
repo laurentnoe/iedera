@@ -110,6 +110,11 @@ template<typename C> class polynomial {
     for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = _coefs.begin(); i_p != _coefs.end(); i_p++)
       i_p->first.resize(polynomial<C>::_var_names.size(),0);
     sort(_coefs.begin(), _coefs.end(),sortbypowervec<C>);
+    /* check for potential mitakes */
+    for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = _coefs.begin(),  i_p_last =  _coefs.begin(); i_p != _coefs.end(); i_p_last=i_p, i_p++)
+      if (i_p != i_p_last && equal_pows(*i_p,*i_p_last))
+	_ERROR("polynomial::normalize","" << (*this) << " has at least two monomials having exactly the same degree");
+
   }
 
 
@@ -340,7 +345,7 @@ template<typename C> inline polynomial<C> operator+ (const polynomial<C> & l, co
       std::vector<int> degree_vector = std::vector<int>(i_l->first);
 #ifndef USEINFINT
       if ( (i_l->second > 0) && (i_r->second > 0) && (val < 0) ) {
-        _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator+ DOES OVERFLOW ...");
+        _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial::operator+ DOES OVERFLOW ...");
       }
 #endif
       if (val != C(0))
@@ -451,17 +456,17 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
         if (low->first.size() == degree_vector.size() && std::equal(low->first.begin(),low->first.end(),degree_vector.begin())) {
 #ifndef USEINFINT
           if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
-            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial::operator* DOES OVERFLOW ...");
           }
           if ( (low->second > 0) && ((i_l->second * i_r->second) > 0) && (low->second + (i_l->second * i_r->second) < 0) ) {
-            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial::operator* DOES OVERFLOW ...");
           }
 #endif
           low->second = C(low->second) + C(i_l->second * i_r->second);
         } else {
 #ifndef USEINFINT
           if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
-            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+            _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial::operator* DOES OVERFLOW ...");
           }
 #endif
           tmp_coefs.insert(low, std::pair<std::vector<int>,C >(std::vector<int>(degree_vector), C(i_l->second * i_r->second)));
@@ -469,7 +474,7 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
       } else {
 #ifndef USEINFINT
         if ( (i_l->second > 0) && (i_r->second > 0) && ((i_l->second * i_r->second) < 0) ) {
-          _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial<C> operator* DOES OVERFLOW ...");
+          _ERROR("this binary has been compiled with undefined USEINFINT (no infinite precision integer)","polynomial::operator* DOES OVERFLOW ...");
         }
 #endif
         tmp_coefs.insert(std::pair<std::vector<int>, C >(std::vector<int>(degree_vector), C(i_l->second * i_r->second)));
@@ -636,7 +641,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
   c = 0xff;
   while (is.get(c) && (c == ' ' || c == '\t'));
   if (is.eof()) {
-    _ERROR("operator>>"," invalid start for a sign/variable/coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+    _ERROR("polynomial::operator>>"," invalid start for a sign/variable/coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
   }
   if (c >= '0' && c <= '9') {
     is.unget();
@@ -662,7 +667,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
   is >> coef_long_long;
   coef = C(coef_long_long);
   if (is.fail()) {
-    _ERROR("operator>>"," invalid coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+    _ERROR("polynomial::operator>>"," invalid coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
   }
   //cerr << "coef:" << coef << endl;
 
@@ -691,7 +696,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       is >> var_symbol;
       for(string::iterator it = var_symbol.begin(); it != var_symbol.end(); it++) {
         if ( ! ((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '_')) {
-          _ERROR("operator>>"," variable name \""<< var_symbol<<"\" include non alpha symbols \'"<< (*it) <<"\'" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+          _ERROR("polynomial::operator>>"," variable name \""<< var_symbol<<"\" include non alpha symbols \'"<< (*it) <<"\'" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
         }
       }
 
@@ -709,7 +714,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
         // already in the monomial list, so no need to extend the monomial list
         if (i_var < (int) var_degree.size()) {
           if (var_degree[i_var] != 0) { // check if possibly not at zero, because this is a classical error is to set it twice
-            _ERROR("operator>>"," variable \""<< var_symbol<<"\" occuring twice in a monomial" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
+            _ERROR("polynomial::operator>>"," variable \""<< var_symbol<<"\" occuring twice in a monomial" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
           } else {
             var_degree[i_var] = 1;
           }
@@ -753,7 +758,7 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
       int power_value = 0;
       is >> power_value;
       if (is.fail()) {
-        _ERROR("operator>>"," invalid power coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
+        _ERROR("polynomial::operator>>"," invalid power coefficient" << endl << "\t polynom format : <C>\"coef\" * variable1 [^ power1]  [* variable2 [^ power2] ... ] +  <C>\"coef\" * ..." << endl);
       }
       //cerr << "power:" << power_value << endl;
       var_degree[i_var] = power_value;

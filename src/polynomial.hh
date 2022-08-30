@@ -113,7 +113,7 @@ template<typename C> class polynomial {
     /* check for potential mitakes */
     for (typename std::vector<std::pair<std::vector<int>, C > >::iterator i_p = _coefs.begin(),  i_p_last =  _coefs.begin(); i_p != _coefs.end(); i_p_last=i_p, i_p++)
       if (i_p != i_p_last && equal_pows(*i_p,*i_p_last))
-	_ERROR("polynomial::normalize","" << (*this) << " has at least two monomials having exactly the same degree");
+        _ERROR("polynomial::normalize","" << (*this) << " has at least two monomials having exactly the same degree");
 
   }
 
@@ -691,16 +691,19 @@ template<typename C> istream& operator>> (istream& is, polynomial<C> & p) {
   }
 
  read_variable:
-    {
-      string var_symbol;
-      is >> var_symbol;
-      for(string::iterator it = var_symbol.begin(); it != var_symbol.end(); it++) {
-        if ( ! ((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '_')) {
-          _ERROR("polynomial::operator>>"," variable name \""<< var_symbol<<"\" include non alpha symbols \'"<< (*it) <<"\'" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
-        }
-      }
-
-
+  {
+    string var_symbol;
+    c = 0xff;
+    while (is.get(c) && (c == ' ' || c == '\t'));
+    if (is.eof())
+      goto end_of_polynomial;
+    is.unget();
+    while (is.get(c) && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_')))
+      var_symbol.push_back(c);
+    if (!is.eof())
+      is.unget();
+    if (var_symbol.length() == 0)
+      _ERROR("polynomial::operator>>"," empty variable name" << endl << "\t polynom format : <C>\"coef\" * variable1 [^power1]  [* variable2 [^power2] ... ] +  <C>\"coef\" * ..." << endl);
 
     //cerr << "variable:" << var_symbol << endl;
     int i_var = -1;

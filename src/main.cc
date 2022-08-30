@@ -2399,7 +2399,7 @@ class seedproperties {
 public:
   /** @brief build a "seedproperties" object (keep current seed properties when needed)
    */
-  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  std::vector<std::pair<std::pair<int,int>,BIGINT> > * polynom = NULL, polynomial<BIGINT > * multipoly = NULL) {
+  seedproperties(double sel, double sens, double dist, std::string str, bool lossless = false,  std::vector<std::pair<std::pair<int,int>,BIGINT> > * polynom = NULL, const polynomial<BIGINT > * multipoly = NULL) {
 
     this->sel   = sel;
     this->sens  = sens;
@@ -2443,7 +2443,7 @@ public:
   /// keep polynomial factors for multihit / coverage hit  /vs/
   std::vector<std::pair<std::pair<int,int>,BIGINT> > polynom;
   /// keep multivariable polynomial for output only
-  polynomial<BIGINT > multipoly;
+  polynomial<BIGINT> multipoly;
 
   /** @brief delete a "seedproperties" object (this is just a polynom "check and erase")
    */

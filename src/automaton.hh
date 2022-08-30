@@ -928,7 +928,7 @@ public:
    *       @li xxx : LOOP / NO_LOOP        : indicates if the final state is a single one absorbant (force it, otherwise keep it as in the "true" product)
    *  @param depth indicates the maximal depth that must be reached : extra states are non final selflooping states
    *         (by default, this value is greater than 2 Billions, but the given alignment length should be enought in most cases)
-   *  @param aff function indicates the final value to be used, is is used when @param productSetFinalType = PRODUCT_ADDHOC_xxx
+   *  @param aff function indicates the final value to be used, is is used when productSetFinalType = PRODUCT_ADDHOC_xxx
    *  @param shift is a positive or negative value that reset the first or second automaton on its initial state during a defined depth given by this parameter
    *  @return a new automaton that only gives reachable states of the product
    *  @see matrix_product
@@ -1536,7 +1536,7 @@ public:
    *       @li xxx : LOOP / NO_LOOP        : indicates if the final state is a single one absorbant (force it, otherwise keep it as in the "true" product)
    *  @param depth indicates the maximal depth that must be reached : extra states are non final selflooping states
    *         (by default, this value is greater than 2 Billions, but the given alignment length should be enought in most cases)
-   *  @param aff function indicates the final value to be used, is is used when @param productSetFinalType = PRODUCT_ADDHOC_xxx
+   *  @param aff function indicates the final value to be used, is is used when productSetFinalType = PRODUCT_ADDHOC_xxx
    *  @return a new matrix that only gives reachable states of the product.
    *  @see product
    *  @see matrices_step_product
@@ -1722,7 +1722,7 @@ public:
    *          with
    *       @li xxx : LOOP / NO_LOOP        : indicates if the final state is a single one absorbant (force it, otherwise keep it as in the "true" product)
    *  @param depth indicates the maximal depth that must be reached
-   *  @param aff function indicates the final value to be used, is is used when @param productSetFinalType = PRODUCT_ADDHOC_xxx
+   *  @param aff function indicates the final value to be used, is is used when productSetFinalType = PRODUCT_ADDHOC_xxx
    *  @return an array (size depth) of matrices such that each matrix gives the transition from any state to the next ...
    *  @see product
    *  @see matrix_product

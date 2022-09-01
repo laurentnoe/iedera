@@ -198,7 +198,7 @@ template<typename C> class polynomial {
   template<typename U> friend std::pair<polynomial<U>,polynomial<U> > div(const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ / @f$ for two polynomials
   template<typename U> friend polynomial<U> operator/ (const polynomial<U> & l, const polynomial<U> & r);
-  /// Operator @f$ % @f$ for two polynomials
+  /// Operator @f$ \% @f$ for two polynomials
   template<typename U> friend polynomial<U> operator% (const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ gcd @f$ for two polynomials
   template<typename U> friend polynomial<U> gcd(const polynomial<U> & l, const polynomial<U> & r);
@@ -548,14 +548,14 @@ template<typename C> inline polynomial<C> operator/ (const polynomial<C> & l, co
   return (div(l,r)).first;
 }
 
-/** Partial operator @f$ % @f$ (modulus or mod) for two multivariate polynomials
+/** Partial operator @f$ \% @f$ (modulus or mod) for two multivariate polynomials
  */
 template<typename C> inline polynomial<C> operator% (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] / [" << r << "]"););
   return (div(l,r)).second;
 }
 
-/** Partial operator @f$ % @f$ (modulus or mod) for two multivariate polynomials
+/** @f$ gcd @f$ operator for two monovariate polynomials
  */
 template<typename C> inline polynomial<C> gcd (const polynomial<C> & l, const polynomial<C> & r) {
   // https://mathsci2.appstate.edu/~cookwj/sage/algebra/Euclidean_algorithm-poly.html#:~:text=The%20Polynomial%20Euclidean%20Algorithm%20computes,gcd%20(%20b%20%2C%20r%20)%20.

@@ -5,7 +5,7 @@ tool is implemented in C++ and provided for research purposes only.
 
 Help on this program can be obtained with the --help (-h) parameter,
 or from the homepage :
-  http://bioinfo.cristal.univ-lille.fr/yass/iedera.php
+  http://bioinfo.univ-lille.fr/yass/iedera.php
 
 Several specific examples and papers are also provided on this
 webpage, depending on the specific usage you would need.

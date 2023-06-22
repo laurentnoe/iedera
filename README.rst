@@ -10,15 +10,15 @@
     :target: https://app.codecov.io/gh/laurentnoe/iedera/branch/master
     :alt: Coverage
 
-.. image:: https://img.shields.io/website.svg?style=flat-square&label=Website&url=https%3A%2F%2Fbioinfo.cristal.univ-lille.fr
-    :target: https://bioinfo.cristal.univ-lille.fr/yass/iedera.php
+.. image:: https://img.shields.io/website.svg?style=flat-square&label=Website&url=https%3A%2F%2Fbioinfo.univ-lille.fr
+    :target: https://bioinfo.univ-lille.fr/yass/iedera.php
     :alt: Website
 
 
 iedera
 ======
 
-(more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php>)
+(more at  <http://bioinfo.univ-lille.fr/yass/iedera.php>)
 
 ``iedera`` is a tool to select and design *spaced seeds*, *transition
 constrained spaced seeds*, or more generally *subset seeds*, and
@@ -28,7 +28,7 @@ constrained spaced seeds*, or more generally *subset seeds*, and
 Installation
 ------------
 
-(more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#downloadiedera>)
+(more at  <http://bioinfo.univ-lille.fr/yass/iedera.php#downloadiedera>)
 
 Binaries for Windows (x64) and OS X (x64) are available at <https://github.com/laurentnoe/iedera/releases>.
 
@@ -66,7 +66,7 @@ or copy the binary directly to your homedir::
 Command-line
 ------------
 
-(more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#quick>)
+(more at  <http://bioinfo.univ-lille.fr/yass/iedera.php#quick>)
 
 
 **First, use** one of these two parameters :
@@ -114,7 +114,7 @@ consider the two following:
   to activate the hill-climbing algorithm on previous parameter -r
  
 
-(more at  <http://bioinfo.cristal.univ-lille.fr/yass/iedera.php#details>)
+(more at  <http://bioinfo.univ-lille.fr/yass/iedera.php#details>)
    
   
 Examples

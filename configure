@@ -613,7 +613,7 @@ PACKAGE_TARNAME='iedera'
 PACKAGE_VERSION='1.07'
 PACKAGE_STRING='iedera 1.07'
 PACKAGE_BUGREPORT='laurent DT noe AT univ-lille DT fr'
-PACKAGE_URL='http://bioinfo.cristal.univ-lille.fr/yass/iedera'
+PACKAGE_URL='http://bioinfo.univ-lille.fr/yass/iedera'
 
 ac_unique_file="src/main.cc"
 # Factoring default headers for most tests.
@@ -1396,7 +1396,7 @@ Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
 Report bugs to <laurent DT noe AT univ-lille DT fr>.
-iedera home page: <http://bioinfo.cristal.univ-lille.fr/yass/iedera>.
+iedera home page: <http://bioinfo.univ-lille.fr/yass/iedera>.
 _ACEOF
 ac_status=$?
 fi
@@ -4789,7 +4789,7 @@ Configuration commands:
 $config_commands
 
 Report bugs to <laurent DT noe AT univ-lille DT fr>.
-iedera home page: <http://bioinfo.cristal.univ-lille.fr/yass/iedera>."
+iedera home page: <http://bioinfo.univ-lille.fr/yass/iedera>."
 
 _ACEOF
 ac_cs_config=`printf "%s\n" "$ac_configure_args" | sed "$ac_safe_unquote"`

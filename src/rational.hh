@@ -93,6 +93,7 @@ template<typename C> class rational {
       // for polynomials loops when no reduction occurs ...
       if (already_seen.find(tmp) == already_seen.end()) {
         already_seen.insert(tmp);
+	cerr << "#" << tmp << endl;
       } else {
         already_seen.clear();
         return;

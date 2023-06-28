@@ -202,7 +202,7 @@ template<typename C> class polynomial {
   /// Operator @f$ \times @f$ for two polynomials
   template<typename U> friend polynomial<U> operator* (const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ div @f$ for two polynomials
-  template<typename U> friend std::pair<U, std::pair<polynomial<U>,polynomial<U> > > div(const polynomial<U> & l, const polynomial<U> & r);
+  template<typename U> friend std::pair<U, std::pair<polynomial<U>,polynomial<U> > > div (const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ / @f$ for two polynomials
   template<typename U> friend std::pair<U, polynomial<U> > operator/ (const polynomial<U> & l, const polynomial<U> & r);
   /// Operator @f$ \% @f$ for two polynomials
@@ -507,24 +507,24 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
 }
 
 
-/** Operator @f$ try_reduce_by @f$ for a polynomial
+/** Operator @f$ try_reduce_by @f$ for a polynomial fraction
  */
 template<typename C> std::pair<C, polynomial<C> > try_reduce_by (const polynomial<C> & p, const C c) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("try_reduce_by [" << p << "] / " << c););
 
-  C coefs_gcd_res = 0;
+  C coefs_gcd_res = C(0);
   for ( typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_p = p._coefs.begin();
         i_p != p._coefs.end();
         ++i_p) {
-    if (coefs_gcd_res == 0)
+    if (coefs_gcd_res == C(0))
       coefs_gcd_res =  C(i_p->second);
     else
-      coefs_gcd_res =  gcd(coefs_gcd_res,C(i_p->second));
+      coefs_gcd_res =  gcd_coefs(coefs_gcd_res,C(i_p->second));
   }
 
-  C possible_coef = gcd(coefs_gcd_res,c);
+  C possible_coef = gcd_coefs(coefs_gcd_res,c);
     coefs_gcd_res = coefs_gcd_res / possible_coef;
-  
+
   polynomial<C> polynomial_fact_gcd_res = polynomial<C>();
   for ( typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_p = p._coefs.begin();
         i_p != p._coefs.end();
@@ -540,14 +540,14 @@ template<typename C> std::pair<C, polynomial<C> > try_reduce_by (const polynomia
 template<typename C> std::pair<C, polynomial<C> > content(const polynomial<C> & p) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("content [" << p << "]"););
 
-  C coefs_gcd_res = 0;
+  C coefs_gcd_res = C(0);
   for ( typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_p = p._coefs.begin();
         i_p != p._coefs.end();
         ++i_p) {
-    if (coefs_gcd_res == 0)
+    if (coefs_gcd_res == C(0))
       coefs_gcd_res =  C(i_p->second);
     else
-      coefs_gcd_res =  gcd(coefs_gcd_res,C(i_p->second));
+      coefs_gcd_res =  gcd_coefs(coefs_gcd_res,C(i_p->second));
   }
 
   polynomial<C> polynomial_fact_gcd_res = polynomial<C>();
@@ -565,7 +565,7 @@ template<typename C> std::pair<C, polynomial<C> > content(const polynomial<C> & 
 /** Operator @f$ \div @f$ "with remainder" for two multivariate polynomials
  *  as a pair of pair
  */
-template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> > > div(const polynomial<C> & l, const polynomial<C> & r) {
+template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> > > div (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] div [" << r << "]"););
   polynomial<C> p = polynomial<C>(l);
   polynomial<C> d = polynomial<C>(r);
@@ -579,32 +579,32 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
   std::pair<std::vector<int>, C> p_high = p._coefs.back();
 
   /// Compute the denominator, to avoid fractional integers of coefficients
-  C current_coef_denominator = 1;
+  C current_coef_denominator = C(1);
   while (computable_diff_pows(p_high,d_high)) {
-    cerr << ". p:" << p << " res:" << res << " c:" <<  current_coef_denominator << endl;
+
     /// If OK, build C_p_over_d  * x^diff_x * y^diff_y
     std::vector<int> p_minus_d_pows   = diff_pows(p_high,d_high);
     C                p_minus_d_coef_p = C(p_high.second);
     C                p_minus_d_coef_d = C(d_high.second);
 
     /// gcd on coefficients to simplify the fraction (if this is possible)
-    C gcd_p_and_d = gcd(C(p_high.second),C(d_high.second));
+    C gcd_p_and_d = gcd_coefs(p_minus_d_coef_p,p_minus_d_coef_d);
     p_minus_d_coef_p = p_minus_d_coef_p / gcd_p_and_d;
     p_minus_d_coef_d = p_minus_d_coef_d / gcd_p_and_d;
 
     // Check if the coefficient is not zero ... otherwise, we must stop
-    if (p_minus_d_coef_p == C(0))
+    if (p_minus_d_coef_p == C(0)) {
       break;
-
+    }
     // Build the monomial
     polynomial<C> q = polynomial<C>(p_minus_d_coef_p,p_minus_d_pows);
     // Add it to the result
     res = (polynomial<C>(p_minus_d_coef_d) * res) + q;
     // And substract it from "p" (after multiplying it by "d")
-    p   = (polynomial<C>(p_minus_d_coef_d) * p) - q * d;    
+    p   = (polynomial<C>(p_minus_d_coef_d) * p) - q * d;
     // Keep the denominator coefficient in common place
     current_coef_denominator  = current_coef_denominator * p_minus_d_coef_d;
-    
+
     p_minus_d_pows.clear();
 
     // Check if "p" cannot be reduced anymore
@@ -613,8 +613,7 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
     else
       p_high = p._coefs.back();
   }
-      
-  VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("res = [" << res << "], mod = [" << p << "] / current_coef_denominator = [" << current_coef_denominator << "]"););
+  VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("res = [" << res << "] & mod = [" << p << "] / current_coef_denominator = [" << current_coef_denominator << "]"););
   return std::pair<C, std::pair<polynomial<C>,polynomial<C> > >(current_coef_denominator, std::pair<polynomial<C>,polynomial<C> > (polynomial<C>(res),polynomial<C>(p)));
 }
 
@@ -624,7 +623,7 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
 template<typename C> inline std::pair<C, polynomial<C> > operator/ (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] / [" << r << "]"););
   std::pair<C, std::pair<polynomial<C>,polynomial<C> > > result = div(l,r);
-  return std::pair<C, polynomial<C> > (result.first,result.second.first);
+  return try_reduce_by(result.second.first, result.first);
 }
 
 /** Partial operator @f$ \% @f$ (modulus or mod) for two multivariate polynomials
@@ -632,7 +631,20 @@ template<typename C> inline std::pair<C, polynomial<C> > operator/ (const polyno
 template<typename C> inline std::pair<C, polynomial<C> > operator% (const polynomial<C> & l, const polynomial<C> & r) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("[" << l << "] / [" << r << "]"););
   std::pair<C, std::pair<polynomial<C>,polynomial<C> > > result = div(l,r);
-  return std::pair<C, polynomial<C> > (result.first,result.second.second);
+  return try_reduce_by(result.second.second, result.first);
+}
+
+/** @f$ gcd_coefs @f$ operator for two coefficient integers
+ */
+template<typename C> inline C gcd_coefs (const C l, const C r) {
+  C a = C(l);
+  C b = C(r);
+  while (b != C(0)) {
+    C t = C(b);
+    b = a%b;
+    a = C(t);
+  }
+  return a;
 }
 
 /** @f$ gcd @f$ operator for two monovariate polynomials
@@ -641,21 +653,27 @@ template<typename C> inline std::pair<C, polynomial<C> > gcd (const polynomial<C
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("gcd [" << l << "] and [" << r << "]"););
   polynomial<C> p = polynomial<C>(l);
   polynomial<C> d = polynomial<C>(r);
-  if (polynomial<C>(d) == polynomial<C>(0) || polynomial<C>(p) == polynomial<C>(0))
-    return std::pair<C, polynomial<C> >(C(1), polynomial<C>(1));
-  
-  C c = 1;
+  // avoid infinite loops
+  std::set<polynomial<C> > already_seen;
+
+  C c = C(1);
   while (polynomial<C>(d) != polynomial<C>(0)) {
     std::pair<C, polynomial<C> > c_tmp = p % d;
     polynomial<C> tmp = c_tmp.second;
-    
-    cerr << "## (" << p << ") % (" << d << ")" << endl;
-    cerr << "## = " << c_tmp.first << " , " << c_tmp.second << endl;
 
     c = c * c_tmp.first;
     p = d;
     d = tmp;
+    // avoid infinite loops
+    if (already_seen.find(p) != already_seen.end()) {
+      already_seen.clear();
+      return std::pair<C, polynomial<C> >(C(1), polynomial<C>(1));
+    } else {
+      already_seen.insert(p);
+    }
   }
+  VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("res = [" << p << "] / c = [" << c << "]"););
+
   return std::pair<C, polynomial<C> >(C(c), polynomial<C>(p));
 }
 

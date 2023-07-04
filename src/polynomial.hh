@@ -339,7 +339,7 @@ template<typename C> inline bool    operator< (const polynomial<C> & l, const po
 }
 
 /// Operator @f$ > @f$ for two polynomials
-template<typename C> inline bool    operator> (const polynomial<C> l, const polynomial<C> r) {
+template<typename C> inline bool    operator> (const polynomial<C> & l, const polynomial<C> & r) {
   return !(std::lexicographical_compare(l._coefs.begin(), l._coefs.end(), r._coefs.begin(), r._coefs.end()));
 }
 
@@ -512,27 +512,41 @@ template<typename C> inline polynomial<C> operator* (const polynomial<C> & l, co
 template<typename C> std::pair<C, polynomial<C> > try_reduce_by (const polynomial<C> & p, const C c) {
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("try_reduce_by [" << p << "] / " << c););
 
-  C coefs_gcd_res = C(0);
+  // normalize when problems occurs (try to divide by zero)
+  if (c == C(0)) {
+    cerr << " polynomial<C>::try_reduce_by : DIVISION BY ZERO" << endl;
+    return std::pair<C, polynomial<C> > (C(1), p);
+  }
+  // extract common gcd from the polynomial
+  C possible_coef_fact_gcd = C(0);
   for ( typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_p = p._coefs.begin();
         i_p != p._coefs.end();
         ++i_p) {
-    if (coefs_gcd_res == C(0))
-      coefs_gcd_res =  C(i_p->second);
+    if (possible_coef_fact_gcd == C(0))
+      possible_coef_fact_gcd =  C(i_p->second);
     else
-      coefs_gcd_res =  gcd_coefs(coefs_gcd_res,C(i_p->second));
+      possible_coef_fact_gcd =  gcd_coefs(possible_coef_fact_gcd,C(i_p->second));
   }
 
-  C possible_coef = gcd_coefs(coefs_gcd_res,c);
-    coefs_gcd_res = coefs_gcd_res / possible_coef;
+  // if non-zero polynomial divide by common "gcd", otherwise divide by the factor to get 1
+  if (possible_coef_fact_gcd != C(0))
+    possible_coef_fact_gcd = gcd_coefs(possible_coef_fact_gcd,c);
+  else
+    possible_coef_fact_gcd = C(c);
 
+  if (possible_coef_fact_gcd < C(0))
+    possible_coef_fact_gcd = -possible_coef_fact_gcd;
+
+  // rebuild divided poly
+  C  c_fact_gcd_res                     = c / possible_coef_fact_gcd;
   polynomial<C> polynomial_fact_gcd_res = polynomial<C>();
   for ( typename std::vector<std::pair<std::vector<int>, C > >::const_iterator i_p = p._coefs.begin();
         i_p != p._coefs.end();
         ++i_p)
-    polynomial_fact_gcd_res._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_p->first), C(C(i_p->second) / C(possible_coef))));
+    polynomial_fact_gcd_res._coefs.push_back(std::pair<std::vector<int>, C> (std::vector<int>(i_p->first), C(i_p->second / possible_coef_fact_gcd)));
 
-  VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << polynomial_fact_gcd_res << "] / " << coefs_gcd_res););
-  return std::pair<C, polynomial<C> > (coefs_gcd_res, polynomial_fact_gcd_res);
+  VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("\t = [" << polynomial_fact_gcd_res << "] / " << c_fact_gcd_res ););
+  return std::pair<C, polynomial<C> > (c_fact_gcd_res , polynomial_fact_gcd_res);
 }
 
 /** Operator @f$ content @f$ for a polynomial
@@ -581,7 +595,6 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
   /// Compute the denominator, to avoid fractional integers of coefficients
   C current_coef_denominator = C(1);
   while (computable_diff_pows(p_high,d_high)) {
-
     /// If OK, build C_p_over_d  * x^diff_x * y^diff_y
     std::vector<int> p_minus_d_pows   = diff_pows(p_high,d_high);
     C                p_minus_d_coef_p = C(p_high.second);
@@ -594,6 +607,7 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
 
     // Check if the coefficient is not zero ... otherwise, we must stop
     if (p_minus_d_coef_p == C(0)) {
+      cerr << "polynomial<C>::div : ZERO COEF for p_minus_d_coef_p" << endl;
       break;
     }
     // Build the monomial
@@ -606,7 +620,6 @@ template<typename C> inline std::pair<C, std::pair<polynomial<C>,polynomial<C> >
     current_coef_denominator  = current_coef_denominator * p_minus_d_coef_d;
 
     p_minus_d_pows.clear();
-
     // Check if "p" cannot be reduced anymore
     if (p._coefs.size() == 0)
       break;
@@ -658,12 +671,13 @@ template<typename C> inline std::pair<C, polynomial<C> > gcd (const polynomial<C
 
   C c = C(1);
   while (polynomial<C>(d) != polynomial<C>(0)) {
-    std::pair<C, polynomial<C> > c_tmp = p % d;
-    polynomial<C> tmp = c_tmp.second;
-
-    c = c * c_tmp.first;
-    p = d;
-    d = tmp;
+    std::pair<C, polynomial<C> > tmp = p % d;
+    polynomial<C> tmp_p = polynomial<C>(tmp.second);
+    C             tmp_c = C(tmp.first);
+    cerr << "#> p:" << p << "\t d:" << d << "\t --> tmp_p:"<< tmp_p << "\t tmp_c:" <<  (tmp_c) << endl;
+    c = c * tmp_c;
+    p = d * polynomial<C>(tmp_c); // increase since 'p' is comparable to 'tmp_p / tmp_c', so ... is comparable to 'tmp_p'
+    d = tmp_p;
     // avoid infinite loops
     if (already_seen.find(p) != already_seen.end()) {
       already_seen.clear();
@@ -671,10 +685,11 @@ template<typename C> inline std::pair<C, polynomial<C> > gcd (const polynomial<C
     } else {
       already_seen.insert(p);
     }
+    cerr << "#< p:" << p << "\t d:" << d << "\t --> tmp_p:"<< tmp_p << "\t tmp_c:" <<  (tmp_c) << endl;
+
   }
   VERB_FILTER(VERBOSITY_ANNOYING, MESSAGE__("res = [" << p << "] / c = [" << c << "]"););
-
-  return std::pair<C, polynomial<C> >(C(c), polynomial<C>(p));
+  return try_reduce_by(p,c);
 }
 
 

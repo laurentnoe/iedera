@@ -184,6 +184,10 @@ AC_DEFUN([ACX_CHECK_TYPE_TRAITS_CXX11], [
 AC_INIT([iedera],[1.07],[laurent DT noe AT univ-lille DT fr],[iedera],[http://bioinfo.cristal.univ-lille.fr/yass/iedera])
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_LANG([C++])
+AM_INIT_AUTOMAKE([subdir-objects
+                  foreign
+                  parallel-tests
+                  color-tests])
 CXXFLAGS=""
 AC_PROG_CXX
 AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h])

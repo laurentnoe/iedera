@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-	    choco install -y mingw --version 12.2.0.03042023 --allow-downgrade --global
+            choco install -y mingw --version 12.2.0.03042023 --allow-downgrade --global
             choco install -y make --global
       - run:
           name: Build

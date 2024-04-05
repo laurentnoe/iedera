@@ -28,21 +28,22 @@ build_script:
            if ($env:BUILD_TYPE -eq 'mingw') {
               C:\msys64\usr\bin\bash -lc "aclocal"
               C:\msys64\usr\bin\bash -lc "autoupdate"
+              C:\msys64\usr\bin\bash -lc "autoreconf -vfi"
               C:\msys64\usr\bin\bash -lc "autoconf"
-              C:\msys64\usr\bin\bash -lc "./configure LDFLAGS='-static'"
               C:\msys64\usr\bin\bash -lc "automake --add-missing"
+              C:\msys64\usr\bin\bash -lc "./configure LDFLAGS='-static'"
               C:\msys64\usr\bin\bash -lc "make"
               C:\msys64\usr\bin\bash -lc "strip src/iedera.exe"
               C:\msys64\usr\bin\bash -lc "mv -f src/iedera.exe src/iedera-Win64.exe"
            }
        } else {
            if ($isLinux) {
-               bash -c "autoreconf && ./configure CXX=g++-9 && automake && make"
+               bash -c "autoreconf -vfi && ./configure CXX=g++ && automake && make"
                bash -c "make check"
 
                # codecov .... pff ...
                bash -c "cd src"
-               bash -c "gcov-9 iedera_gcov-main iedera_gcov-macro iedera_gcov-seed"
+               bash -c "gcov iedera_gcov-main iedera_gcov-macro iedera_gcov-seed"
                bash -c "cd .."
                bash -c "curl -Os https://uploader.codecov.io/latest/linux/codecov"
                bash -c "chmod +x codecov"

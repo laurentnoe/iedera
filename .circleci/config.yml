@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            choco install mingw make --global
+            choco install mingw make --global -y
       - run:
           name: Build
           command: |

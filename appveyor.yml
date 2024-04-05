@@ -29,7 +29,7 @@ build_script:
               C:\msys64\usr\bin\bash -lc "autoupdate"
               C:\msys64\usr\bin\bash -lc "autoconf"
               C:\msys64\usr\bin\bash -lc "./configure LDFLAGS='-static'"
-              C:\msys64\usr\bin\bash -lc "automake"
+              C:\msys64\usr\bin\bash -lc "automake --add-missing"
               C:\msys64\usr\bin\bash -lc "make"
               C:\msys64\usr\bin\bash -lc "strip src/iedera.exe"
               C:\msys64\usr\bin\bash -lc "mv -f src/iedera.exe src/iedera-Win64.exe"

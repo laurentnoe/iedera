@@ -127,7 +127,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            choco -y install mingw make --global
+            choco feature enable -n=allowGlobalConfirmation
+            choco install mingw make --global
       - run:
           name: Build
           command: |

@@ -1,7 +1,7 @@
 # FROM : https://github.com/tsoding/nothing/blob/master/appveyor.yml
 
 image:
-  - Ubuntu2004
+  - Ubuntu
   - MacOS
   - Visual Studio 2015
 
@@ -14,7 +14,7 @@ environment: # enable mingw build on windows image
 
 matrix:
   exclude: # no mingw build on unix
-    - image: Ubuntu2004
+    - image: Ubuntu
       BUILD_TYPE: mingw
     - image: MacOS
       BUILD_TYPE: mingw
@@ -26,7 +26,8 @@ build_script:
   - ps: |
        if ($isWindows) {
            if ($env:BUILD_TYPE -eq 'mingw') {
-              C:\msys64\usr\bin\bash -lc "autoreconf"
+              C:\msys64\usr\bin\bash -lc "autoupdate"
+              C:\msys64\usr\bin\bash -lc "autoconf"
               C:\msys64\usr\bin\bash -lc "./configure LDFLAGS='-static'"
               C:\msys64\usr\bin\bash -lc "automake"
               C:\msys64\usr\bin\bash -lc "make"

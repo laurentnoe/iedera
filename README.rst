@@ -168,7 +168,7 @@ IUPAC filtered seeds could challenge minimizer based techniques <https://www.bio
  
 First getting the alignment probabilities, out of the TAM92 model <https://pubmed.ncbi.nlm.nih.gov/1630306/>, then launching the optimization for a starting shape, and with the given probabilities::
 
-    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 10000 -k -z 100 -f  `./tam92.py -p 20 -k 1 --gc 50
+    iedera -iupac -s 5,17 -m "RYYNNNNN,RRYNNNNN" -i shuffle  -r 10000 -k -z 100 -f  `./tam92.py -p 20 -k 1 --gc 50`
 
     YNYRNNnnNN,RNYRNnnNNN	0.9999961853027	0.912921	0.087079
 

@@ -242,11 +242,11 @@ on the bernoulli model provided by the file *model_bernoulli_simple_x_xp.txt* ::
 Tools provided with iedera
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``iedera`` binary is located in ``src/iedera``. The scripts ``plot_spaced_seeds.py`` and ``plot_mow_seeds.py`` are provided to plot:
+The ``iedera`` binary is located in ``src/iedera``. The scripts ``plot_spaced_seeds.py`` and ``plot_mow_seeds.py`` are provided to plot :
 
-* the sensitivity for a 1st hit, on alignments generated with a (parameter-free) bernoulli model,
-* the frequency for a 1st hit, on alignments generated with an increasing frequency of matches,
-for a set of given seeds.
+*  the sensitivity for a 1st hit, on alignments generated with a (parameter-free) bernoulli model,
+*  the frequency for a 1st hit, on alignments generated with an increasing frequency of matches, for a set of given seeds.
+
 
 .. image:: plot_spaced_seeds_figure.png
   :width: 800

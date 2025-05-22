@@ -432,7 +432,7 @@ int seed::random(){
       double w = weight();
 
       if ((w < gv_minweight) || ( w > gv_maxweight)) {
-        int pos_shuffle[_span];
+        int * pos_shuffle = new int[_span];
 
         /* set a shuffle of seed positions to be considered */
         for (int i = 0; i < _span; i++)
@@ -482,7 +482,8 @@ int seed::random(){
             }
           }
         }
-      eodown:;
+      eodown:
+        delete[] pos_shuffle;
       }
     }
 

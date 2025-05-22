@@ -2684,10 +2684,13 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
         if (gv_polynomial_dominant_selection_flag) {
           bool inserted = false;
           while (i != l.end() && i->sel - 1e-13 <= e.sel && e.sel <= i->sel + 1e-13) {
-            if ((*i) == e)
+            if ((*i) == e) {
+	      VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("\t[x] : " << (e) << " == " << (*i) << endl););
               return 0;
+	    }
             dist = MIN(dist, e.sens - i->sens);
             if (i->dominant(e)) {
+	      VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("[x] : " << (*i) << " dominates " << (e) << endl););
               return dist;
             } else {
               if (e.dominant(*i)) {

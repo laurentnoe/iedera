@@ -1,15 +1,3 @@
-.. image:: https://img.shields.io/appveyor/ci/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status
-    :target: https://ci.appveyor.com/project/laurentnoe/iedera/
-    :alt: Build Status
-
-.. image:: https://img.shields.io/circleci/build/github/laurentnoe/iedera/master.svg?style=flat-square&label=Build%20Status
-    :target: https://app.circleci.com/pipelines/github/laurentnoe/iedera?branch=master
-    :alt: Build Status
-
-.. image:: https://img.shields.io/codecov/c/github/laurentnoe/iedera/master.svg?style=flat-square&label=Coverage
-    :target: https://app.codecov.io/gh/laurentnoe/iedera/branch/master
-    :alt: Coverage
-
 .. image:: https://img.shields.io/website.svg?style=flat-square&label=Website&url=http%3A%2F%2F193.54.101.81%2Fyass%2F
     :target: https://bioinfo.univ-lille.fr/yass/iedera.php
     :alt: Website

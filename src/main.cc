@@ -3041,8 +3041,8 @@ int main(int argc, char * argv[]) {
   SCANARG(argc, argv);
 
   l = list<seedproperties>();
-  std::vector<std::pair<std::pair<int,int>,BIGINT> > v1_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,1),1));
-  std::vector<std::pair<std::pair<int,int>,BIGINT> > v0_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,0),1));
+  std::vector<std::pair<std::pair<int,int>,BIGINT> > v1_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,0),0));
+  std::vector<std::pair<std::pair<int,int>,BIGINT> > v0_one = std::vector<std::pair<std::pair<int,int>,BIGINT> >(1,std::pair<std::pair<int,int>,BIGINT>(std::pair<int,int>(0,0),INT_INFINITY));
   l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag, &v1_one));
   l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false,            &v0_one));
 

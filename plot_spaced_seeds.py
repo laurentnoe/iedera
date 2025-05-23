@@ -59,7 +59,7 @@ def seeds_coefficients(seed_pattern = "###-#--#-#--##-###", alignment_length = 6
 # basic float version
 def poly_prob_float(pos_coef,x):
     """
-    Compute the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
+    Compute the polynomial \\sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
     {where n = len(pos_coef) + 1}
     as a floating point value
 
@@ -78,7 +78,7 @@ def poly_prob_float(pos_coef,x):
 from fractions import Fraction
 def poly_prob_frac(pos_coef,x):
     """
-    Compute the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
+    Compute the polynomial \\sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
     {where n = len(pos_coef) + 1}
     as a rational number (Fraction)
 
@@ -94,7 +94,7 @@ def poly_prob_frac(pos_coef,x):
 # str output polynomial
 def poly_str(pos_coef):
     """
-    Give the the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i) as a string
+    Give the the polynomial \\sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i) as a string
 
     @param list<int> : the list of integers coefficients for the polynomial
     @return str      : the representation of this polynomial

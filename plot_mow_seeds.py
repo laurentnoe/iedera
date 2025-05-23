@@ -90,7 +90,7 @@ def seeds_coefficients(seed_pattern = "NNNnNnnNnNnnNNnNNN", alignment_length = 6
 
     file = open('iedera_output.txt','r')
     for line in file:
-        matches_pos = re.findall('([0-9]*) \* x \^ ([0-9]*)', line, re.DOTALL)
+        matches_pos = re.findall('([0-9]*) \\* x \\^ ([0-9]*)', line, re.DOTALL)
         # transform tuples of strings into tuples of int
         if matches_pos != []:
             matches_pos_indiced      = [0 for _ in range(alignment_length+1)]
@@ -110,7 +110,7 @@ def seeds_coefficients(seed_pattern = "NNNnNnnNnNnnNNnNNN", alignment_length = 6
 # (2) Computation of probabilities on rational numbers
 def poly_prob_frac(pos_coef,x):
     """
-    Compute the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
+    Compute the polynomial \\sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i)
     {where n = len(pos_coef) + 1}
     as a rational number (Fraction)
 
@@ -126,7 +126,7 @@ def poly_prob_frac(pos_coef,x):
 # print polynomial
 def poly_str(pos_coef):
     """
-    Give the the polynomial \sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i) as a string
+    Give the the polynomial \\sum_i  pos_coef[i] * x ^ i * (1-x) ^ (n-i) as a string
 
     @param list<int> : the list of integers coefficients for the polynomial
     @return str      : the representation of this polynomial

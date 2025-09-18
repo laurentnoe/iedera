@@ -513,7 +513,7 @@ void USAGE() {
   cerr << "   5) Nucleic Spaced Seeds : (shortcuts : you may overload the weight -w and span -s after)" << endl;
   cerr << "      -transitive             : \"-A 3 -B 3 -f .15,.15,.70 -b 0.5,0.25,0.25 -BSymbols '-@#' -l 64 -s 1,8\"" << endl;
   cerr << "      -spaced                 : \"-A 2 -B 2 -f .30,.70     -b 0.75,0.25     -BSymbols '-#'  -l 64 -s 1,8\"" << endl;
-  cerr << "      -iupac                  : \"-A 16 -B 27 -f <TAM30,gc50,kappa1> -b ... -BSymbols 'ACGTRrYySsWwKkMmBbDdHhVvn@N'\""<< endl;
+  cerr << "      -iupac                  : \"-A 16 -B 27 -f <TAM30,gc50,kappa1> -b ... -BSymbols 'nACGTRrYySsWwKkMmBbDdHhVv@N'\""<< endl;
   cerr << "                                \"-M {<iupac 16 x 27 specific matrix>} -l 64 -s 1,4\"" << endl;
 
   exit(-1);
@@ -1339,6 +1339,31 @@ void PARSESEEDS(int & i, char ** argv, int argc) {
     }
   }
   // <<
+  // shuffle to get no correlation between patterns >>
+  for (unsigned int i = 0; i < gv_seeds.size() - 1; i++) {
+    unsigned int u = i + rand() % (gv_seeds.size() - i);
+
+    // shuffle seeds
+    seed * aux  = gv_seeds[u];
+    gv_seeds[u] = gv_seeds[i];
+    gv_seeds[i] = aux;
+
+    if (gv_cycles_flag) {
+      // with their attributes
+      int cycles_aux = gv_cycles[u];
+      gv_cycles[u]   = gv_cycles[i];
+      gv_cycles[i]   = cycles_aux;
+
+      int cycles_pos_nb_aux = gv_cycles_pos_nb[u];
+      gv_cycles_pos_nb[u]   = gv_cycles_pos_nb[i];
+      gv_cycles_pos_nb[i]   = cycles_pos_nb_aux;
+
+      std::vector<int> cycles_pos_list_aux = gv_cycles_pos_list[u];
+      gv_cycles_pos_list[u]                = gv_cycles_pos_list[i];
+      gv_cycles_pos_list[i]                = cycles_pos_list_aux;
+    }
+  }
+  // << shuffle
 }
 
 
@@ -1518,7 +1543,7 @@ void PARSEINPUT(int & i, char ** argv, int argc) {
 void PARSEOUTPUT(int & i, char ** argv, int argc) {
   i++;
   if (i >= argc)
-    _ERROR("PARSEINPUT","\"" << argv[i-1] << "\" found without argument");
+    _ERROR("PARSEOUTPUT","\"" << argv[i-1] << "\" found without argument");
   gv_output_filename = strdup(argv[i]);
 }
 
@@ -2047,10 +2072,11 @@ void SCANARG(int argc , char ** argv) {
       for (int a = 0; a < gv_align_alphabet_size; a++)
         gv_bsel[a]  = 0.0625; // when gc=50%
       gv_bsel_k = 0;
-      double gv_bsel_weight_gc50_tmp[27] = {1,1,1,1, // 'A','C','G','T' are only "x = x" matches in alignments, occuring with the best weight (set by default to 1)
+      double gv_bsel_weight_gc50_tmp[27] = {0.0, // 'n' is the jocker
+                                            1,1,1,1, // 'A','C','G','T' are only "x = x" matches in alignments, occuring with the best weight (set by default to 1)
                                             0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,0.75,0.5,  // IUPAC symbols with 2 letters (e.g. S = {"G = G" or "C = C" matches},   and s =  {"G = G" or "C = C" OR "G = C" or "G = C" })
                                             0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963,  0.60375937482, 0.20751874963, // IUPAC symbols with 3 letters
-                                            0.0, 0.25, 0.5,// 'n' is a jocker, '@' is the transition acception symbol, 'N' is the match symbol
+                                            0.25, 0.5,// '@' is the transition acception symbol, 'N' is the match symbol
 
       };
       gv_bsel_weight = std::vector<double>(27); for (int b = 0; b < gv_seed_alphabet_size; b++ ) gv_bsel_weight[b] = gv_bsel_weight_gc50_tmp[b];
@@ -2063,7 +2089,7 @@ void SCANARG(int argc , char ** argv) {
       gv_vectorized_flag = false;
       if (gv_bsymbols_flag)
         free(gv_bsymbols_array);
-      gv_bsymbols_array = strdup(string("ACGTRrYySsWwKkMmBbDdHhVvn@N").c_str());
+      gv_bsymbols_array = strdup(string("nACGTRrYySsWwKkMmBbDdHhVv@N").c_str());
       gv_bsymbols_flag  = true;
       // THERE IS NOT MATCHING SYMBOL HERE :
       gv_matching_symbol_flag = false;
@@ -2078,6 +2104,7 @@ void SCANARG(int argc , char ** argv) {
       }
       // . matrix filling (ACGT x ACGT order)
       int subsetseed_matching_matrix_tmp_reversed[27][16] = {
+                                                    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // 'n' (or '-')
                                                     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 'A' (1)
                                                     {0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0}, // 'C' (1)
                                                     {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0}, // 'G' (1)
@@ -2102,7 +2129,6 @@ void SCANARG(int argc , char ** argv) {
                                                     {1,1,0,1,1,1,0,1,0,0,0,0,1,1,0,1}, //  iupac lazy   'h' (3)
                                                     {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, //  iupac strict 'V' (3)
                                                     {1,1,1,0,1,1,1,0,1,1,1,0,0,0,0,0}, //  iupac lazy   'v' (3)
-                                                    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // 'n' (or '-')
                                                     {1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1}, //     (   '@') transition accepting symbol
                                                     {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}, // 'N' (or '#')
 
@@ -2685,12 +2711,12 @@ double insertPareto(list<seedproperties> & l, seedproperties & e) {
           bool inserted = false;
           while (i != l.end() && i->sel - 1e-13 <= e.sel && e.sel <= i->sel + 1e-13) {
             if ((*i) == e) {
-	      VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("\t[x] : " << (e) << " == " << (*i) << endl););
+              VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("\t[x] : " << (e) << " == " << (*i) << endl););
               return 0;
-	    }
+            }
             dist = MIN(dist, e.sens - i->sens);
             if (i->dominant(e)) {
-	      VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("[x] : " << (*i) << " dominates " << (e) << endl););
+              VERB_FILTER(VERBOSITY_MODERATE, MESSAGE__("[x] : " << (*i) << " dominates " << (e) << endl););
               return dist;
             } else {
               if (e.dominant(*i)) {
@@ -3031,6 +3057,9 @@ void termin_handler( int signal ) {
 int main(int argc, char * argv[]) {
   int nbruns = 0;
 
+  // randomize
+  srand(GETMSTIME()*GETPID());
+
   build_default_subsetseed_matching_matrix();
   build_default_vectorizedsubsetseed_scoring_matrix();
   build_default_probabilities();
@@ -3046,8 +3075,6 @@ int main(int argc, char * argv[]) {
   l.push_front(seedproperties(0.0, 1.0, 1.0, string(""), gv_lossless_flag, &v1_one));
   l.push_back( seedproperties(1.0, 0.0, 1.0, string(""), false,            &v0_one));
 
-  // randomize
-  srand(GETMSTIME()*GETPID());
 
   // initial pareto set
   if (gv_nb_input_filenames > 0) {

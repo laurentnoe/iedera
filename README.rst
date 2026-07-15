@@ -12,6 +12,11 @@ iedera
 constrained spaced seeds*, or more generally *subset seeds*, and
 *vectorized subset seed* patterns.
 
+Run online
+----------
+
+You can now run ``iedera`` in a WebAssembly console at <https://bioinfo.univ-lille.fr/yass/iedera_wasm/>
+
 
 Installation
 ------------
